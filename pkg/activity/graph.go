@@ -7,72 +7,64 @@ import (
 	"strings"
 )
 
-// Grapher defines the interface for how we will construct our chart.
-type Grapher interface {
-	Activities() []Activity                                          // Activities returns all activities in the graph.
-	ActivityAdd(activity Activity) (Grapher, error)                  // ActivityAdd adds an Activity to our chart.
-	ActivityClone(id string) (Grapher, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
-	ActivityInsertAfter(before string) (Grapher, error)              // ActivityInsertAfter inserts an Activity after the referenced ID and reflows Dependencies.
-	ActivityInsertBefore(after string) (Grapher, error)              // ActivityInsertBefore inserts an Activity before the referenced ID and reflows Dependencies
-	ActivityPatch(id string, attrs map[string]any) (Grapher, error)  // ActivityPatch updates the given Activity with the provided attributes.
-	ActivityReplace(activity Activity) (Grapher, error)              // ActivityReplace replaces the given Activity in our chart.
-	ActivityRemove(id string) (Grapher, error)                       // ActivityRemove removes an Activity and its inbound and outbound Dependency entities from the chart.
-	Dependencies() []Dependency                                      // Dependencies returns all dependencies in the graph.
-	DependencyAdd(firstId string, nextId string) (Grapher, error)    // DependencyAdd adds a Dependency between two Activity.
-	DependencyRemove(firstId string, nextId string) (Grapher, error) // DependencyRemove clears a Dependency between two Activity.
-	DependencySplit(firstId string, nextId string) (Grapher, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
+// Graph defines the interface for how we will construct our chart.
+type Graph interface {
+	Activities() []Activity                                        // Activities returns all activities in the graph.
+	ActivityAdd(activity Activity) (Graph, error)                  // ActivityAdd adds an Activity to our chart.
+	ActivityClone(id string) (Graph, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
+	ActivityInsertAfter(before string) (Graph, error)              // ActivityInsertAfter inserts an Activity after the referenced ID and reflows Dependencies.
+	ActivityInsertBefore(after string) (Graph, error)              // ActivityInsertBefore inserts an Activity before the referenced ID and reflows Dependencies
+	ActivityPatch(id string, attrs map[string]any) (Graph, error)  // ActivityPatch updates the given Activity with the provided attributes.
+	ActivityReplace(activity Activity) (Graph, error)              // ActivityReplace replaces the given Activity in our chart.
+	ActivityRemove(id string) (Graph, error)                       // ActivityRemove removes an Activity and its inbound and outbound Dependency entities from the chart.
+	Dependencies() []Dependency                                    // Dependencies returns all dependencies in the graph.
+	DependencyAdd(firstId string, nextId string) (Graph, error)    // DependencyAdd adds a Dependency between two Activity.
+	DependencyRemove(firstId string, nextId string) (Graph, error) // DependencyRemove clears a Dependency between two Activity.
+	DependencySplit(firstId string, nextId string) (Graph, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
 }
 
 // InMemoryGraph stores the Activity and Dependency entities in local memory.
 type InMemoryGraph struct {
-	Name             string                  `json:"name"`             // Name is the display name for the chart.
-	ActivityMap      map[string]Activity     `json:"activityMap"`      // ActivityMap stores Activity entities, mapped by Id.
-	DependencyFwdMap map[string][]Dependency `json:"dependencyFwdMap"` // DependencyFwdMap stores Dependency entities, indexed by Dependency.FirstId.
+	Name        string               `json:"name"`        // Name is the display name for the chart.
+	ActivityMap map[string]*Activity `json:"activityMap"` // ActivityMap stores Activity entities, mapped by Id.
 }
 
 func (i *InMemoryGraph) Activities() []Activity {
 	a := make([]Activity, len(i.ActivityMap))
 	for _, activity := range i.ActivityMap {
-		a = append(a, activity)
+		a = append(a, *activity)
 	}
 	return a
 }
 
-func (i *InMemoryGraph) ActivityAdd(activity Activity) (Grapher, error) {
+func (i *InMemoryGraph) ActivityAdd(activity Activity) (Graph, error) {
 	if err := i.validateIdNotExists(activity.Id); err != nil {
 		return i, err
 	}
-	i.ActivityMap[activity.Id] = activity
-	i.DependencyFwdMap[activity.Id] = make([]Dependency, 0) // Avoid nil error later.
+	activity.dependsOn = make(map[string]*Activity, 0)
+	i.ActivityMap[activity.Id] = &activity
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityClone(id string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 	if err := i.validateIdExists(id); err != nil {
 		return i, err
 	}
 
 	newId := i.generateNewId(id)
-	if _, err := i.activityClone(i.ActivityMap[id], newId); err != nil {
+	if _, err := i.activityClone(*i.ActivityMap[id], newId); err != nil {
 		return i, err
 	}
 
-	// Clone outbound dependencies.
-	i.DependencyFwdMap[newId] = append([]Dependency{}, i.DependencyFwdMap[id]...)
-
-	// Clone inbound dependencies.
-	for activityId, deps := range i.DependencyFwdMap {
-		for _, d := range deps {
-			if d.NextId == id {
-				i.DependencyFwdMap[activityId] = append(i.DependencyFwdMap[activityId], Dependency{activityId, newId})
-			}
-		}
+	// Clone dependencies.
+	for k, v := range i.ActivityMap[id].dependsOn {
+		i.ActivityMap[newId].dependsOn[k] = v
 	}
 
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertAfter(before string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityInsertAfter(before string) (Graph, error) {
 	if err := i.validateIdExists(before); err != nil {
 		return i, err
 	}
@@ -83,12 +75,12 @@ func (i *InMemoryGraph) ActivityInsertAfter(before string) (Grapher, error) {
 		return i, err
 	}
 
-	i.DependencyFwdMap[newId] = i.DependencyFwdMap[before]
-	i.DependencyFwdMap[before] = []Dependency{{before, newId}}
+	// Add existing to the dependsOn for the new Activity.
+	i.ActivityMap[newId].dependsOn[before] = i.ActivityMap[before]
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertBefore(after string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityInsertBefore(after string) (Graph, error) {
 	if err := i.validateIdExists(after); err != nil {
 		return i, err
 	}
@@ -99,23 +91,19 @@ func (i *InMemoryGraph) ActivityInsertBefore(after string) (Grapher, error) {
 		return i, err
 	}
 
-	i.DependencyFwdMap[newId] = []Dependency{{newId, after}}
-	// Point all inbound Dependencies to this new thing.
-	for activityId, deps := range i.DependencyFwdMap {
-		for idx, d := range deps {
-			if d.NextId == after {
-				// There should only be a single edge between, so this it's safe to keep this in the if block.
-				newDeps := deps
-				newDeps[idx] = Dependency{d.FirstId, newId}
-				i.DependencyFwdMap[activityId] = newDeps
-				break
-			}
+	// Point all inbound Dependencies from the existing Activity to this new Activity.
+	for id, p := range i.ActivityMap[after].dependsOn {
+		if p != nil {
+			i.ActivityMap[newId].dependsOn[id] = p
 		}
 	}
+	// Update the existing Activity to only rely on the new one.
+	i.ActivityMap[after].dependsOn = map[string]*Activity{newId: i.ActivityMap[newId]}
+
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher, error) {
+func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Graph, error) {
 	// Natural protection against ID mutation.
 	if err := i.validateIdExists(id); err != nil {
 		return i, err
@@ -124,85 +112,66 @@ func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher,
 	if err != nil {
 		return i, err
 	}
-	a := i.ActivityMap[id]
-	err = json.Unmarshal(j, &a)
-	// Return any errors after save, because we can still get some updates with errors.
-	i.ActivityMap[id] = a
+	err = json.Unmarshal(j, i.ActivityMap[id])
 	return i, err
 }
 
-func (i *InMemoryGraph) ActivityReplace(activity Activity) (Grapher, error) {
+func (i *InMemoryGraph) ActivityReplace(activity Activity) (Graph, error) {
 	if err := i.validateIdNotBlank(activity.Id); err != nil {
 		return i, err
 	}
-	i.ActivityMap[activity.Id] = activity
+	i.ActivityMap[activity.Id] = &activity
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityRemove(id string) (Grapher, error) {
-	if _, ok := i.ActivityMap[id]; !ok {
-		// Avoid the iteration over dependencies.
-		return i, nil
-	}
+func (i *InMemoryGraph) ActivityRemove(id string) (Graph, error) {
 	delete(i.ActivityMap, id)
-	delete(i.DependencyFwdMap, id) // Remove the DependencyFwdMap out from this Activity.
-	// Remove inbound Dependencies.
-	for activityId, deps := range i.DependencyFwdMap {
-		for idx, d := range deps {
-			if id == d.NextId {
-				i.DependencyFwdMap[activityId] = popFromSlice(deps, idx)
-				break
-			}
-		}
+	// Remove related Dependencies.
+	for _, a := range i.ActivityMap {
+		delete(a.dependsOn, id)
 	}
 	return i, nil
 }
 
 func (i *InMemoryGraph) Dependencies() []Dependency {
 	allDeps := make([]Dependency, 0)
-	for _, deps := range i.DependencyFwdMap {
-		allDeps = append(allDeps, deps...)
+	for _, a := range i.ActivityMap {
+		for _, d := range a.Predecessors() {
+			allDeps = append(allDeps, Dependency{
+				FirstId: d.Id,
+				NextId:  a.Id,
+			})
+		}
 	}
 	return allDeps
 }
 
-func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Grapher, error) {
+func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Graph, error) {
 	// No circular dependencies! A PERT chart is a DAG.
 	if err := validateIdsNotSame(firstId, nextId); err != nil {
 		return i, err
 	}
+	if err := i.validateIdExists(firstId); err != nil {
+		return i, err
+	}
+	if err := i.validateIdExists(nextId); err != nil {
+		return i, err
+	}
 
-	deps, ok := i.DependencyFwdMap[firstId] // All the Dependency outbound from the first Activity.
-	if !ok {
-		i.DependencyFwdMap[firstId] = []Dependency{{firstId, nextId}}
-		return i, nil
-	}
-	// Check for existing edge.
-	for _, d := range deps {
-		if d.NextId == nextId {
-			return i, nil
-		}
-	}
-	// Doesn't exist!
-	i.DependencyFwdMap[firstId] = append(i.DependencyFwdMap[firstId], Dependency{firstId, nextId})
+	i.ActivityMap[nextId].dependsOn[firstId] = i.ActivityMap[firstId]
+
 	return i, nil
 }
 
-func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Grapher, error) {
-	deps, ok := i.DependencyFwdMap[firstId] // All the Dependency outbound from the first Activity.
-	if !ok {
-		return i, nil
+func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Graph, error) {
+	if err := i.validateIdExists(nextId); err != nil {
+		return i, err
 	}
-	for idx, d := range deps {
-		if d.NextId == nextId {
-			i.DependencyFwdMap[firstId] = popFromSlice(deps, idx)
-			return i, nil
-		}
-	}
+	delete(i.ActivityMap[nextId].dependsOn, firstId)
 	return i, nil
 }
 
-func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Grapher, error) {
+func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Graph, error) {
 	if err := i.validateIdExists(firstId); err != nil {
 		return i, err
 	}
@@ -250,11 +219,6 @@ func (i *InMemoryGraph) generateNewId(id string) string {
 	}
 }
 
-func popFromSlice[T any](s []T, idx int) []T {
-	s[idx] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 func (i *InMemoryGraph) validateIdNotBlank(id string) error {
 	if id == "" {
 		err := errors.WithDetail(errors.New("invalid id"), "may not use a blank id")
@@ -267,7 +231,7 @@ func (i *InMemoryGraph) validateIdExists(id string) error {
 	if err := i.validateIdNotBlank(id); err != nil {
 		return err
 	}
-	if _, ok := i.ActivityMap[id]; !ok {
+	if p, ok := i.ActivityMap[id]; !ok || p == nil {
 		err := errors.WithDetail(errors.New("invalid id"), fmt.Sprintf("activity with id '%s' does not exist", id))
 		return err
 	}
@@ -278,7 +242,7 @@ func (i *InMemoryGraph) validateIdNotExists(id string) error {
 	if err := i.validateIdNotBlank(id); err != nil {
 		return err
 	}
-	if _, ok := i.ActivityMap[id]; ok {
+	if p, ok := i.ActivityMap[id]; ok && p != nil {
 		err := errors.WithDetail(errors.New("invalid id"), fmt.Sprintf("activity with id '%s' already exists", id))
 		return err
 	}
