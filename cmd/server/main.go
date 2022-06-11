@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"net/http"
 	"os"
+	"quickplan/internal/config"
+	"quickplan/internal/server"
 )
 
 func main() {
@@ -18,6 +22,10 @@ func run() error {
 	// UNIX Time is faster and smaller than most timestamps
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	log.Print("hello world")
-	return nil
+	options := config.Configure()
+
+	s := server.New(options)
+
+	log.Info().Int("port", s.Options.Port).Msg("starting server")
+	return http.ListenAndServe(fmt.Sprintf(":%d", s.Options.Port), s)
 }
