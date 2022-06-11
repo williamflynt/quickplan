@@ -219,11 +219,6 @@ func (i *InMemoryGraph) generateNewId(id string) string {
 	}
 }
 
-func popFromSlice[T any](s []T, idx int) []T {
-	s[idx] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 func (i *InMemoryGraph) validateIdNotBlank(id string) error {
 	if id == "" {
 		err := errors.WithDetail(errors.New("invalid id"), "may not use a blank id")

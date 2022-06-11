@@ -40,11 +40,109 @@ func TestActivity_Duration(t *testing.T) {
 	}
 }
 
+func TestActivity_Label(t *testing.T) {
+	type fields struct {
+		Id             string
+		Name           string
+		DurationLow    int
+		DurationLikely int
+		DurationHigh   int
+		dependsOn      map[string]*Activity
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &Activity{
+				Id:             tt.fields.Id,
+				Name:           tt.fields.Name,
+				DurationLow:    tt.fields.DurationLow,
+				DurationLikely: tt.fields.DurationLikely,
+				DurationHigh:   tt.fields.DurationHigh,
+				dependsOn:      tt.fields.dependsOn,
+			}
+			if got := a.Label(); got != tt.want {
+				t.Errorf("Label() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestActivity_Predecessors(t *testing.T) {
+	type fields struct {
+		Id             string
+		Name           string
+		DurationLow    int
+		DurationLikely int
+		DurationHigh   int
+		dependsOn      map[string]*Activity
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []Activity
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &Activity{
+				Id:             tt.fields.Id,
+				Name:           tt.fields.Name,
+				DurationLow:    tt.fields.DurationLow,
+				DurationLikely: tt.fields.DurationLikely,
+				DurationHigh:   tt.fields.DurationHigh,
+				dependsOn:      tt.fields.dependsOn,
+			}
+			if got := a.Predecessors(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Predecessors() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestActivity_Uid(t *testing.T) {
+	type fields struct {
+		Id             string
+		Name           string
+		DurationLow    int
+		DurationLikely int
+		DurationHigh   int
+		dependsOn      map[string]*Activity
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &Activity{
+				Id:             tt.fields.Id,
+				Name:           tt.fields.Name,
+				DurationLow:    tt.fields.DurationLow,
+				DurationLikely: tt.fields.DurationLikely,
+				DurationHigh:   tt.fields.DurationHigh,
+				dependsOn:      tt.fields.dependsOn,
+			}
+			if got := a.Uid(); got != tt.want {
+				t.Errorf("Uid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestInMemoryGraph_Activities(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	tests := []struct {
 		name   string
@@ -56,9 +154,8 @@ func TestInMemoryGraph_Activities(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if got := i.Activities(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Activities() = %v, want %v", got, tt.want)
@@ -69,9 +166,8 @@ func TestInMemoryGraph_Activities(t *testing.T) {
 
 func TestInMemoryGraph_ActivityAdd(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		activity Activity
@@ -88,9 +184,8 @@ func TestInMemoryGraph_ActivityAdd(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityAdd(tt.args.activity)
 			if (err != nil) != tt.wantErr {
@@ -106,9 +201,8 @@ func TestInMemoryGraph_ActivityAdd(t *testing.T) {
 
 func TestInMemoryGraph_ActivityClone(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -125,9 +219,8 @@ func TestInMemoryGraph_ActivityClone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityClone(tt.args.id)
 			if (err != nil) != tt.wantErr {
@@ -143,9 +236,8 @@ func TestInMemoryGraph_ActivityClone(t *testing.T) {
 
 func TestInMemoryGraph_ActivityInsertAfter(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		before string
@@ -162,9 +254,8 @@ func TestInMemoryGraph_ActivityInsertAfter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityInsertAfter(tt.args.before)
 			if (err != nil) != tt.wantErr {
@@ -180,9 +271,8 @@ func TestInMemoryGraph_ActivityInsertAfter(t *testing.T) {
 
 func TestInMemoryGraph_ActivityInsertBefore(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		after string
@@ -199,9 +289,8 @@ func TestInMemoryGraph_ActivityInsertBefore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityInsertBefore(tt.args.after)
 			if (err != nil) != tt.wantErr {
@@ -217,9 +306,8 @@ func TestInMemoryGraph_ActivityInsertBefore(t *testing.T) {
 
 func TestInMemoryGraph_ActivityPatch(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id    string
@@ -237,9 +325,8 @@ func TestInMemoryGraph_ActivityPatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityPatch(tt.args.id, tt.args.attrs)
 			if (err != nil) != tt.wantErr {
@@ -255,9 +342,8 @@ func TestInMemoryGraph_ActivityPatch(t *testing.T) {
 
 func TestInMemoryGraph_ActivityRemove(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -274,9 +360,8 @@ func TestInMemoryGraph_ActivityRemove(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityRemove(tt.args.id)
 			if (err != nil) != tt.wantErr {
@@ -292,9 +377,8 @@ func TestInMemoryGraph_ActivityRemove(t *testing.T) {
 
 func TestInMemoryGraph_ActivityReplace(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		activity Activity
@@ -311,9 +395,8 @@ func TestInMemoryGraph_ActivityReplace(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.ActivityReplace(tt.args.activity)
 			if (err != nil) != tt.wantErr {
@@ -329,9 +412,8 @@ func TestInMemoryGraph_ActivityReplace(t *testing.T) {
 
 func TestInMemoryGraph_Dependencies(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	tests := []struct {
 		name   string
@@ -343,9 +425,8 @@ func TestInMemoryGraph_Dependencies(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if got := i.Dependencies(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Dependencies() = %v, want %v", got, tt.want)
@@ -356,9 +437,8 @@ func TestInMemoryGraph_Dependencies(t *testing.T) {
 
 func TestInMemoryGraph_DependencyAdd(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		firstId string
@@ -376,9 +456,8 @@ func TestInMemoryGraph_DependencyAdd(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.DependencyAdd(tt.args.firstId, tt.args.nextId)
 			if (err != nil) != tt.wantErr {
@@ -394,9 +473,8 @@ func TestInMemoryGraph_DependencyAdd(t *testing.T) {
 
 func TestInMemoryGraph_DependencyRemove(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		firstId string
@@ -414,9 +492,8 @@ func TestInMemoryGraph_DependencyRemove(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.DependencyRemove(tt.args.firstId, tt.args.nextId)
 			if (err != nil) != tt.wantErr {
@@ -432,9 +509,8 @@ func TestInMemoryGraph_DependencyRemove(t *testing.T) {
 
 func TestInMemoryGraph_DependencySplit(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		firstId string
@@ -452,9 +528,8 @@ func TestInMemoryGraph_DependencySplit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.DependencySplit(tt.args.firstId, tt.args.nextId)
 			if (err != nil) != tt.wantErr {
@@ -470,9 +545,8 @@ func TestInMemoryGraph_DependencySplit(t *testing.T) {
 
 func TestInMemoryGraph_activityClone(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		a     Activity
@@ -490,9 +564,8 @@ func TestInMemoryGraph_activityClone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			got, err := i.activityClone(tt.args.a, tt.args.newId)
 			if (err != nil) != tt.wantErr {
@@ -508,9 +581,8 @@ func TestInMemoryGraph_activityClone(t *testing.T) {
 
 func TestInMemoryGraph_generateNewId(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -526,9 +598,8 @@ func TestInMemoryGraph_generateNewId(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if got := i.generateNewId(tt.args.id); got != tt.want {
 				t.Errorf("generateNewId() = %v, want %v", got, tt.want)
@@ -539,9 +610,8 @@ func TestInMemoryGraph_generateNewId(t *testing.T) {
 
 func TestInMemoryGraph_validateIdExists(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -557,9 +627,8 @@ func TestInMemoryGraph_validateIdExists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if err := i.validateIdExists(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("validateIdExists() error = %v, wantErr %v", err, tt.wantErr)
@@ -570,9 +639,8 @@ func TestInMemoryGraph_validateIdExists(t *testing.T) {
 
 func TestInMemoryGraph_validateIdNotBlank(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -588,9 +656,8 @@ func TestInMemoryGraph_validateIdNotBlank(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if err := i.validateIdNotBlank(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("validateIdNotBlank() error = %v, wantErr %v", err, tt.wantErr)
@@ -601,9 +668,8 @@ func TestInMemoryGraph_validateIdNotBlank(t *testing.T) {
 
 func TestInMemoryGraph_validateIdNotExists(t *testing.T) {
 	type fields struct {
-		Name             string
-		ActivityMap      map[string]Activity
-		DependencyFwdMap map[string][]Dependency
+		Name        string
+		ActivityMap map[string]*Activity
 	}
 	type args struct {
 		id string
@@ -619,9 +685,8 @@ func TestInMemoryGraph_validateIdNotExists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			i := &InMemoryGraph{
-				Name:             tt.fields.Name,
-				ActivityMap:      tt.fields.ActivityMap,
-				DependencyFwdMap: tt.fields.DependencyFwdMap,
+				Name:        tt.fields.Name,
+				ActivityMap: tt.fields.ActivityMap,
 			}
 			if err := i.validateIdNotExists(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("validateIdNotExists() error = %v, wantErr %v", err, tt.wantErr)
@@ -630,28 +695,22 @@ func TestInMemoryGraph_validateIdNotExists(t *testing.T) {
 	}
 }
 
-func Test_popFromSlice(t *testing.T) {
+func Test_validateIdsNotSame(t *testing.T) {
 	type args struct {
-		s   []int
-		idx int
+		a string
+		b string
 	}
 	tests := []struct {
-		name string
-		args args
-		want []int
-	}{{
-		name: "pops correctly",
-		args: args{
-			s:   []int{1, 2, 3, 4},
-			idx: 1,
-		},
-		want: []int{1, 3, 4},
-	}}
-
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := popFromSlice(tt.args.s, tt.args.idx); len(got) != len(tt.want) {
-				t.Errorf("popFromSlice() = %v, want %v", got, tt.want)
+			if err := validateIdsNotSame(tt.args.a, tt.args.b); (err != nil) != tt.wantErr {
+				t.Errorf("validateIdsNotSame() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

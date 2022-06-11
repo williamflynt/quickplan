@@ -63,7 +63,8 @@ func Calculate(tasks []Task) (chart Chart, err error) {
 		calculateStartFinish(n)
 	}
 
-	return chart, nil
+	err = chart.findCriticalPath()
+	return chart, err
 }
 
 func (c *Chart) buildNodesArrows(tasks []Task) []*Node {
