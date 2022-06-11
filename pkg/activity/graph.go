@@ -15,3 +15,28 @@ type InMemoryGraph struct {
 	Activities   map[string]Activity   `json:"activities"`   // Activities stores Activity entities.
 	Dependencies map[string]Dependency `json:"dependencies"` // Dependencies stores Dependency entities.
 }
+
+func (i *InMemoryGraph) ActivityAdd(activity Activity) (Grapher, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *InMemoryGraph) ActivityExplode(id string) (Grapher, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *InMemoryGraph) ActivityRemove(id string) (Grapher, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Grapher, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Grapher, error) {
+	//TODO implement me
+	panic("implement me")
+}
