@@ -39,6 +39,7 @@ func (s *Server) routes() chi.Router {
 				// REST endpoints for graph output.
 				r.Route("/graph", func(r chi.Router) {
 					r.Get("/", s.healthcheckHandlerFunc)
+					r.Get("/example", s.healthcheckHandlerFunc)
 				})
 			})
 		})
