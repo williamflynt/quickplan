@@ -31,7 +31,7 @@ func FuzzServerHealthcheckHandlerFunc(f *testing.F) {
 		defer func(Body io.ReadCloser) {
 			err := Body.Close()
 			if err != nil {
-
+				t.Log("error reading body")
 			}
 		}(res.Body)
 		data, err := ioutil.ReadAll(res.Body)
