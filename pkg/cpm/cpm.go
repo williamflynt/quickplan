@@ -1,6 +1,7 @@
 package cpm
 
 import (
+	"fmt"
 	"github.com/cockroachdb/errors"
 	"sync"
 )
@@ -39,6 +40,7 @@ func (n *Node) DependsOn(nn *Node) {
 }
 
 type Arrow struct {
+	Id           string `json:"id"`
 	From         string `json:"from"`
 	To           string `json:"to"`
 	CriticalPath bool   `json:"criticalPath"`
@@ -96,7 +98,8 @@ func (c *Chart) buildNodesArrows(tasks []Task) []*Node {
 	arrows := make([]Arrow, len(arrowIds))
 	for k, v := range arrowIds {
 		// Set critical path boolean later.
-		arrows = append(arrows, Arrow{k, v, false})
+		id := fmt.Sprintf(`%s->%s`, k, v)
+		arrows = append(arrows, Arrow{id, k, v, false})
 	}
 	c.Arrows = arrows
 
@@ -122,41 +125,31 @@ func (c *Chart) findCriticalPath() error {
 		return errors.New("cycle detected - no ends found")
 	}
 
-	criticalPath := make(map[string][]Arrow, 0)
+	criticalPath := make(map[string]struct{}, 0)
 	for _, n := range ends {
 		criticalPath = addToCriticalPath(n, criticalPath)
 	}
 	for i, existing := range c.Arrows {
-		if aSlice, ok := criticalPath[existing.From]; ok {
+		if _, ok := criticalPath[existing.Id]; ok {
 			// This arrow might be in the critical path. Let's check.
-			for _, a := range aSlice {
-				if a.To == existing.To {
-					c.Arrows[i].CriticalPath = true
-				}
-			}
+			c.Arrows[i].CriticalPath = true
 		}
 	}
 
 	return nil
 }
 
-func addToCriticalPath(node *Node, arrows map[string][]Arrow) map[string][]Arrow {
+func addToCriticalPath(node *Node, arrowIds map[string]struct{}) map[string]struct{} {
 	if len(node.dependsOn) == 0 {
-		return arrows
+		return arrowIds
 	}
 	latest := findLatestNodes(node.dependsOn)
-	if _, ok := arrows[node.Id]; !ok {
-		arrows[node.Id] = make([]Arrow, len(latest))
-	}
 	for _, n := range latest {
-		arrows[node.Id] = append(arrows[node.Id], Arrow{
-			From:         n.Id,
-			To:           node.Id,
-			CriticalPath: true,
-		})
-		addToCriticalPath(n, arrows)
+		id := fmt.Sprintf(`%s->%s`, n.Id, node.Id)
+		arrowIds[id] = struct{}{}
+		addToCriticalPath(n, arrowIds)
 	}
-	return arrows
+	return arrowIds
 }
 
 func calculateStartFinish(n *Node) {
