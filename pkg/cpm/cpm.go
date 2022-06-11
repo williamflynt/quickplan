@@ -204,7 +204,7 @@ func (c *Chart) calculateLateStartFinish(n *Node) {
 		if lookBack.lateCalcComplete {
 			return
 		}
-		lookBack.LatestFinish = maxFin - 1
+		lookBack.LatestFinish = maxFin
 		lookBack.LatestStart = lookBack.LatestFinish - lookBack.Duration
 		c.calculateLateStartFinish(lookBack)
 	}

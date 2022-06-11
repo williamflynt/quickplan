@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
 	"quickplan/pkg/cpm"
@@ -29,25 +30,31 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 
 	// Map of our Node.Id to the graphviz Node.
 	graphNodes := make(map[string]*cgraph.Node)
-	for _, n := range c.Nodes {
-		gn, err := graph.CreateNode(n.Id)
+	for i := range c.Nodes {
+		gn, err := graph.CreateNode(c.Nodes[i].Id)
 		if err != nil {
 			return "", err
 		}
-		gn = gn.SetLabel(n.Label)
-		graphNodes[n.Id] = gn
+		timeData := fmt.Sprintf(
+			`%.1f|%.1f @ %.1f`,
+			c.Nodes[i].EarliestFinish,
+			c.Nodes[i].LatestFinish,
+			c.Nodes[i].Slack,
+		)
+		gn = gn.SetLabel(c.Nodes[i].Label).SetXLabel(timeData)
+		graphNodes[c.Nodes[i].Id] = gn
 	}
 
-	for _, a := range c.Arrows {
+	for i := range c.Arrows {
 		e, err := graph.CreateEdge(
-			a.Id,
-			graphNodes[a.From],
-			graphNodes[a.To],
+			c.Arrows[i].Id,
+			graphNodes[c.Arrows[i].From],
+			graphNodes[c.Arrows[i].To],
 		)
 		if err != nil {
 			return "", err
 		}
-		if a.CriticalPath {
+		if c.Arrows[i].CriticalPath {
 			e.SetColor("red")
 		}
 	}

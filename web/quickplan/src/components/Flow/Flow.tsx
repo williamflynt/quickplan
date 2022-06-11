@@ -9,30 +9,7 @@ import ReactFlow, {
     ReactFlowProvider
 } from 'react-flow-renderer';
 import axios from "axios";
-
-type ChartNode = {
-    id: string,
-    duration: number,
-    label: string,
-    earliestStart: number,
-    earliestFinish: number,
-    latestStart: number,
-    latestFinish: number,
-    slack: number,
-}
-
-type ChartArrow = {
-    id: string
-    from: string
-    to: string
-    criticalPath: boolean
-}
-
-type Chart = {
-    nodes: ChartNode[]
-    arrows: ChartArrow[]
-    Title: string
-}
+import {ChartExample} from "../../api/types";
 
 type FlowProps = {
     nodes?: Node[],
@@ -44,7 +21,7 @@ export const Flow: FC<FlowProps> = ({nodes, edges}) => {
     const [newEdges, edgesSet] = useState<undefined | Edge[]>(undefined)
 
     useEffect(() => {
-        axios.get<Chart>("http://localhost:3535/api/v1/graph/example")
+        axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
             .then((response) => {
                     let x = 0
                     let y = 0

@@ -1,11 +1,12 @@
 package examples
 
 import (
+	"quickplan/internal/render"
 	"quickplan/pkg/activity"
 	"quickplan/pkg/cpm"
 )
 
-func Basic() *cpm.Chart {
+func Basic() (*cpm.Chart, string) {
 	g := activity.NewInMemoryGraph("Basic Example")
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "START",
@@ -38,9 +39,9 @@ func Basic() *cpm.Chart {
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "D",
 		Name:           "Activity D",
-		DurationLow:    3,
-		DurationLikely: 3,
-		DurationHigh:   4,
+		DurationLow:    2,
+		DurationLikely: 2,
+		DurationHigh:   3,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "E",
@@ -72,5 +73,9 @@ func Basic() *cpm.Chart {
 		aPtrs = append(aPtrs, &activities[i])
 	}
 	c, _ := cpm.Calculate(aPtrs)
-	return &c
+
+	graphviz := render.NewGraphviz()
+	dot, _ := graphviz.Render(&c)
+
+	return &c, dot
 }
