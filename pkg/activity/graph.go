@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"strings"
@@ -13,6 +14,7 @@ type Grapher interface {
 	ActivityClone(id string) (Grapher, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
 	ActivityInsertAfter(before string) (Grapher, error)              // ActivityInsertAfter inserts an Activity after the referenced ID and reflows Dependencies.
 	ActivityInsertBefore(after string) (Grapher, error)              // ActivityInsertBefore inserts an Activity before the referenced ID and reflows Dependencies
+	ActivityPatch(id string, attrs map[string]any) (Grapher, error)  // ActivityPatch updates the given Activity with the provided attributes.
 	ActivityReplace(activity Activity) (Grapher, error)              // ActivityReplace replaces the given Activity in our chart.
 	ActivityRemove(id string) (Grapher, error)                       // ActivityRemove removes an Activity and its inbound and outbound Dependency entities from the chart.
 	Dependencies() []Dependency                                      // Dependencies returns all dependencies in the graph.
@@ -115,6 +117,22 @@ func (i *InMemoryGraph) ActivityInsertBefore(after string) (Grapher, error) {
 		}
 	}
 	return i, nil
+}
+
+func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher, error) {
+	// Natural protection against ID mutation.
+	if err := i.validateIdExists(id); err != nil {
+		return i, err
+	}
+	j, err := json.Marshal(attrs)
+	if err != nil {
+		return i, err
+	}
+	a, _ := i.ActivityMap[id]
+	err = json.Unmarshal(j, &a)
+	// Return any errors after save, because we can still get some updates with errors.
+	i.ActivityMap[id] = a
+	return i, err
 }
 
 func (i *InMemoryGraph) ActivityReplace(activity Activity) (Grapher, error) {
