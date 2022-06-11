@@ -80,7 +80,7 @@ func TestInMemoryGraph_ActivityAdd(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -117,7 +117,7 @@ func TestInMemoryGraph_ActivityClone(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -154,7 +154,7 @@ func TestInMemoryGraph_ActivityInsertAfter(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -191,7 +191,7 @@ func TestInMemoryGraph_ActivityInsertBefore(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -229,7 +229,7 @@ func TestInMemoryGraph_ActivityPatch(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -266,7 +266,7 @@ func TestInMemoryGraph_ActivityRemove(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -303,7 +303,7 @@ func TestInMemoryGraph_ActivityReplace(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -368,7 +368,7 @@ func TestInMemoryGraph_DependencyAdd(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -406,7 +406,7 @@ func TestInMemoryGraph_DependencyRemove(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -444,7 +444,7 @@ func TestInMemoryGraph_DependencySplit(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    Grapher
+		want    Graph
 		wantErr bool
 	}{
 		// TODO: Add test cases.

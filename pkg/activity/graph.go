@@ -7,20 +7,20 @@ import (
 	"strings"
 )
 
-// Grapher defines the interface for how we will construct our chart.
-type Grapher interface {
-	Activities() []Activity                                          // Activities returns all activities in the graph.
-	ActivityAdd(activity Activity) (Grapher, error)                  // ActivityAdd adds an Activity to our chart.
-	ActivityClone(id string) (Grapher, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
-	ActivityInsertAfter(before string) (Grapher, error)              // ActivityInsertAfter inserts an Activity after the referenced ID and reflows Dependencies.
-	ActivityInsertBefore(after string) (Grapher, error)              // ActivityInsertBefore inserts an Activity before the referenced ID and reflows Dependencies
-	ActivityPatch(id string, attrs map[string]any) (Grapher, error)  // ActivityPatch updates the given Activity with the provided attributes.
-	ActivityReplace(activity Activity) (Grapher, error)              // ActivityReplace replaces the given Activity in our chart.
-	ActivityRemove(id string) (Grapher, error)                       // ActivityRemove removes an Activity and its inbound and outbound Dependency entities from the chart.
-	Dependencies() []Dependency                                      // Dependencies returns all dependencies in the graph.
-	DependencyAdd(firstId string, nextId string) (Grapher, error)    // DependencyAdd adds a Dependency between two Activity.
-	DependencyRemove(firstId string, nextId string) (Grapher, error) // DependencyRemove clears a Dependency between two Activity.
-	DependencySplit(firstId string, nextId string) (Grapher, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
+// Graph defines the interface for how we will construct our chart.
+type Graph interface {
+	Activities() []Activity                                        // Activities returns all activities in the graph.
+	ActivityAdd(activity Activity) (Graph, error)                  // ActivityAdd adds an Activity to our chart.
+	ActivityClone(id string) (Graph, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
+	ActivityInsertAfter(before string) (Graph, error)              // ActivityInsertAfter inserts an Activity after the referenced ID and reflows Dependencies.
+	ActivityInsertBefore(after string) (Graph, error)              // ActivityInsertBefore inserts an Activity before the referenced ID and reflows Dependencies
+	ActivityPatch(id string, attrs map[string]any) (Graph, error)  // ActivityPatch updates the given Activity with the provided attributes.
+	ActivityReplace(activity Activity) (Graph, error)              // ActivityReplace replaces the given Activity in our chart.
+	ActivityRemove(id string) (Graph, error)                       // ActivityRemove removes an Activity and its inbound and outbound Dependency entities from the chart.
+	Dependencies() []Dependency                                    // Dependencies returns all dependencies in the graph.
+	DependencyAdd(firstId string, nextId string) (Graph, error)    // DependencyAdd adds a Dependency between two Activity.
+	DependencyRemove(firstId string, nextId string) (Graph, error) // DependencyRemove clears a Dependency between two Activity.
+	DependencySplit(firstId string, nextId string) (Graph, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
 }
 
 // InMemoryGraph stores the Activity and Dependency entities in local memory.
@@ -38,7 +38,7 @@ func (i *InMemoryGraph) Activities() []Activity {
 	return a
 }
 
-func (i *InMemoryGraph) ActivityAdd(activity Activity) (Grapher, error) {
+func (i *InMemoryGraph) ActivityAdd(activity Activity) (Graph, error) {
 	if err := i.validateIdNotExists(activity.Id); err != nil {
 		return i, err
 	}
@@ -47,7 +47,7 @@ func (i *InMemoryGraph) ActivityAdd(activity Activity) (Grapher, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityClone(id string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 	if err := i.validateIdExists(id); err != nil {
 		return i, err
 	}
@@ -72,7 +72,7 @@ func (i *InMemoryGraph) ActivityClone(id string) (Grapher, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertAfter(before string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityInsertAfter(before string) (Graph, error) {
 	if err := i.validateIdExists(before); err != nil {
 		return i, err
 	}
@@ -88,7 +88,7 @@ func (i *InMemoryGraph) ActivityInsertAfter(before string) (Grapher, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertBefore(after string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityInsertBefore(after string) (Graph, error) {
 	if err := i.validateIdExists(after); err != nil {
 		return i, err
 	}
@@ -115,7 +115,7 @@ func (i *InMemoryGraph) ActivityInsertBefore(after string) (Grapher, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher, error) {
+func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Graph, error) {
 	// Natural protection against ID mutation.
 	if err := i.validateIdExists(id); err != nil {
 		return i, err
@@ -131,7 +131,7 @@ func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher,
 	return i, err
 }
 
-func (i *InMemoryGraph) ActivityReplace(activity Activity) (Grapher, error) {
+func (i *InMemoryGraph) ActivityReplace(activity Activity) (Graph, error) {
 	if err := i.validateIdNotBlank(activity.Id); err != nil {
 		return i, err
 	}
@@ -139,7 +139,7 @@ func (i *InMemoryGraph) ActivityReplace(activity Activity) (Grapher, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityRemove(id string) (Grapher, error) {
+func (i *InMemoryGraph) ActivityRemove(id string) (Graph, error) {
 	if _, ok := i.ActivityMap[id]; !ok {
 		// Avoid the iteration over dependencies.
 		return i, nil
@@ -166,7 +166,7 @@ func (i *InMemoryGraph) Dependencies() []Dependency {
 	return allDeps
 }
 
-func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Grapher, error) {
+func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Graph, error) {
 	// No circular dependencies! A PERT chart is a DAG.
 	if err := validateIdsNotSame(firstId, nextId); err != nil {
 		return i, err
@@ -188,7 +188,7 @@ func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Grapher, e
 	return i, nil
 }
 
-func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Grapher, error) {
+func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Graph, error) {
 	deps, ok := i.DependencyFwdMap[firstId] // All the Dependency outbound from the first Activity.
 	if !ok {
 		return i, nil
@@ -202,7 +202,7 @@ func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Grapher
 	return i, nil
 }
 
-func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Grapher, error) {
+func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Graph, error) {
 	if err := i.validateIdExists(firstId); err != nil {
 		return i, err
 	}
