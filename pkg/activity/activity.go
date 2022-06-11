@@ -1,5 +1,7 @@
 package activity
 
+import "math"
+
 // Activity represents a discrete work item in a project.
 type Activity struct {
 	Id             string `json:"id"`             // Id is the unique Activity ID. It may not have semantic meaning.
@@ -10,8 +12,10 @@ type Activity struct {
 }
 
 // Duration calculates the estimated duration for an Activity.
-func (a Activity) Duration() float32 {
-	return float32(a.DurationLow+(a.DurationLikely*4)+a.DurationHigh) / 6
+func (a Activity) Duration() float64 {
+	ans := float64(a.DurationLow+(a.DurationLikely*4)+a.DurationHigh) / 6
+	// Round to nearest tenth.
+	return math.Round(ans/0.1) * 0.1
 }
 
 // Dependency is an edge between two Activity the represents a dependent relationship.
