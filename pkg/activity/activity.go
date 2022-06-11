@@ -31,7 +31,7 @@ func (a *Activity) Label() string {
 }
 
 func (a *Activity) Predecessors() []string {
-	ado := make([]string, len(a.dependsOn))
+	ado := make([]string, 0)
 	for _, v := range a.dependsOn {
 		if v != nil {
 			ado = append(ado, v.Id)

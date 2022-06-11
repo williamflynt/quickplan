@@ -43,6 +43,13 @@ func Basic() *cpm.Chart {
 		DurationHigh:   4,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
+		Id:             "E",
+		Name:           "Activity E",
+		DurationLow:    3,
+		DurationLikely: 3,
+		DurationHigh:   4,
+	})
+	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "END",
 		Name:           "End",
 		DurationLow:    0,
@@ -50,10 +57,19 @@ func Basic() *cpm.Chart {
 		DurationHigh:   0,
 	})
 
+	_, _ = g.DependencyAdd("START", "A")
+	_, _ = g.DependencyAdd("START", "B")
+	_, _ = g.DependencyAdd("A", "C")
+	_, _ = g.DependencyAdd("C", "D")
+	_, _ = g.DependencyAdd("B", "D")
+	_, _ = g.DependencyAdd("B", "E")
+	_, _ = g.DependencyAdd("D", "END")
+	_, _ = g.DependencyAdd("E", "END")
+
 	activities := g.Activities()
-	aPtrs := make([]cpm.Task, len(activities))
-	for _, a := range activities {
-		aPtrs = append(aPtrs, &a)
+	aPtrs := make([]cpm.Task, 0)
+	for i := range activities {
+		aPtrs = append(aPtrs, &activities[i])
 	}
 	c, _ := cpm.Calculate(aPtrs)
 	return &c

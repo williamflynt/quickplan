@@ -37,9 +37,11 @@ func NewInMemoryGraph(title string) InMemoryGraph {
 }
 
 func (i *InMemoryGraph) Activities() []Activity {
-	a := make([]Activity, len(i.ActivityMap))
-	for _, activity := range i.ActivityMap {
-		a = append(a, *activity)
+	a := make([]Activity, 0)
+	for idx, activity := range i.ActivityMap {
+		if activity != nil {
+			a = append(a, *i.ActivityMap[idx])
+		}
 	}
 	return a
 }

@@ -1,4 +1,4 @@
-import React, {FC} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 import ReactFlow, {
     Background,
     BackgroundVariant,
@@ -8,6 +8,31 @@ import ReactFlow, {
     Node,
     ReactFlowProvider
 } from 'react-flow-renderer';
+import axios from "axios";
+
+type ChartNode = {
+    id: string,
+    duration: number,
+    label: string,
+    earliestStart: number,
+    earliestFinish: number,
+    latestStart: number,
+    latestFinish: number,
+    slack: number,
+}
+
+type ChartArrow = {
+    id: string
+    from: string
+    to: string
+    criticalPath: boolean
+}
+
+type Chart = {
+    nodes: ChartNode[]
+    arrows: ChartArrow[]
+    Title: string
+}
 
 type FlowProps = {
     nodes?: Node[],
@@ -15,6 +40,28 @@ type FlowProps = {
 }
 
 export const Flow: FC<FlowProps> = ({nodes, edges}) => {
+    const [newNodes, nodesSet] = useState<undefined | Node[]>(undefined)
+    const [newEdges, edgesSet] = useState<undefined | Edge[]>(undefined)
+
+    useEffect(() => {
+        axios.get<Chart>("http://localhost:3535/api/v1/graph/example")
+            .then((response) => {
+                    let x = 0
+                    let y = 0
+                    const n = response.data.nodes.map((n) => {
+                        x += 100
+                        y += 50
+                        return {id: n.id, data: {label: n.label}, position: {x: x, y: y}}
+                    })
+                    const e = response.data.arrows.map((a) => {
+                        return {id: a.id, source: a.from, target: a.to}
+                    })
+                    nodesSet(n)
+                    edgesSet(e)
+                }
+            )
+    }, [])
+
     if (nodes === undefined && edges === undefined) {
         nodes = [
             {
@@ -43,11 +90,15 @@ export const Flow: FC<FlowProps> = ({nodes, edges}) => {
             {id: 'e2-3', source: '2', target: '3', animated: true},
         ];
     }
+
+    const n = newNodes || nodes
+    const e = newEdges || edges
+    console.log({n, e})
     return (
         <ReactFlowProvider>
             <Background variant={BackgroundVariant.Lines}/>
 
-            <ReactFlow defaultNodes={nodes} defaultEdges={edges} style={{height:750}}>
+            <ReactFlow defaultNodes={n} defaultEdges={e} style={{height: 750}}>
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>
