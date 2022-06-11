@@ -1,5 +1,7 @@
 .DS_Store
 
+node_modules
+
 # Ignore IDE folders.
 .idea
 .vscode
