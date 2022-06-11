@@ -12,6 +12,7 @@ type Activity struct {
 
 // Dependency is an edge between two Activity the represents a dependent relationship.
 type Dependency struct {
+	Id      string `json:"id"`      // Id is the unique Dependency ID.
 	FirstId string `json:"firstId"` // FirstId is the ID of the first Activity (the dependency).
 	NextId  string `json:"nextId"`  // NextId is the ID of the downstream activity (depends on first).
 }
