@@ -8,10 +8,10 @@ import (
 
 // Task is a unit of work in a project.
 type Task interface {
-	Uid() string          // Uid is the unique ID for this Task.
-	Duration() float64    // Duration is the estimated duration for a Task.
-	Label() string        // Label is the human-friendly label for Task.
-	Predecessors() []Task // Predecessors is the Uid listing of previous Task items.
+	Uid() string            // Uid is the unique ID for this Task.
+	Duration() float64      // Duration is the estimated duration for a Task.
+	Label() string          // Label is the human-friendly label for Task.
+	Predecessors() []string // Predecessors is the Uid listing of previous Task items.
 }
 
 type Node struct {
@@ -81,7 +81,7 @@ func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 	for _, t := range tasks {
 		nt := nodes[t.Uid()]
 		for _, p := range t.Predecessors() {
-			np := nodes[p.Uid()]
+			np := nodes[p]
 			// Get this Task's Node, then add its Predecessors to `dependsOn`.
 			nt.dependsOn = append(nt.dependsOn, np)
 			// Also add this Task to the Predecessor's requiredBy.
