@@ -2,7 +2,7 @@ name: Run Tests
 
 on:
   pull_request:
-    types: [opened, reopened, edited]
+    types: [opened, reopened, edited, synchronize]
   workflow_call:
 
 concurrency:
