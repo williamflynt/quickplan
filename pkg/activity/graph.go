@@ -58,11 +58,7 @@ func (i *InMemoryGraph) ActivityClone(id string) (Grapher, error) {
 	}
 
 	// Clone outbound dependencies.
-	cloneOutDeps := make([]Dependency, len(i.DependencyFwdMap[id]))
-	for _, d := range i.DependencyFwdMap[id] {
-		cloneOutDeps = append(cloneOutDeps, d)
-	}
-	i.DependencyFwdMap[newId] = cloneOutDeps
+	i.DependencyFwdMap[newId] = append([]Dependency{}, i.DependencyFwdMap[id]...)
 
 	// Clone inbound dependencies.
 	for activityId, deps := range i.DependencyFwdMap {
@@ -128,7 +124,7 @@ func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Grapher,
 	if err != nil {
 		return i, err
 	}
-	a, _ := i.ActivityMap[id]
+	a := i.ActivityMap[id]
 	err = json.Unmarshal(j, &a)
 	// Return any errors after save, because we can still get some updates with errors.
 	i.ActivityMap[id] = a
@@ -165,9 +161,7 @@ func (i *InMemoryGraph) ActivityRemove(id string) (Grapher, error) {
 func (i *InMemoryGraph) Dependencies() []Dependency {
 	allDeps := make([]Dependency, 0)
 	for _, deps := range i.DependencyFwdMap {
-		for _, d := range deps {
-			allDeps = append(allDeps, d)
-		}
+		allDeps = append(allDeps, deps...)
 	}
 	return allDeps
 }
