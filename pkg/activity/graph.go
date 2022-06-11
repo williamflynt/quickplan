@@ -29,10 +29,19 @@ type InMemoryGraph struct {
 	ActivityMap map[string]*Activity `json:"activityMap"` // ActivityMap stores Activity entities, mapped by Id.
 }
 
+func NewInMemoryGraph(title string) InMemoryGraph {
+	return InMemoryGraph{
+		Name:        title,
+		ActivityMap: make(map[string]*Activity),
+	}
+}
+
 func (i *InMemoryGraph) Activities() []Activity {
-	a := make([]Activity, len(i.ActivityMap))
-	for _, activity := range i.ActivityMap {
-		a = append(a, *activity)
+	a := make([]Activity, 0)
+	for idx, activity := range i.ActivityMap {
+		if activity != nil {
+			a = append(a, *i.ActivityMap[idx])
+		}
 	}
 	return a
 }
@@ -136,7 +145,7 @@ func (i *InMemoryGraph) ActivityRemove(id string) (Graph, error) {
 func (i *InMemoryGraph) Dependencies() []Dependency {
 	allDeps := make([]Dependency, 0)
 	for _, a := range i.ActivityMap {
-		for _, d := range a.Predecessors() {
+		for _, d := range a.dependsOn {
 			allDeps = append(allDeps, Dependency{
 				FirstId: d.Id,
 				NextId:  a.Id,

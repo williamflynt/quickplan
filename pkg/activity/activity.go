@@ -1,6 +1,8 @@
 package activity
 
-import "math"
+import (
+	"math"
+)
 
 // Activity represents a discrete work item in a project. It implements cpm.Task.
 type Activity struct {
@@ -28,11 +30,11 @@ func (a *Activity) Label() string {
 	return a.Name
 }
 
-func (a *Activity) Predecessors() []Activity {
-	ado := make([]Activity, len(a.dependsOn))
+func (a *Activity) Predecessors() []string {
+	ado := make([]string, 0)
 	for _, v := range a.dependsOn {
 		if v != nil {
-			ado = append(ado, *v)
+			ado = append(ado, v.Id)
 		}
 	}
 	return ado

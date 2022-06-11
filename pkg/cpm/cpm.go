@@ -8,10 +8,10 @@ import (
 
 // Task is a unit of work in a project.
 type Task interface {
-	Uid() string          // Uid is the unique ID for this Task.
-	Duration() float64    // Duration is the estimated duration for a Task.
-	Label() string        // Label is the human-friendly label for Task.
-	Predecessors() []Task // Predecessors is the Uid listing of previous Task items.
+	Uid() string            // Uid is the unique ID for this Task.
+	Duration() float64      // Duration is the estimated duration for a Task.
+	Label() string          // Label is the human-friendly label for Task.
+	Predecessors() []string // Predecessors is the Uid listing of previous Task items.
 }
 
 type Node struct {
@@ -68,10 +68,11 @@ func Calculate(tasks []Task) (chart Chart, err error) {
 func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 	// Mapping of Task ID to Node pointer.
 	nodes := make(map[string]*Node)
-	// Mapping of Task ID to Task ID.
-	arrowIds := make(map[string]string)
 
 	for _, t := range tasks {
+		if t == nil {
+			continue
+		}
 		n := nodeFromTask(t)
 		nodes[n.Id] = n
 		c.Nodes = append(c.Nodes, n)
@@ -81,12 +82,14 @@ func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 	for _, t := range tasks {
 		nt := nodes[t.Uid()]
 		for _, p := range t.Predecessors() {
-			np := nodes[p.Uid()]
+			np := nodes[p]
 			// Get this Task's Node, then add its Predecessors to `dependsOn`.
 			nt.dependsOn = append(nt.dependsOn, np)
 			// Also add this Task to the Predecessor's requiredBy.
 			np.requiredBy = append(np.requiredBy, nt)
-			arrowIds[nt.Id] = np.Id
+			// Set critical path boolean later.
+			id := fmt.Sprintf(`%s->%s`, np.Id, nt.Id)
+			c.Arrows = append(c.Arrows, Arrow{id, np.Id, nt.Id, false})
 		}
 	}
 
@@ -103,14 +106,6 @@ func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 			continue
 		}
 	}
-
-	arrows := make([]Arrow, len(arrowIds))
-	for k, v := range arrowIds {
-		// Set critical path boolean later.
-		id := fmt.Sprintf(`%s->%s`, k, v)
-		arrows = append(arrows, Arrow{id, k, v, false})
-	}
-	c.Arrows = arrows
 
 	return starts, ends
 }
@@ -155,15 +150,22 @@ func calculateEarlyStartFinish(n *Node) {
 		n.lock.Unlock()
 		return
 	}
+	// Check all dependsOn nodes are done.
+	for _, lookBack := range n.dependsOn {
+		if n.EarliestStart < lookBack.EarliestFinish {
+			if !lookBack.earlyCalcComplete {
+				n.lock.Unlock()
+				calculateEarlyStartFinish(lookBack)
+				n.lock.Lock()
+			}
+		}
+	}
 	// Find this Node's earliest start time based on the earliest finish time of upstream.
 	// This loop finds the greatest upstream finish time and uses it.
 	for _, lookBack := range n.dependsOn {
 		// If this Node's earliest start is before the upstream earliest finish, that's not possible.
 		// Run the calc for that Node (if not already done), and set this Node's earliest start time.
 		if n.EarliestStart < lookBack.EarliestFinish {
-			if !lookBack.earlyCalcComplete {
-				calculateEarlyStartFinish(lookBack)
-			}
 			n.EarliestStart = lookBack.EarliestFinish
 		}
 	}
@@ -172,8 +174,8 @@ func calculateEarlyStartFinish(n *Node) {
 	n.earlyCalcComplete = true
 	n.lock.Unlock()
 	// Recur forward through the graph.
-	for _, lookAhead := range n.requiredBy {
-		calculateEarlyStartFinish(lookAhead)
+	for i := range n.requiredBy {
+		calculateEarlyStartFinish(n.requiredBy[i])
 	}
 }
 
@@ -202,7 +204,7 @@ func (c *Chart) calculateLateStartFinish(n *Node) {
 		if lookBack.lateCalcComplete {
 			return
 		}
-		lookBack.LatestFinish = maxFin - 1
+		lookBack.LatestFinish = maxFin
 		lookBack.LatestStart = lookBack.LatestFinish - lookBack.Duration
 		c.calculateLateStartFinish(lookBack)
 	}
