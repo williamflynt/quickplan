@@ -1,9 +1,11 @@
 import React, {FC, useCallback, useEffect, useState} from 'react'
 import ReactFlow, {
+    addEdge,
     applyEdgeChanges,
     applyNodeChanges,
     Background,
     BackgroundVariant,
+    Connection,
     Controls,
     Edge,
     EdgeChange, MarkerType,
@@ -25,6 +27,10 @@ export const Flow: FC = () => {
     );
     const onEdgesChange = useCallback(
         (changes: EdgeChange[]) => edgesSet((eds) => applyEdgeChanges(changes, eds)),
+        [edgesSet]
+    );
+    const onConnect = useCallback(
+        (connection: Edge<any> | Connection) => edgesSet((eds) => addEdge(connection, eds)),
         [edgesSet]
     );
 
@@ -63,6 +69,7 @@ export const Flow: FC = () => {
                        edges={edges}
                        onNodesChange={onNodesChange}
                        onEdgesChange={onEdgesChange}
+                       onConnect={onConnect}
                        fitView
             >
                 <MiniMap/>
