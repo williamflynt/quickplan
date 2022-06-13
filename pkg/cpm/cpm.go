@@ -3,7 +3,6 @@ package cpm
 import (
 	"fmt"
 	"github.com/cockroachdb/errors"
-	"sync"
 )
 
 // Task is a unit of work in a project.
@@ -24,12 +23,12 @@ type Node struct {
 	LatestFinish   float64 `json:"latestFinish"`
 	Slack          float64 `json:"slack"`
 
-	task              Task
-	dependsOn         []*Node // dependsOn contains the Nodes that this one needs to run first.
-	requiredBy        []*Node // requiredBy contains the Nodes that require this one to run first.
-	earlyCalcComplete bool
-	lateCalcComplete  bool
-	lock              sync.Mutex
+	task         Task
+	predecessors []*Node // predecessors contains the Nodes that this one needs to run first.
+	requiredBy   []*Node // requiredBy contains the Nodes that require this one to run first.
+
+	fwdPassDone  bool // fwdPassDone indicates whether this Node has completed calcs for Earliest times.
+	backPassDone bool // backPassDone indicates whether this Node has completed calcs for Latest times.
 }
 
 type Arrow struct {
@@ -54,11 +53,11 @@ func Calculate(tasks []Task) (chart Chart, err error) {
 
 	// Forward pass.
 	for _, n := range starts {
-		calculateEarlyStartFinish(n)
+		doForwardPass(n)
 	}
 	// Backward pass.
 	for _, n := range ends {
-		chart.calculateLateStartFinish(n)
+		doBackwardPass(n, ends...)
 	}
 
 	err = chart.findCriticalPath(ends)
@@ -83,8 +82,8 @@ func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 		nt := nodes[t.Uid()]
 		for _, p := range t.Predecessors() {
 			np := nodes[p]
-			// Get this Task's Node, then add its Predecessors to `dependsOn`.
-			nt.dependsOn = append(nt.dependsOn, np)
+			// Get this Task's Node, then add its Predecessors to `predecessors`.
+			nt.predecessors = append(nt.predecessors, np)
 			// Also add this Task to the Predecessor's requiredBy.
 			np.requiredBy = append(np.requiredBy, nt)
 			// Set critical path boolean later.
@@ -96,7 +95,7 @@ func (c *Chart) buildNodesArrows(tasks []Task) (starts []*Node, ends []*Node) {
 	// Get the starter and ender Nodes.
 	for _, n := range c.Nodes {
 		// If it depends on nothing, it's a starter Node.
-		if len(n.dependsOn) == 0 {
+		if len(n.predecessors) == 0 {
 			starts = append(starts, n)
 			continue
 		}
@@ -130,10 +129,10 @@ func (c *Chart) findCriticalPath(ends []*Node) error {
 }
 
 func addToCriticalPath(node *Node, arrowIds map[string]struct{}) map[string]struct{} {
-	if len(node.dependsOn) == 0 {
+	if len(node.predecessors) == 0 {
 		return arrowIds
 	}
-	latest := findLatestNodes(node.dependsOn)
+	latest := findLatestNodes(node.predecessors)
 	for _, n := range latest {
 		id := fmt.Sprintf(`%s->%s`, n.Id, node.Id)
 		arrowIds[id] = struct{}{}
@@ -142,74 +141,93 @@ func addToCriticalPath(node *Node, arrowIds map[string]struct{}) map[string]stru
 	return arrowIds
 }
 
-// calculateEarlyStartFinish does a forward pass over the Nodes in the Chart to calculate
-// the earliest start and finish Duration - prior to finding the critical path.
-func calculateEarlyStartFinish(n *Node) {
-	n.lock.Lock()
-	if n.earlyCalcComplete {
-		n.lock.Unlock()
-		return
+// setEarlyStartFinish
+func setEarlyStartFinish(n *Node) (start float64, finish float64) {
+	if n.fwdPassDone {
+		return n.EarliestStart, n.EarliestFinish
 	}
-	// Check all dependsOn nodes are done.
-	for _, lookBack := range n.dependsOn {
-		if n.EarliestStart < lookBack.EarliestFinish {
-			if !lookBack.earlyCalcComplete {
-				n.lock.Unlock()
-				calculateEarlyStartFinish(lookBack)
-				n.lock.Lock()
+	if len(n.predecessors) == 0 {
+		// This is a starting node, and earliest start is always zero.
+		n.EarliestStart = 0
+	}
+	for i := range n.predecessors {
+		_, fin := setEarlyStartFinish(n.predecessors[i])
+		if fin > n.EarliestStart {
+			n.EarliestStart = fin
+		}
+	}
+	n.EarliestFinish = n.EarliestStart + n.Duration
+	return n.EarliestStart, n.EarliestFinish
+}
+
+// setLateStartFinish
+// This is different than setEarlyStartFinish in an important respect - when you're
+// setting early times, you only move backward. In this function, we move backward,
+// but then look ahead for value comparisons. That's why the structure is slightly
+// different between them.
+// Ensure we're calculating LS/LF for all end nodes before calling this for the rest,
+// to account for multi-end graphs!
+func setLateStartFinish(n *Node) (start float64, finish float64) {
+	if n.backPassDone {
+		return n.LatestStart, n.LatestFinish
+	}
+	if !n.fwdPassDone {
+		// Forward pass must come first!
+		doForwardPass(n)
+	}
+	for i := range n.requiredBy {
+		// We can't keep going until Nodes after this one have a LatestStart time.
+		if !n.requiredBy[i].backPassDone {
+			doBackwardPass(n.requiredBy[i])
+		}
+		s, _ := setLateStartFinish(n.requiredBy[i])
+		if i == 0 {
+			n.LatestFinish = s
+		}
+		if n.LatestFinish > s {
+			n.LatestFinish = s
+		}
+	}
+	n.LatestStart = n.LatestFinish - n.Duration
+	n.Slack = n.LatestFinish - n.EarliestFinish
+	return n.LatestStart, n.LatestFinish
+}
+
+// doBackwardPass does a backward pass over the Nodes in the Chart to calculate
+// the latest start and finish Duration.
+func doBackwardPass(n *Node, ends ...*Node) {
+	for i := range ends {
+		ends[i].LatestStart = ends[i].EarliestStart
+		ends[i].LatestFinish = ends[i].EarliestFinish
+	}
+	for i, e := range ends {
+		// Take the highest latest finish from the group and use for all ender nodes.
+		if e.LatestFinish > n.LatestFinish {
+			for j := range ends {
+				ends[j].LatestFinish = e.LatestFinish
+				ends[j].LatestStart = e.LatestFinish - ends[i].Duration
+				ends[j].Slack = e.LatestFinish - ends[i].EarliestFinish
 			}
 		}
 	}
-	// Find this Node's earliest start time based on the earliest finish time of upstream.
-	// This loop finds the greatest upstream finish time and uses it.
-	for _, lookBack := range n.dependsOn {
-		// If this Node's earliest start is before the upstream earliest finish, that's not possible.
-		// Run the calc for that Node (if not already done), and set this Node's earliest start time.
-		if n.EarliestStart < lookBack.EarliestFinish {
-			n.EarliestStart = lookBack.EarliestFinish
-		}
+	for i := range ends {
+		ends[i].backPassDone = true
 	}
-
-	n.EarliestFinish = n.EarliestStart + n.Duration
-	n.earlyCalcComplete = true
-	n.lock.Unlock()
-	// Recur forward through the graph.
-	for i := range n.requiredBy {
-		calculateEarlyStartFinish(n.requiredBy[i])
+	setLateStartFinish(n)
+	n.backPassDone = true
+	for i := range n.predecessors {
+		doBackwardPass(n.predecessors[i])
 	}
 }
 
-// calculateLateStartFinish does a backward pass over the Nodes in the Chart to calculate
-// the latest start and finish Duration.
-func (c *Chart) calculateLateStartFinish(n *Node) {
-	n.lock.Lock()
-	defer n.lock.Unlock()
-
-	if len(n.dependsOn) == 0 {
-		// This is a starter Node.
-		n.lateCalcComplete = true
-		return
+// doForwardPass does a forward pass over the Nodes in the Chart to calculate
+// the earliest start and finish Duration - prior to finding the critical path.
+func doForwardPass(n *Node) {
+	setEarlyStartFinish(n)
+	n.fwdPassDone = true
+	for i := range n.requiredBy {
+		doForwardPass(n.requiredBy[i])
 	}
-	if len(n.requiredBy) == 0 {
-		// This is an ender Node. The below is just in case we have multiple ender Nodes.
-		maxFinChart := findLatestNodes(c.Nodes)[0].EarliestFinish
-		n.LatestFinish = maxFinChart
-		n.LatestStart = n.LatestFinish - n.Duration
-	}
-
-	// Find the Nodes that require this one (lookBack) and get the latest finish.
-	maxFin := findLatestNodes(n.dependsOn)[0].EarliestFinish
-	// Given that latest finish, apply it to get latest values for each lookBack Node.
-	for _, lookBack := range n.dependsOn {
-		if lookBack.lateCalcComplete {
-			return
-		}
-		lookBack.LatestFinish = maxFin
-		lookBack.LatestStart = lookBack.LatestFinish - lookBack.Duration
-		c.calculateLateStartFinish(lookBack)
-	}
-	n.Slack = n.LatestFinish - n.EarliestFinish
-	n.lateCalcComplete = true
 }
 
 func findLatestNodes(nodes []*Node) (latest []*Node) {
@@ -240,7 +258,7 @@ func nodeFromTask(t Task) *Node {
 		LatestFinish:   t.Duration(),
 		Slack:          0,
 		task:           t,
-		dependsOn:      before,
+		predecessors:   before,
 		requiredBy:     after,
 	}
 }
