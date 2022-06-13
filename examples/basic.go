@@ -73,9 +73,18 @@ func Basic() (*cpm.Chart, string) {
 		aPtrs = append(aPtrs, &activities[i])
 	}
 	c, _ := cpm.Calculate(aPtrs)
+	c.Title = g.Name
 
 	graphviz := render.NewGraphviz()
 	dot, _ := graphviz.Render(&c)
+
+	positions, _ := render.Layout(dot)
+	for i, n := range c.Nodes {
+		if p, ok := positions[n.Id]; ok {
+			c.Nodes[i].Position.X = p.X
+			c.Nodes[i].Position.Y = p.Y
+		}
+	}
 
 	return &c, dot
 }

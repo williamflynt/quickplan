@@ -13,17 +13,23 @@ type Task interface {
 	Predecessors() []string // Predecessors is the Uid listing of previous Task items.
 }
 
-type Node struct {
-	Id             string  `json:"id"`
-	Duration       float64 `json:"duration"`
-	Label          string  `json:"label"`
-	EarliestStart  float64 `json:"earliestStart"`
-	EarliestFinish float64 `json:"earliestFinish"`
-	LatestStart    float64 `json:"latestStart"`
-	LatestFinish   float64 `json:"latestFinish"`
-	Slack          float64 `json:"slack"`
+type NodePosition struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
 
-	task         Task
+type Node struct {
+	Id             string       `json:"id"`
+	Duration       float64      `json:"duration"`
+	Label          string       `json:"label"`
+	EarliestStart  float64      `json:"earliestStart"`
+	EarliestFinish float64      `json:"earliestFinish"`
+	LatestStart    float64      `json:"latestStart"`
+	LatestFinish   float64      `json:"latestFinish"`
+	Slack          float64      `json:"slack"`
+	Position       NodePosition `json:"position"`
+
+	task         Task    // Task is the root data this Node was initialized from.
 	predecessors []*Node // predecessors contains the Nodes that this one needs to run first.
 	requiredBy   []*Node // requiredBy contains the Nodes that require this one to run first.
 
