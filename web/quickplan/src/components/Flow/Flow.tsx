@@ -6,7 +6,7 @@ import ReactFlow, {
     BackgroundVariant,
     Controls,
     Edge,
-    EdgeChange,
+    EdgeChange, MarkerType,
     MiniMap,
     Node,
     NodeChange, Position,
@@ -32,27 +32,27 @@ export const Flow: FC = () => {
     useEffect(() => {
         axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
             .then((response) => {
-                    let x = 0
-                    let y = 0
                     const n = response.data.nodes.map((n) => {
-                        x += 100
-                        y += 50
                         return {
                             id: n.id,
                             data: {label: n.label},
-                            position: {x: n.position.x, y: n.position.y},
+                            // Scale positions to avoid clustering.
+                            position: {x: n.position.x * 2, y: n.position.y * 3},
                             sourcePosition: Position.Right,
                             targetPosition: Position.Left,
                         }
                     })
                     const e = response.data.arrows.map((a) => {
-                        return {id: a.id, source: a.from, target: a.to}
+                        const edge = {id: a.id, source: a.from, target: a.to, markerEnd: {type: MarkerType.ArrowClosed}}
+                        if (a.criticalPath) {
+                            return {...edge, style: {stroke: 'red'}, markerEnd: {...edge.markerEnd, color: 'red'}}
+                        }
+                        return edge
                     })
                     nodesSet(n)
                     edgesSet(e)
                 }
             )
-
     }, [])
 
     return (
@@ -63,6 +63,7 @@ export const Flow: FC = () => {
                        edges={edges}
                        onNodesChange={onNodesChange}
                        onEdgesChange={onEdgesChange}
+                       fitView
             >
                 <MiniMap/>
                 <Controls/>
