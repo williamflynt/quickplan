@@ -8,7 +8,7 @@ export const TopNav: FC = () => {
     return (
         <Menu mode="horizontal"
               items={items}
-              style={{background: '#fff', position: 'relative'}}
+              style={{background: '#ffffff', position: 'relative', zIndex: 1}}
         />
     )
 
