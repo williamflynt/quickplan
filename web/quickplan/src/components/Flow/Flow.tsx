@@ -75,7 +75,7 @@ export const Flow: FC<FlowProps> = ({nodes, edges}) => {
         <ReactFlowProvider>
             <Background variant={BackgroundVariant.Lines}/>
 
-            <ReactFlow defaultNodes={n} defaultEdges={e} style={{height: 750}}>
+            <ReactFlow defaultNodes={n} defaultEdges={e}>
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>

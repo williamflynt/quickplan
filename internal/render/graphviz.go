@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
+	"github.com/rs/zerolog/log"
 	"quickplan/pkg/cpm"
 )
 
@@ -20,6 +21,12 @@ func NewGraphviz() Graphviz {
 }
 
 func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
+	defer func() {
+		if rvr := recover(); rvr != nil {
+			log.Fatal().Msg("unrecoverable error in Render call")
+		}
+	}()
+
 	graph, err := gvz.g.Graph()
 	gvz.graph = graph
 	if err != nil {

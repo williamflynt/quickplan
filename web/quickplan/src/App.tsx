@@ -1,16 +1,13 @@
-import React from 'react'
+import React, {FC} from 'react'
 import {Flow} from "./components/Flow/Flow";
-import {Graphviz} from "./components/Graphviz/Graphviz";
+import {Main} from "./components/Layout/Main";
+import 'antd/dist/antd.css'
 
 
-export const App = () => {
+export const App: FC = () => {
     return (
-        <div>
-            <Graphviz/>
-
-            <hr/>
-
+        <Main>
             <Flow/>
-        </div>
+        </Main>
     )
 }
