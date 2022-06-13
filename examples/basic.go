@@ -18,37 +18,37 @@ func Basic() (*cpm.Chart, string) {
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "A",
 		Name:           "Activity A",
-		DurationLow:    1,
-		DurationLikely: 2,
-		DurationHigh:   3,
+		DurationLow:    10,
+		DurationLikely: 20,
+		DurationHigh:   30,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "B",
 		Name:           "Activity B",
-		DurationLow:    4,
-		DurationLikely: 8,
-		DurationHigh:   9,
+		DurationLow:    40,
+		DurationLikely: 80,
+		DurationHigh:   90,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "C",
 		Name:           "Activity C",
-		DurationLow:    2,
-		DurationLikely: 3,
-		DurationHigh:   5,
+		DurationLow:    20,
+		DurationLikely: 30,
+		DurationHigh:   40,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "D",
 		Name:           "Activity D",
-		DurationLow:    2,
-		DurationLikely: 2,
-		DurationHigh:   3,
+		DurationLow:    20,
+		DurationLikely: 20,
+		DurationHigh:   80,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "E",
 		Name:           "Activity E",
-		DurationLow:    3,
-		DurationLikely: 3,
-		DurationHigh:   4,
+		DurationLow:    30,
+		DurationLikely: 30,
+		DurationHigh:   42,
 	})
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "END",
