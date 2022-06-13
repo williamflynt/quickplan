@@ -1,24 +1,33 @@
-import React, {FC, useEffect, useState} from 'react'
+import React, {FC, useCallback, useEffect, useState} from 'react'
 import ReactFlow, {
+    applyEdgeChanges,
+    applyNodeChanges,
     Background,
     BackgroundVariant,
     Controls,
     Edge,
+    EdgeChange,
     MiniMap,
     Node,
+    NodeChange, Position,
     ReactFlowProvider
 } from 'react-flow-renderer';
 import axios from "axios";
 import {ChartExample} from "../../api/types";
 
-type FlowProps = {
-    nodes?: Node[],
-    edges?: Edge[]
-}
+export const Flow: FC = () => {
+    const [nodes, nodesSet] = useState<Node[]>([])
+    const [edges, edgesSet] = useState<Edge[]>([])
 
-export const Flow: FC<FlowProps> = ({nodes, edges}) => {
-    const [newNodes, nodesSet] = useState<undefined | Node[]>(undefined)
-    const [newEdges, edgesSet] = useState<undefined | Edge[]>(undefined)
+    const onNodesChange = useCallback(
+        (changes: NodeChange[]) => nodesSet((nds) => applyNodeChanges(changes, nds)),
+        [nodesSet]
+    );
+    const onEdgesChange = useCallback(
+        (changes: EdgeChange[]) => edgesSet((eds) => applyEdgeChanges(changes, eds)),
+        [edgesSet]
+    );
+
 
     useEffect(() => {
         axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
@@ -28,7 +37,13 @@ export const Flow: FC<FlowProps> = ({nodes, edges}) => {
                     const n = response.data.nodes.map((n) => {
                         x += 100
                         y += 50
-                        return {id: n.id, data: {label: n.label}, position: {x: n.position.x, y: n.position.y}}
+                        return {
+                            id: n.id,
+                            data: {label: n.label},
+                            position: {x: n.position.x, y: n.position.y},
+                            sourcePosition: Position.Right,
+                            targetPosition: Position.Left,
+                        }
                     })
                     const e = response.data.arrows.map((a) => {
                         return {id: a.id, source: a.from, target: a.to}
@@ -37,51 +52,21 @@ export const Flow: FC<FlowProps> = ({nodes, edges}) => {
                     edgesSet(e)
                 }
             )
+
     }, [])
 
-    if (nodes === undefined && edges === undefined) {
-        nodes = sampleDefaultNodes
-        edges = sampleDefaultEdges
-    }
-
-    const n = newNodes || nodes
-    const e = newEdges || edges
-    console.log({n, e})
     return (
         <ReactFlowProvider>
             <Background variant={BackgroundVariant.Lines}/>
 
-            <ReactFlow defaultNodes={n} defaultEdges={e}>
+            <ReactFlow nodes={nodes}
+                       edges={edges}
+                       onNodesChange={onNodesChange}
+                       onEdgesChange={onEdgesChange}
+            >
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>
         </ReactFlowProvider>
     );
 }
-
-const sampleDefaultNodes = [
-    {
-        id: '1',
-        type: 'input',
-        data: {label: 'Input Node'},
-        position: {x: 250, y: 25},
-    },
-
-    {
-        id: '2',
-        // you can also pass a React component as a label
-        data: {label: <div>Default Node</div>},
-        position: {x: 100, y: 125},
-    },
-    {
-        id: '3',
-        type: 'output',
-        data: {label: 'Output Node'},
-        position: {x: 250, y: 250},
-    },
-];
-
-const sampleDefaultEdges = [
-    {id: 'e1-2', source: '1', target: '2'},
-    {id: 'e2-3', source: '2', target: '3', animated: true},
-];
