@@ -229,6 +229,11 @@ func doForwardPass(n *Node) {
 func findLatestNodes(nodes []*Node) (latest []*Node) {
 	maxFin := float64(0)
 	for _, n := range nodes {
+		if n.EarliestFinish > maxFin {
+			maxFin = n.EarliestFinish
+		}
+	}
+	for _, n := range nodes {
 		if n.EarliestFinish < maxFin {
 			continue
 		}
