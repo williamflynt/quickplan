@@ -146,10 +146,6 @@ func setEarlyStartFinish(n *Node) (start float64, finish float64) {
 	if n.fwdPassDone {
 		return n.EarliestStart, n.EarliestFinish
 	}
-	if len(n.predecessors) == 0 {
-		// This is a starting node, and earliest start is always zero.
-		n.EarliestStart = 0
-	}
 	for i := range n.predecessors {
 		_, fin := setEarlyStartFinish(n.predecessors[i])
 		if fin > n.EarliestStart {
