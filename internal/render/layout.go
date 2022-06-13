@@ -11,6 +11,7 @@ type XYPosition struct {
 	Y float64 `json:"y"`
 }
 
+// Layout parses the DOT text and retrieves the positions of the Nodes.
 func Layout(dot string) (pos map[string]XYPosition, err error) {
 	pos = make(map[string]XYPosition)
 	graphAst, err := gographviz.Parse([]byte(dot))

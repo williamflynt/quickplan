@@ -28,6 +28,7 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 	}()
 
 	graph, err := gvz.g.Graph()
+	graph.SetRankDir("LR") // Flow this chart out left to right.
 	gvz.graph = graph
 	if err != nil {
 		return "", err
