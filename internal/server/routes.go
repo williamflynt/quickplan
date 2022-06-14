@@ -29,6 +29,7 @@ func (s *Server) routes() chi.Router {
 					r.Route("/{id}", func(r chi.Router) {
 						r.Get("/", s.graphGet)
 						r.Delete("/", s.graphDelete)
+						r.Post("/{name}", s.graphSetName)
 
 						// REST endpoints for Activity.
 						r.Route("/activities", func(r chi.Router) {

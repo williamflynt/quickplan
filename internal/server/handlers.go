@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"quickplan/examples"
@@ -40,11 +41,26 @@ func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
 	w.WriteHeader(200)
+	_, _ = w.Write(renderGraphToJson(g))
 }
 
 func (s *Server) graphDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(204)
+}
+
+func (s *Server) graphSetName(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
 }
 
 func (s *Server) graphActivityNew(w http.ResponseWriter, r *http.Request) {
@@ -112,4 +128,14 @@ func (s *Server) exampleChartHandlerFunc(w http.ResponseWriter, r *http.Request)
 	}
 	w.WriteHeader(200)
 	_, _ = w.Write(b)
+}
+
+// --- HELPERS ---
+
+func renderGraphToJson(g activity.Graph) []byte {
+	b, err := json.Marshal(&g)
+	if err != nil {
+		log.Warn().Err(err).Msg("error marshalling new Graph")
+	}
+	return b
 }
