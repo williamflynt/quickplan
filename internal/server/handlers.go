@@ -78,6 +78,28 @@ func (s *Server) graphSetName(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphActivityNew(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	decoder := json.NewDecoder(r.Body)
+	a := new(activity.Activity)
+	if err := decoder.Decode(a); err != nil {
+		w.WriteHeader(400)
+		log.Info().Err(err).Msg("improper body for Activity")
+		return
+	}
+	if _, err := g.ActivityAdd(*a); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not add Activity to graph")
+		return
+	}
 	w.WriteHeader(201)
 }
 
