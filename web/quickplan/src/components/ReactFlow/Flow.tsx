@@ -16,6 +16,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import axios from "axios";
 import {ChartExample} from "../../api/types";
+import CpmTaskNode from "./CpmTaskNode";
 
 export const Flow: FC = () => {
     const [nodes, nodesSet] = useState<Node[]>([])
@@ -41,6 +42,7 @@ export const Flow: FC = () => {
                     const n = response.data.nodes.map((n) => {
                         return {
                             id: n.id,
+                            type: 'cpmTask',
                             data: {label: n.label},
                             // Scale positions to avoid clustering.
                             position: {x: n.position.x * 2, y: n.position.y * 3},
@@ -65,7 +67,8 @@ export const Flow: FC = () => {
         <ReactFlowProvider>
             <Background variant={BackgroundVariant.Lines}/>
 
-            <ReactFlow nodes={nodes}
+            <ReactFlow nodeTypes={{cpmTask: CpmTaskNode}}
+                       nodes={nodes}
                        edges={edges}
                        onNodesChange={onNodesChange}
                        onEdgesChange={onEdgesChange}
