@@ -108,6 +108,21 @@ func (s *Server) graphActivityPatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	activityId := chi.URLParam(r, "activityId")
+	if _, err = g.ActivityRemove(activityId); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not delete Activity")
+	}
 	w.WriteHeader(204)
 }
 

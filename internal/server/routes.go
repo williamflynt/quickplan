@@ -34,7 +34,7 @@ func (s *Server) routes() chi.Router {
 						// REST endpoints for Activity.
 						r.Route("/activities", func(r chi.Router) {
 							r.Post("/", s.graphActivityNew)
-							r.Route("/{id}", func(r chi.Router) {
+							r.Route("/{activityId}", func(r chi.Router) {
 								r.Patch("/", s.graphActivityPatch)
 								r.Delete("/", s.graphActivityDelete)
 								r.Route("/explode", func(r chi.Router) {
@@ -48,7 +48,7 @@ func (s *Server) routes() chi.Router {
 						// REST endpoints for Dependency.
 						r.Route("/dependencies", func(r chi.Router) {
 							r.Post("/add", s.graphDependencyNew)
-							r.Route("/{id}", func(r chi.Router) {
+							r.Route("/{depId}", func(r chi.Router) {
 								r.Delete("/", s.graphDependencyDelete)
 								r.Post("/split", s.graphDependencySplit)
 							})
