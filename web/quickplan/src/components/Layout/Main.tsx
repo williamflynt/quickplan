@@ -8,7 +8,7 @@ interface MainProps {
 }
 
 export const Main: FC<MainProps> = ({children}) => {
-    // Content style matches Header css.
+    // <Content> style matches <Header /> CSS from Antd styles.
     return (
         <Layout style={{background: 'none'}}>
 
