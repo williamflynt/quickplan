@@ -23,6 +23,7 @@ func (s *Server) routes() chi.Router {
 				r.Route("/graph", func(r chi.Router) {
 					r.Get("/", s.graphList)
 					r.Get("/example", s.exampleChartHandlerFunc)
+					r.Post("/load", s.graphLoad)
 					r.Get("/new", s.graphNew)
 
 					r.Route("/{id}", func(r chi.Router) {
@@ -50,6 +51,12 @@ func (s *Server) routes() chi.Router {
 								r.Delete("/", s.graphDependencyDelete)
 								r.Post("/split", s.graphDependencySplit)
 							})
+						})
+
+						// REST endpoints for exports.
+						r.Route("/exports", func(r chi.Router) {
+							r.Get("/dot", s.graphExportDot)
+							r.Get("/json", s.graphExportJson)
 						})
 					})
 				})

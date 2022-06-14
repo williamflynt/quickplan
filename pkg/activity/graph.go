@@ -9,6 +9,7 @@ import (
 
 // Graph defines the interface for how we will construct our chart.
 type Graph interface {
+	Uid() string                                                   // Uid returns the unique ID for this Graph.
 	Activities() []Activity                                        // Activities returns all activities in the graph.
 	ActivityAdd(activity Activity) (Graph, error)                  // ActivityAdd adds an Activity to our chart.
 	ActivityClone(id string) (Graph, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
@@ -25,15 +26,25 @@ type Graph interface {
 
 // InMemoryGraph stores the Activity and Dependency entities in local memory.
 type InMemoryGraph struct {
+	Id          string               `json:"id"`          // Id is the unique ID for this graph - we can use it in GraphStore.
 	Name        string               `json:"name"`        // Name is the display name for the chart.
 	ActivityMap map[string]*Activity `json:"activityMap"` // ActivityMap stores Activity entities, mapped by Id.
 }
 
 func NewInMemoryGraph(title string) InMemoryGraph {
-	return InMemoryGraph{
+	g := InMemoryGraph{
 		Name:        title,
 		ActivityMap: make(map[string]*Activity),
 	}
+	g.Id = fmt.Sprintf(`%v`, &g)
+	return g
+}
+
+func (i *InMemoryGraph) Uid() string {
+	if i.Id == "" {
+		i.Id = fmt.Sprintf(`%v`, i)
+	}
+	return i.Id
 }
 
 func (i *InMemoryGraph) Activities() []Activity {

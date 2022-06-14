@@ -20,6 +20,10 @@ func (s *Server) graphList(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
+func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
 func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 }
@@ -62,6 +66,14 @@ func (s *Server) graphDependencyDelete(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
+}
+
+func (s *Server) graphExportJson(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
+func (s *Server) graphExportDot(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
 }
 
 // --- SYSTEM HANDLERS ---

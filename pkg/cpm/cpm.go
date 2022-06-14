@@ -47,6 +47,7 @@ type Arrow struct {
 type Chart struct {
 	Nodes  []*Node `json:"nodes"`
 	Arrows []Arrow `json:"arrows"`
+	Id     string  `json:"id"`
 	Title  string  `json:"title"`
 }
 

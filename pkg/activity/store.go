@@ -27,14 +27,17 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	if graph == nil {
 		return "", errors.New("cannot store Graph with nil pointer")
 	}
-	id := fmt.Sprintf(`%v`, graph)
+	id := graph.Uid()
+	if id == "" {
+		id = fmt.Sprintf(`%v`, graph)
+	}
 	s.storage[id] = graph
 	return id, nil
 }
 
 func (s *InMemoryGraphStore) List() []string {
 	savedIds := make([]string, 0)
-	for k, _ := range s.storage {
+	for k := range s.storage {
 		savedIds = append(savedIds, k)
 	}
 	return savedIds
