@@ -1,19 +1,12 @@
 package examples
 
 import (
-	"github.com/rs/zerolog/log"
 	"quickplan/internal/render"
 	"quickplan/pkg/activity"
 	"quickplan/pkg/cpm"
 )
 
 func Basic() (*cpm.Chart, string) {
-	defer func() {
-		if rvr := recover(); rvr != nil {
-			log.Fatal().Msg("unrecoverable error in Basic example")
-		}
-	}()
-
 	g := activity.NewInMemoryGraph("Basic Example")
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "START",

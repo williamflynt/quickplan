@@ -6,6 +6,10 @@ import {Route} from "wouter";
 import {FlowBasicExample} from "./components/ReactFlow/FlowBasicExample";
 import 'antd/dist/antd.css'
 
+export enum Routes {
+    exampleBasic = "/example/basic",
+    home = "/"
+}
 
 export const App: FC = () => {
     return (
@@ -14,7 +18,7 @@ export const App: FC = () => {
 
                 <Flow/>
 
-                <Route path="/example/basic" component={FlowBasicExample}/>
+                <Route path={Routes.exampleBasic} component={FlowBasicExample}/>
             </Main>
         </ReactFlowProvider>
     )
