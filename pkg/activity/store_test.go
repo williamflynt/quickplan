@@ -16,13 +16,16 @@ func TestInMemoryGraphStore(t *testing.T) {
 	if id != ptrStr {
 		t.Fatal("pointer to Graph should be the same for both outputs")
 	}
-	fromStore := s.Load(id)
+	fromStore, err := s.Load(id)
+	if err != nil {
+		t.Fatal("could not load Graph")
+	}
 	if &g != fromStore {
 		t.Fatal("expected pointers to match")
 	}
 	s.Delete(id)
-	afterDelete := s.Load(id)
-	_ = s.Load(id) // Testing no panic.
+	afterDelete, _ := s.Load(id)
+	_, _ = s.Load(id) // Testing no panic.
 	if afterDelete != nil {
 		t.Fatal("expected nil pointer for deleted graph")
 	}

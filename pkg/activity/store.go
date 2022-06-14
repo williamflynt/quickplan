@@ -7,11 +7,13 @@ import (
 
 // GraphStore describes how we will save, load, and delete Graphs.
 type GraphStore interface {
-	Save(graph Graph) string
-	Load(id string) Graph
+	Save(graph Graph) (string, error)
+	Load(id string) (Graph, error)
 	Delete(id string)
 }
 
+// InMemoryGraphStore is an incredibly naive implementation of storing a Graph.
+// It only supports InMemoryGraphStore.
 type InMemoryGraphStore struct {
 	storage map[string]Graph
 }
@@ -29,13 +31,13 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	return id, nil
 }
 
-func (s *InMemoryGraphStore) Load(id string) Graph {
+func (s *InMemoryGraphStore) Load(id string) (Graph, error) {
 	g := s.storage[id]
 	inMemGraph, ok := g.(*InMemoryGraph)
 	if !ok {
-		return nil
+		return nil, errors.New("the InMemoryGraphStore storage only supports InMemoryGraph")
 	}
-	return inMemGraph
+	return inMemGraph, nil
 }
 
 func (s *InMemoryGraphStore) Delete(id string) {
