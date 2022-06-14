@@ -30,7 +30,7 @@ export const Flow: FC = () => {
         [edgesSet]
     );
     const onConnect = useCallback(
-        (connection: Edge<any> | Connection) => edgesSet((eds) => addEdge(connection, eds)),
+        (connection: Edge | Connection) => edgesSet((eds) => addEdge(connection, eds)),
         [edgesSet]
     );
 

@@ -1,6 +1,6 @@
 import React, {FC, memo} from 'react'
 import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
-import {Col, Row, Space, Statistic, Tooltip, Typography} from "antd";
+import {Col, Row, Typography} from "antd";
 import {ChartNode} from "../../api/types";
 
 type CpmNodeData = {
