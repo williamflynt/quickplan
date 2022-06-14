@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useState} from 'react'
+import React, {FC, useCallback, useState} from 'react'
 import ReactFlow, {
     addEdge,
     applyEdgeChanges,
@@ -8,15 +8,14 @@ import ReactFlow, {
     Connection,
     Controls,
     Edge,
-    EdgeChange, MarkerType,
+    EdgeChange,
     MiniMap,
     Node,
-    NodeChange, Position,
-    ReactFlowProvider
+    NodeChange
 } from 'react-flow-renderer';
-import axios from "axios";
-import {ChartExample} from "../../api/types";
-import CpmTaskNode, {ChartNodeToCpmTask} from "./CpmTaskNode";
+import CpmTaskNode from "./CpmTaskNode";
+
+export const NodeTypes = {cpmTask: CpmTaskNode}
 
 export const Flow: FC = () => {
     const [nodes, nodesSet] = useState<Node[]>([])
@@ -35,31 +34,11 @@ export const Flow: FC = () => {
         [edgesSet]
     );
 
-
-    useEffect(() => {
-        axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
-            .then((response) => {
-                    const n = response.data.nodes.map((n) => {
-                        return ChartNodeToCpmTask(n)
-                    })
-                    const e = response.data.arrows.map((a) => {
-                        const edge = {id: a.id, source: a.from, target: a.to, markerEnd: {type: MarkerType.ArrowClosed}}
-                        if (a.criticalPath) {
-                            return {...edge, style: {stroke: 'red'}, markerEnd: {...edge.markerEnd, color: 'red'}}
-                        }
-                        return edge
-                    })
-                    nodesSet(n)
-                    edgesSet(e)
-                }
-            )
-    }, [])
-
     return (
-        <ReactFlowProvider>
+        <>
             <Background variant={BackgroundVariant.Lines}/>
 
-            <ReactFlow nodeTypes={{cpmTask: CpmTaskNode}}
+            <ReactFlow nodeTypes={NodeTypes}
                        nodes={nodes}
                        edges={edges}
                        onNodesChange={onNodesChange}
@@ -70,6 +49,6 @@ export const Flow: FC = () => {
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>
-        </ReactFlowProvider>
+        </>
     );
 }
