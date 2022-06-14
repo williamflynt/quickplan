@@ -58,7 +58,8 @@ const DataRow: FC<DataRowProps> = ({border, components}) => {
     return (
         <Row style={styles} justify="space-around">
             {components.map((c, i) => {
-                return <Col>{c || 0}</Col>
+                const key = c ? `${i}-${c.toString()}` : `${i}-falsy`
+                return <Col key={key}>{c || 0}</Col>
             })}
         </Row>
     )
