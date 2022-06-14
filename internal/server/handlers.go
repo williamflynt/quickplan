@@ -56,10 +56,24 @@ func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphDelete(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	s.GraphStore.Delete(graphId)
 	w.WriteHeader(204)
 }
 
 func (s *Server) graphSetName(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	graphName := chi.URLParam(r, "name")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	g.NameSet(graphName)
 	w.WriteHeader(200)
 }
 
