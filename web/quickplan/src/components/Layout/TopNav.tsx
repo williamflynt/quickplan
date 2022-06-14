@@ -1,9 +1,12 @@
 import React, {FC} from "react";
-import {Menu} from "antd";
+import {Button, Menu} from "antd";
 
 export const TopNav: FC = () => {
     const items = [
-        {key: 'export-graphiz', label: 'Export Graphviz'}
+        {key: 'export-graphiz', label: <Button ghost type="primary">Export Graphviz</Button>},
+        {key: 'load-graphviz', label: <Button>Load Graphviz</Button>},
+        {key: 'export-json', label: <Button ghost type="primary">Export JSON</Button>},
+        {key: 'load-json', label: <Button>Load JSON</Button>},
     ]
     return (
         <Menu mode="horizontal"
