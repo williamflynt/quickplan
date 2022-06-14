@@ -120,6 +120,28 @@ func (s *Server) graphActivityInsertAfter(w http.ResponseWriter, r *http.Request
 }
 
 func (s *Server) graphDependencyNew(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	decoder := json.NewDecoder(r.Body)
+	d := new(activity.Dependency)
+	if err := decoder.Decode(d); err != nil || d.FirstId == "" || d.NextId == "" {
+		w.WriteHeader(400)
+		log.Info().Err(err).Str("firstId", d.FirstId).Str("nextId", d.NextId).Msg("improper body for Dependency")
+		return
+	}
+	if _, err := g.DependencyAdd(d.FirstId, d.NextId); err != nil {
+		w.WriteHeader(400)
+		log.Error().Err(err).Msg("could not add Activity to graph")
+		return
+	}
 	w.WriteHeader(201)
 }
 
