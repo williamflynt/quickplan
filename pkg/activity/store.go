@@ -1,6 +1,9 @@
 package activity
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/cockroachdb/errors"
+)
 
 // GraphStore describes how we will save, load, and delete Graphs.
 type GraphStore interface {
@@ -17,10 +20,13 @@ func NewInMemoryGraphStore() *InMemoryGraphStore {
 	return &InMemoryGraphStore{storage: make(map[string]Graph)}
 }
 
-func (s *InMemoryGraphStore) Save(graph Graph) string {
+func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
+	if graph == nil {
+		return "", errors.New("cannot store Graph with nil pointer")
+	}
 	id := fmt.Sprintf(`%v`, graph)
 	s.storage[id] = graph
-	return id
+	return id, nil
 }
 
 func (s *InMemoryGraphStore) Load(id string) Graph {
