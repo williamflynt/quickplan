@@ -8,6 +8,7 @@ import (
 // GraphStore describes how we will save, load, and delete Graphs.
 type GraphStore interface {
 	Save(graph Graph) (string, error)
+	List() []string
 	Load(id string) (Graph, error)
 	Delete(id string)
 }
@@ -29,6 +30,14 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	id := fmt.Sprintf(`%v`, graph)
 	s.storage[id] = graph
 	return id, nil
+}
+
+func (s *InMemoryGraphStore) List() []string {
+	savedIds := make([]string, 0)
+	for k, _ := range s.storage {
+		savedIds = append(savedIds, k)
+	}
+	return savedIds
 }
 
 func (s *InMemoryGraphStore) Load(id string) (Graph, error) {

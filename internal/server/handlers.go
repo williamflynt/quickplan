@@ -2,10 +2,69 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"quickplan/examples"
 	"quickplan/pkg/cpm"
 )
+
+// --- GRAPH HANDLERS ---
+
+func (s *Server) graphList(w http.ResponseWriter, r *http.Request) {
+	ids := s.GraphStore.List()
+	w.WriteHeader(200)
+	b, err := json.Marshal(ids)
+	if err != nil {
+		log.Error().Err(err).Msg("error marshaling graph ids")
+	}
+	_, _ = w.Write(b)
+}
+
+func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
+func (s *Server) graphDelete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(204)
+}
+
+func (s *Server) graphActivityNew(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+func (s *Server) graphActivityPatch(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+}
+
+func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(204)
+}
+
+func (s *Server) graphActivityInsertBefore(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+func (s *Server) graphActivityInsertAfter(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+func (s *Server) graphDependencyNew(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+func (s *Server) graphDependencyDelete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(204)
+}
+
+func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(201)
+}
+
+// --- SYSTEM HANDLERS ---
 
 func (s *Server) healthcheckHandlerFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
