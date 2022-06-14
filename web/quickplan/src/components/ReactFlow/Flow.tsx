@@ -16,7 +16,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import axios from "axios";
 import {ChartExample} from "../../api/types";
-import CpmTaskNode from "./CpmTaskNode";
+import CpmTaskNode, {ChartNodeToCpmTask} from "./CpmTaskNode";
 
 export const Flow: FC = () => {
     const [nodes, nodesSet] = useState<Node[]>([])
@@ -40,15 +40,7 @@ export const Flow: FC = () => {
         axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
             .then((response) => {
                     const n = response.data.nodes.map((n) => {
-                        return {
-                            id: n.id,
-                            type: 'cpmTask',
-                            data: {label: n.label},
-                            // Scale positions to avoid clustering.
-                            position: {x: n.position.x * 2, y: n.position.y * 3},
-                            sourcePosition: Position.Right,
-                            targetPosition: Position.Left,
-                        }
+                        return ChartNodeToCpmTask(n)
                     })
                     const e = response.data.arrows.map((a) => {
                         const edge = {id: a.id, source: a.from, target: a.to, markerEnd: {type: MarkerType.ArrowClosed}}
