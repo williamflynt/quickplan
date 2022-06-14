@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"quickplan/examples"
+	"quickplan/pkg/activity"
 	"quickplan/pkg/cpm"
 )
 
@@ -25,7 +26,17 @@ func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
+	g := activity.NewInMemoryGraph("New Graph")
+	if _, err := s.GraphStore.Save(&g); err != nil {
+		log.Warn().Err(err).Msg("error saving new Graph to server GraphStore")
+	}
+	b, err := json.Marshal(&g)
+	if err != nil {
+		log.Warn().Err(err).Msg("error marshalling new Graph")
+	}
 	w.WriteHeader(201)
+	_, _ = w.Write(b)
+
 }
 
 func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {

@@ -22,6 +22,7 @@ type Graph interface {
 	DependencyAdd(firstId string, nextId string) (Graph, error)    // DependencyAdd adds a Dependency between two Activity.
 	DependencyRemove(firstId string, nextId string) (Graph, error) // DependencyRemove clears a Dependency between two Activity.
 	DependencySplit(firstId string, nextId string) (Graph, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
+	NameSet(name string) Graph                                     // NameSet sets a new name on the Graph.
 }
 
 // InMemoryGraph stores the Activity and Dependency entities in local memory.
@@ -210,6 +211,11 @@ func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Graph, e
 	_, _ = i.DependencyAdd(newId, nextId)
 
 	return i, nil
+}
+
+func (i *InMemoryGraph) NameSet(name string) Graph {
+	i.Name = name
+	return i
 }
 
 // --- HELPERS ---
