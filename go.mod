@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/awalterschulze/gographviz v2.0.3+incompatible // indirect
 	github.com/cockroachdb/logtags v0.0.0-20211118104740-dabe8e521a4f // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/fogleman/gg v1.3.0 // indirect

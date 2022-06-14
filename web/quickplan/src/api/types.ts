@@ -1,3 +1,8 @@
+export type ChartNodePosition = {
+    x: number,
+    y: number,
+}
+
 export type ChartNode = {
     id: string,
     duration: number,
@@ -7,6 +12,7 @@ export type ChartNode = {
     latestStart: number,
     latestFinish: number,
     slack: number,
+    position: ChartNodePosition,
 }
 
 export type ChartArrow = {
@@ -22,4 +28,4 @@ export type Chart = {
     title: string
 }
 
-export type ChartExample = Chart & {dot: string}
+export type ChartExample = Chart & { dot: string }

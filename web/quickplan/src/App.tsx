@@ -1,16 +1,25 @@
-import React from 'react'
-import {Flow} from "./components/Flow/Flow";
-import {Graphviz} from "./components/Graphviz/Graphviz";
+import React, {FC} from 'react'
+import {ReactFlowProvider} from "react-flow-renderer";
+import {Flow} from "./components/ReactFlow/Flow";
+import {Main} from "./components/Layout/Main";
+import {Route} from "wouter";
+import {FlowBasicExample} from "./components/ReactFlow/FlowBasicExample";
+import 'antd/dist/antd.css'
 
+export enum Routes {
+    exampleBasic = "/example/basic",
+    home = "/"
+}
 
-export const App = () => {
+export const App: FC = () => {
     return (
-        <div>
-            <Graphviz/>
+        <ReactFlowProvider>
+            <Main>
 
-            <hr/>
+                <Flow/>
 
-            <Flow/>
-        </div>
+                <Route path={Routes.exampleBasic} component={FlowBasicExample}/>
+            </Main>
+        </ReactFlowProvider>
     )
 }

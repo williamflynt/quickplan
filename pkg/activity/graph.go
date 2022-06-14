@@ -73,11 +73,11 @@ func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertAfter(before string) (Graph, error) {
-	if err := i.validateIdExists(before); err != nil {
+func (i *InMemoryGraph) ActivityInsertAfter(existingId string) (Graph, error) {
+	if err := i.validateIdExists(existingId); err != nil {
 		return i, err
 	}
-	newId := i.generateNewId(before)
+	newId := i.generateNewId(existingId)
 	_, err := i.ActivityAdd(Activity{Id: newId})
 	if err != nil {
 		_, _ = i.ActivityRemove(newId)
@@ -85,15 +85,15 @@ func (i *InMemoryGraph) ActivityInsertAfter(before string) (Graph, error) {
 	}
 
 	// Add existing to the dependsOn for the new Activity.
-	i.ActivityMap[newId].dependsOn[before] = i.ActivityMap[before]
+	i.ActivityMap[newId].dependsOn[existingId] = i.ActivityMap[existingId]
 	return i, nil
 }
 
-func (i *InMemoryGraph) ActivityInsertBefore(after string) (Graph, error) {
-	if err := i.validateIdExists(after); err != nil {
+func (i *InMemoryGraph) ActivityInsertBefore(existingId string) (Graph, error) {
+	if err := i.validateIdExists(existingId); err != nil {
 		return i, err
 	}
-	newId := i.generateNewId(after)
+	newId := i.generateNewId(existingId)
 	_, err := i.ActivityAdd(Activity{Id: newId})
 	if err != nil {
 		_, _ = i.ActivityRemove(newId)
@@ -101,13 +101,13 @@ func (i *InMemoryGraph) ActivityInsertBefore(after string) (Graph, error) {
 	}
 
 	// Point all inbound Dependencies from the existing Activity to this new Activity.
-	for id, p := range i.ActivityMap[after].dependsOn {
+	for id, p := range i.ActivityMap[existingId].dependsOn {
 		if p != nil {
 			i.ActivityMap[newId].dependsOn[id] = p
 		}
 	}
 	// Update the existing Activity to only rely on the new one.
-	i.ActivityMap[after].dependsOn = map[string]*Activity{newId: i.ActivityMap[newId]}
+	i.ActivityMap[existingId].dependsOn = map[string]*Activity{newId: i.ActivityMap[newId]}
 
 	return i, nil
 }

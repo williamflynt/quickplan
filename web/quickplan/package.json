@@ -8,11 +8,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "antd": "^4.21.1",
     "axios": "^0.27.2",
     "graphviz-react": "^1.2.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-flow-renderer": "^10.3.6"
+    "react-flow-renderer": "^10.3.6",
+    "wouter": "^2.8.0-alpha.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
