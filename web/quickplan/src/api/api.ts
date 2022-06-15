@@ -1,5 +1,5 @@
 import axios from "axios";
-import {ChartExample} from "./types";
+import {Chart} from "./types";
 
 const BASE_URL = 'http://localhost:3535'
 
@@ -13,7 +13,7 @@ class Api {
     }
 
     async getExampleBasic() {
-        return axios.get<ChartExample>(`${this.baseUrl}/api/v1/graph/example`)
+        return axios.get<Chart>(`${this.baseUrl}/api/v1/graph/example`)
     }
 
 }

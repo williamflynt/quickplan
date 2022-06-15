@@ -19,27 +19,46 @@ func (s *Server) routes() chi.Router {
 
 		r.Route("/api", func(r chi.Router) {
 			r.Route("/v1", func(r chi.Router) {
-				// REST endpoints for Activity.
-				r.Route("/activities", func(r chi.Router) {
-
-					r.Get("/", s.healthcheckHandlerFunc)
-					r.Post("/", s.healthcheckHandlerFunc)
+				// REST endpoints for graph storage, interaction, and output.
+				r.Route("/graph", func(r chi.Router) {
+					r.Get("/", s.graphList)
+					r.Get("/example", s.exampleChartHandlerFunc)
+					r.Post("/load", s.graphLoad)
+					r.Get("/new", s.graphNew)
 
 					r.Route("/{id}", func(r chi.Router) {
-						r.Get("/", s.healthcheckHandlerFunc)
-						r.Patch("/", s.healthcheckHandlerFunc)
-						r.Delete("/", s.healthcheckHandlerFunc)
+						r.Get("/", s.graphGet)
+						r.Delete("/", s.graphDelete)
+						r.Post("/label/{label}", s.graphSetLabel)
 
-						r.Route("/explode", func(r chi.Router) {
-							r.Post("/", s.healthcheckHandlerFunc)
+						// REST endpoints for Activity.
+						r.Route("/activities", func(r chi.Router) {
+							r.Post("/", s.graphActivityNew)
+							r.Route("/{activityId}", func(r chi.Router) {
+								r.Patch("/", s.graphActivityPatch)
+								r.Delete("/", s.graphActivityDelete)
+								r.Route("/explode", func(r chi.Router) {
+									r.Post("/", s.healthcheckHandlerFunc)
+								})
+								r.Post("/insert/before", s.graphActivityInsertBefore)
+								r.Post("/insert/after", s.graphActivityInsertAfter)
+							})
+						})
+
+						// REST endpoints for Dependency.
+						r.Route("/dependencies", func(r chi.Router) {
+							r.Delete("/", s.graphDependencyDelete)
+							r.Post("/add", s.graphDependencyNew)
+							r.Post("/split", s.graphDependencySplit)
+						})
+
+						// REST endpoints for exports.
+						r.Route("/exports", func(r chi.Router) {
+							r.Get("/csv", s.graphExportCsv)
+							r.Get("/dot", s.graphExportDot)
+							r.Get("/json", s.graphExportJson)
 						})
 					})
-
-				})
-				// REST endpoints for graph output.
-				r.Route("/graph", func(r chi.Router) {
-					r.Get("/", s.healthcheckHandlerFunc)
-					r.Get("/example", s.exampleChartHandlerFunc)
 				})
 			})
 		})

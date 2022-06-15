@@ -1,12 +1,13 @@
 package examples
 
 import (
+	"github.com/rs/zerolog/log"
 	"quickplan/internal/render"
 	"quickplan/pkg/activity"
 	"quickplan/pkg/cpm"
 )
 
-func Basic() (*cpm.Chart, string) {
+func Basic() *cpm.Chart {
 	g := activity.NewInMemoryGraph("Basic Example")
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "START",
@@ -73,18 +74,13 @@ func Basic() (*cpm.Chart, string) {
 		aPtrs = append(aPtrs, &activities[i])
 	}
 	c, _ := cpm.Calculate(aPtrs)
+	c.Id = g.Id
 	c.Title = g.Name
 
-	graphviz := render.NewGraphviz()
-	dot, _ := graphviz.Render(&c)
-
-	positions, _ := render.DotLayout(dot)
-	for i, n := range c.Nodes {
-		if p, ok := positions[n.Id]; ok {
-			c.Nodes[i].Position.X = p.X
-			c.Nodes[i].Position.Y = p.Y
-		}
+	laidOut, _, err := render.DotLayout(&c)
+	if err != nil {
+		log.Error().Err(err).Msg("error doing layout for basic example")
 	}
 
-	return &c, dot
+	return laidOut
 }

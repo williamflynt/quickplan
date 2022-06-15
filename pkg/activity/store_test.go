@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -12,9 +11,9 @@ func TestInMemoryGraphStore(t *testing.T) {
 	if err != nil {
 		t.Fatal("got error saving Graph")
 	}
-	ptrStr := fmt.Sprintf(`%v`, &g)
-	if id != ptrStr {
-		t.Fatal("pointer to Graph should be the same for both outputs")
+	idStr := g.Uid()
+	if id != idStr {
+		t.Fatal("id string to Graph should be the same for both outputs")
 	}
 	fromStore, err := s.Load(id)
 	if err != nil {

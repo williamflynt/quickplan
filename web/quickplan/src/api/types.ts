@@ -5,6 +5,9 @@ export type ChartNodePosition = {
 
 export type ChartNode = {
     id: string,
+    title: string,
+    description: string,
+    meta: Record<string, string>,
     duration: number,
     label: string,
     earliestStart: number,
@@ -25,7 +28,6 @@ export type ChartArrow = {
 export type Chart = {
     nodes: ChartNode[]
     arrows: ChartArrow[]
+    id: string
     title: string
 }
-
-export type ChartExample = Chart & { dot: string }

@@ -7,7 +7,8 @@ import (
 // Activity represents a discrete work item in a project. It implements cpm.Task.
 type Activity struct {
 	Id             string `json:"id"`             // Id is the unique Activity ID. It may not have semantic meaning.
-	Name           string `json:"name"`           // Name is the label name for the Activity.
+	Name           string `json:"name"`           // Name is the human-readable label name for the Activity.
+	Descr          string `json:"description"`    // Descr is a longer-form description of this Activity.
 	DurationLow    int    `json:"durationLow"`    // DurationLow is the minimum length to accomplish the Activity in arbitrary units.
 	DurationLikely int    `json:"durationLikely"` // DurationLikely is the most likely length to accomplish the Activity in arbitrary units.
 	DurationHigh   int    `json:"durationHigh"`   // DurationHigh is the longest length to accomplish the Activity in arbitrary units.
@@ -19,6 +20,18 @@ func (a *Activity) Uid() string {
 	return a.Id
 }
 
+func (a *Activity) Title() string {
+	return a.Name
+}
+
+func (a *Activity) Description() string {
+	return a.Descr
+}
+
+func (a *Activity) Meta() map[string]string {
+	return make(map[string]string)
+}
+
 // Duration calculates the estimated duration for an Activity.
 func (a *Activity) Duration() float64 {
 	ans := float64(a.DurationLow+(a.DurationLikely*4)+a.DurationHigh) / 6
@@ -26,8 +39,19 @@ func (a *Activity) Duration() float64 {
 	return math.Round(ans/0.1) * 0.1
 }
 
-func (a *Activity) Label() string {
-	return a.Name
+// DurationL is the low estimated duration for an Activity.
+func (a *Activity) DurationL() int {
+	return a.DurationLow
+}
+
+// DurationM is the likely estimated duration for an Activity.
+func (a *Activity) DurationM() int {
+	return a.DurationLikely
+}
+
+// DurationH is the high estimated duration for an Activity.
+func (a *Activity) DurationH() int {
+	return a.DurationHigh
 }
 
 func (a *Activity) Predecessors() []string {
