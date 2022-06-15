@@ -5,7 +5,7 @@ import {useReactFlow} from "react-flow-renderer";
 import {useStore} from "../../store/store";
 import {SetupChart} from "./SetupChart";
 import {AxiosError} from "axios";
-import {notification} from "antd";
+import {message, notification} from "antd";
 
 export const FlowBase: FC = () => {
     const {setNodes, setEdges} = useReactFlow()
@@ -19,6 +19,7 @@ export const FlowBase: FC = () => {
                 if (response.data.nodes?.length) {
                     useStore.setState({activeNodeId: response.data.nodes[0].id})
                 }
+                message.success("Created a new Chart")
             })
             return
         }
@@ -32,9 +33,13 @@ export const FlowBase: FC = () => {
             if (err.response) {
                 if (err.response.status === 404) {
                     notification.warning({
-                        message: `Not Found - Chart #${activeChartId}`,
-                        description: "We don't have that Chart! You can load it with a saved JSON file using the 'Load JSON' button at the top."
+                        message: `Not Found - Chart ${activeChartId}`,
+                        description: "We don't have that Chart! You can load it with a saved JSON file using the 'Load JSON' button at the top.",
+                        duration: 3,
                     })
+                    setNodes([])
+                    setEdges([])
+                    useStore.setState({activeChartId: null, activeNodeId: null, nodeToolsVisible: false})
                 }
             }
         })

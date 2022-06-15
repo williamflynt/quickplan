@@ -60,9 +60,8 @@ export const NodeTools: FC = () => {
             placement="bottom"
             visible={nodeToolsVisible}
         >
-                <div><Button>Placeholder</Button></div>
-                <Divider orientation="left" plain>Activities</Divider>
-                <NodesTable/>
+            <Divider orientation="left" plain>Activities</Divider>
+            <NodesTable/>
         </Drawer>
     )
 }
