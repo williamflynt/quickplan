@@ -2,6 +2,7 @@ import React, {FC, memo} from 'react'
 import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
 import {Col, Row, Typography} from "antd";
 import {ChartNode} from "../../api/types";
+import {useStore} from "../../store/store";
 
 export type CpmNodeData = {
     label: string
@@ -125,11 +126,22 @@ const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right}) => {
 }
 
 const CpmTaskNode: FC<CpmNodeProps> = (props) => {
+    const {activeNodeId} = useStore()
+
+    const toggleNodeActive = () => {
+        if (activeNodeId === props.id) {
+            useStore.setState({activeNodeId: null})
+            return
+        }
+        useStore.setState({activeNodeId: props.id})
+    }
+
     const bottomRowComponents = [props.data.cpm.lateStart, props.data.cpm.slack, props.data.cpm.lateFinish]
     const topRowComponents = [props.data.cpm.earlyStart, props.data.cpm.duration, props.data.cpm.earlyFinish]
 
+    const className = activeNodeId === props.id ? "cpm-node-active" : "cpm-node"
     return (
-        <div className={"cpmNode"}>
+        <div className={className} onClick={toggleNodeActive}>
             <Handle type="target" position={Position.Left} isConnectable/>
             <CpmDataRow type="earlyNums"
                         left={topRowComponents[0]}
