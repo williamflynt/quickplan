@@ -130,10 +130,10 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
 
     const toggleNodeActive = () => {
         if (activeNodeId === props.id) {
-            useStore.setState({activeNodeId: null})
+            useStore.setState({activeNodeId: null, nodeToolsVisible: false})
             return
         }
-        useStore.setState({activeNodeId: props.id})
+        useStore.setState({activeNodeId: props.id, nodeToolsVisible: true})
     }
 
     const bottomRowComponents = [props.data.cpm.lateStart, props.data.cpm.slack, props.data.cpm.lateFinish]
