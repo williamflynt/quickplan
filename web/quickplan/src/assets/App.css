@@ -1,0 +1,14 @@
+div .cpmNode {
+    border: 1px solid #bbb;
+    padding: 5px;
+    border-radius: 5px;
+    background: #ffffff;
+    width: 150px;
+    transition: all .2s ease-in-out;
+}
+
+div .cpmNode:hover {
+    border: 1px solid #bbb;
+    box-shadow: 2px 4px 4px lightblue;
+    transform: scale(1.1);
+}

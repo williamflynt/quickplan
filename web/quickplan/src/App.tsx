@@ -4,8 +4,9 @@ import {Flow} from "./components/ReactFlow/Flow";
 import {Main} from "./components/Layout/Main";
 import {Route} from "wouter";
 import {FlowBasicExample} from "./components/ReactFlow/FlowBasicExample";
-import 'antd/dist/antd.css'
 import {NodeTools} from "./components/ReactFlow/NodeTools";
+import 'antd/dist/antd.css'
+import './assets/App.css'
 
 export enum Routes {
     exampleBasic = "/example/basic",

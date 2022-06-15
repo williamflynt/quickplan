@@ -128,23 +128,16 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
     const bottomRowComponents = [props.data.cpm.lateStart, props.data.cpm.slack, props.data.cpm.lateFinish]
     const topRowComponents = [props.data.cpm.earlyStart, props.data.cpm.duration, props.data.cpm.earlyFinish]
 
-    const outerStyles = {
-        border: '1px solid #bbb',
-        padding: '5px',
-        borderRadius: '5px',
-        background: '#fff',
-        width: '150px'
-    }
-
     return (
-        <div style={outerStyles}>
+        <div className={"cpmNode"}>
             <Handle type="target" position={Position.Left} isConnectable/>
             <CpmDataRow type="earlyNums"
                         left={topRowComponents[0]}
                         center={topRowComponents[1]}
                         right={topRowComponents[2]}/>
 
-            <Row justify="space-around"><Col><Typography.Text strong>{props.data?.label}</Typography.Text></Col></Row>
+            <Row justify="space-around"><Col><Typography.Text
+                strong>{props.data?.label}</Typography.Text></Col></Row>
 
             <CpmDataRow type="lateNums"
                         left={bottomRowComponents[0]}

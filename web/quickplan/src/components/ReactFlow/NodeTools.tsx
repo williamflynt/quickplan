@@ -57,6 +57,7 @@ export const NodeTools: FC = () => {
             visible={nodeToolsVisible}
             key="table-drawer"
             onClose={() => useStore.setState({nodeToolsVisible: false})}
+            mask={false}
         >
                 <div><Button>Placeholder</Button></div>
                 <Divider orientation="left" plain>Activities</Divider>
