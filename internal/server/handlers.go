@@ -6,7 +6,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"quickplan/examples"
+	"quickplan/internal/render"
 	"quickplan/pkg/activity"
+	"quickplan/pkg/cpm"
 )
 
 // --- GRAPH HANDLERS ---
@@ -50,8 +52,14 @@ func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
+	chartJson, err := renderGraphToChart(g)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
 	w.WriteHeader(200)
-	_, _ = w.Write(renderGraphToJson(g))
+	_, _ = w.Write(chartJson)
 }
 
 func (s *Server) graphDelete(w http.ResponseWriter, r *http.Request) {
@@ -219,10 +227,24 @@ func (s *Server) exampleChartHandlerFunc(w http.ResponseWriter, r *http.Request)
 
 // --- HELPERS ---
 
-func renderGraphToJson(g activity.Graph) []byte {
-	b, err := json.Marshal(&g)
-	if err != nil {
-		log.Warn().Err(err).Msg("error marshalling new Graph")
+// renderGraphToChart runs through the CPM calculations, does layout, and returns the Chart as JSON.
+func renderGraphToChart(g activity.Graph) ([]byte, error) {
+	activities := g.Activities()
+	aPtrs := make([]cpm.Task, 0)
+	for i := range activities {
+		aPtrs = append(aPtrs, &activities[i])
 	}
-	return b
+	c, _ := cpm.Calculate(aPtrs)
+	c.Id = g.Uid()
+	c.Title = g.Label()
+
+	laidOut, _, err := render.DotLayout(&c)
+	if err != nil {
+		log.Error().Err(err).Msg("error doing Layout for chart in handler")
+	}
+	b, err := json.Marshal(&laidOut)
+	if err != nil {
+		log.Warn().Err(err).Msg("error marshalling Chart")
+	}
+	return b, err
 }
