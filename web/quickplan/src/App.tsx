@@ -4,7 +4,7 @@ import {Main} from "./components/Layout/Main";
 import {Route} from "wouter";
 import {FlowBase} from "./components/ReactFlow/FlowBase";
 import {FlowBasicExample} from "./components/ReactFlow/FlowBasicExample";
-import {NodeTools} from "./components/ReactFlow/NodeTools";
+import {NodeTools} from "./components/NodeTools/NodeTools";
 import 'antd/dist/antd.css'
 import './assets/App.css'
 

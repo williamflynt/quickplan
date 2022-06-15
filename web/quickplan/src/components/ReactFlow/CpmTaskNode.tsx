@@ -17,7 +17,9 @@ export type CpmNodeData = {
     }
 }
 
-export const ChartNodeToCpmTask = (n: ChartNode): Node<CpmNodeData> => {
+export type CpmNodeType = Node<CpmNodeData>
+
+export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
     return {
         id: n.id,
         type: 'cpmTask',
@@ -131,7 +133,7 @@ type CpmNodeProps = NodeProps<CpmNodeData>
  * @constructor
  */
 const NodeTextComponent: FC<{ data: CpmNodeProps }> = ({data}) => {
-    const labelComponent = <Typography.Text strong style={{fontSize: '0.8em'}}>{data.data.label}</Typography.Text>
+    const labelComponent = <Typography.Text strong style={{fontSize: '0.8em'}}>{data.data.label || data.id}</Typography.Text>
     return (
         <Tooltip title={`${data.id}: ${data.data.description || 'No description.'}`}>
             <div style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>
@@ -146,7 +148,7 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
 
     const toggleNodeActive = () => {
         if (activeNodeId === props.id) {
-            useStore.setState({activeNodeId: null, nodeToolsVisible: false})
+            useStore.setState({activeNodeId: null})
             return
         }
         useStore.setState({activeNodeId: props.id, nodeToolsVisible: true})
