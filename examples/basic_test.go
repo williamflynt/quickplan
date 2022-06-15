@@ -3,10 +3,7 @@ package examples
 import "testing"
 
 func TestBasic(t *testing.T) {
-	c, dot := Basic()
-	if dot == "" {
-		t.Fatal("did not get DOT for Chart")
-	}
+	c := Basic()
 	if c == nil {
 		t.Fatal("got nil pointer for Chart")
 	}

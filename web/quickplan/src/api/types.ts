@@ -28,4 +28,4 @@ export type Chart = {
     title: string
 }
 
-export type ChartExample = Chart & { dot: string }
+export type ChartExample = Chart

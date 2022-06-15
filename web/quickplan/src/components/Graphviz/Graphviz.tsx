@@ -9,7 +9,7 @@ export const Graphviz: FC = () => {
     useEffect(() => {
         axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
             .then((response) => {
-                    setDot(response.data.dot)
+                    // TODO: Retrieve example DOT export. (wf 14 June 22)
                 }
             )
     }, [])
