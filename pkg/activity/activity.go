@@ -39,6 +39,21 @@ func (a *Activity) Duration() float64 {
 	return math.Round(ans/0.1) * 0.1
 }
 
+// DurationL is the low estimated duration for an Activity.
+func (a *Activity) DurationL() int {
+	return a.DurationLow
+}
+
+// DurationM is the likely estimated duration for an Activity.
+func (a *Activity) DurationM() int {
+	return a.DurationLikely
+}
+
+// DurationH is the high estimated duration for an Activity.
+func (a *Activity) DurationH() int {
+	return a.DurationHigh
+}
+
 func (a *Activity) Label() string {
 	return a.Name
 }

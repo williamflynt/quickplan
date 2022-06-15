@@ -11,7 +11,10 @@ type Task interface {
 	Title() string           // Title is the human-readable label for this Task.
 	Description() string     // Description is a longer-form description of this Task.
 	Meta() map[string]string // Meta is a key:value map of additional data about this Task.
-	Duration() float64       // Duration is the estimated duration for a Task.
+	Duration() float64       // Duration is the aggregated estimated duration for a Task.
+	DurationL() int          // DurationL is the low estimated duration for a Task.
+	DurationM() int          // DurationM is the likely estimated duration for a Task.
+	DurationH() int          // DurationH is the high estimated duration for a Task.
 	Label() string           // Label is the human-friendly label for Task.
 	Predecessors() []string  // Predecessors is the Uid listing of previous Task items.
 }
@@ -29,6 +32,10 @@ type Node struct {
 	Position    NodePosition      `json:"position"`
 
 	Duration       float64 `json:"duration"`
+	DurationLow    int     `json:"durationLow"`    // DurationLow is the minimum length to accomplish the Task in arbitrary units.
+	DurationLikely int     `json:"durationLikely"` // DurationLikely is the most likely length to accomplish the Task in arbitrary units.
+	DurationHigh   int     `json:"durationHigh"`   // DurationHigh is the longest length to accomplish the Task in arbitrary units.
+
 	Label          string  `json:"label"`
 	EarliestStart  float64 `json:"earliestStart"`
 	EarliestFinish float64 `json:"earliestFinish"`
@@ -268,6 +275,9 @@ func nodeFromTask(t Task) *Node {
 		Description:    t.Description(),
 		Meta:           t.Meta(),
 		Duration:       t.Duration(),
+		DurationLow:    t.DurationL(),
+		DurationLikely: t.DurationM(),
+		DurationHigh:   t.DurationH(),
 		Label:          t.Label(),
 		EarliestStart:  0,
 		EarliestFinish: t.Duration(),
