@@ -146,7 +146,42 @@ func (s *Server) graphActivityNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphActivityPatch(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	activityId := chi.URLParam(r, "activityId")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	m := make(map[string]any)
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&m); err != nil {
+		w.WriteHeader(400)
+		log.Warn().Err(err).Msg("could not unmarshal JSON to patch map")
+		return
+	}
+
+	if _, err := g.ActivityPatch(activityId, m); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not patch Activity")
+		return
+	}
+
+	data, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not convert Graph to Chart")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
+	_, _ = w.Write(data)
 }
 
 func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
@@ -259,6 +294,18 @@ func (s *Server) graphDependencyDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 }
 
