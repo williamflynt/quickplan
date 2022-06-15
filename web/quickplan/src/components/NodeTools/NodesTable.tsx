@@ -48,12 +48,6 @@ export const NodesTable: FC = () => {
             dataIndex: ['data', 'cpm', 'duration'],
             key: 'cpm.durationHigh',
         },
-        {
-            title: 'Update',
-            render: (node: CpmNodeType) => {
-                return <Typography.Link>Edit</Typography.Link>
-            }
-        },
     ]
 
     return <Table dataSource={nodes} columns={columns} size="small"/>

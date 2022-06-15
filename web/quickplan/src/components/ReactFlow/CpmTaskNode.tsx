@@ -9,6 +9,9 @@ export type CpmNodeData = {
     description?: string
     cpm: {
         duration: number
+        durationLow: number,
+        durationLikely: number,
+        durationHigh: number,
         earlyStart: number
         earlyFinish: number
         lateStart: number
@@ -27,6 +30,9 @@ export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
             label: n.title,
             cpm: {
                 duration: n.duration,
+                durationLow: n.durationLow,
+                durationLikely: n.durationLikely,
+                durationHigh: n.durationHigh,
                 earlyStart: n.earliestStart,
                 earlyFinish: n.earliestFinish,
                 lateStart: n.latestStart,
@@ -133,7 +139,8 @@ type CpmNodeProps = NodeProps<CpmNodeData>
  * @constructor
  */
 const NodeTextComponent: FC<{ data: CpmNodeProps }> = ({data}) => {
-    const labelComponent = <Typography.Text strong style={{fontSize: '0.8em'}}>{data.data.label || data.id}</Typography.Text>
+    const labelComponent = <Typography.Text strong
+                                            style={{fontSize: '0.8em'}}>{data.data.label || data.id}</Typography.Text>
     return (
         <Tooltip title={`${data.id}: ${data.data.description || 'No description.'}`}>
             <div style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>
@@ -161,7 +168,8 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
 
     return (
         <div className={className} onClick={toggleNodeActive}>
-            <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}} isConnectable/>
+            <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}}
+                    isConnectable/>
             <CpmDataRow type="earlyNums"
                         left={topRowComponents[0]}
                         center={topRowComponents[1]}
@@ -173,7 +181,8 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
                         left={bottomRowComponents[0]}
                         center={bottomRowComponents[1]}
                         right={bottomRowComponents[2]}/>
-            <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}} isConnectable/>
+            <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}}
+                    isConnectable/>
         </div>
     )
 }
