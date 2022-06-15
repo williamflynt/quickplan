@@ -1,13 +1,13 @@
 import React, {FC, useEffect, useState} from 'react'
 import axios from "axios";
 import {Graphviz as Gvz} from 'graphviz-react';
-import {ChartExample} from "../../api/types";
+import {Chart} from "../../api/types";
 
 export const Graphviz: FC = () => {
     const [dot, setDot] = useState("")
 
     useEffect(() => {
-        axios.get<ChartExample>("http://localhost:3535/api/v1/graph/example")
+        axios.get<Chart>("http://localhost:3535/api/v1/graph/example")
             .then((response) => {
                     // TODO: Retrieve example DOT export. (wf 14 June 22)
                 }

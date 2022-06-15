@@ -7,10 +7,13 @@ import (
 
 // Task is a unit of work in a project.
 type Task interface {
-	Uid() string            // Uid is the unique ID for this Task.
-	Duration() float64      // Duration is the estimated duration for a Task.
-	Label() string          // Label is the human-friendly label for Task.
-	Predecessors() []string // Predecessors is the Uid listing of previous Task items.
+	Uid() string             // Uid is the unique ID for this Task.
+	Title() string           // Title is the human-readable label for this Task.
+	Description() string     // Description is a longer-form description of this Task.
+	Meta() map[string]string // Meta is a key:value map of additional data about this Task.
+	Duration() float64       // Duration is the estimated duration for a Task.
+	Label() string           // Label is the human-friendly label for Task.
+	Predecessors() []string  // Predecessors is the Uid listing of previous Task items.
 }
 
 type NodePosition struct {
@@ -19,15 +22,19 @@ type NodePosition struct {
 }
 
 type Node struct {
-	Id             string       `json:"id"`
-	Duration       float64      `json:"duration"`
-	Label          string       `json:"label"`
-	EarliestStart  float64      `json:"earliestStart"`
-	EarliestFinish float64      `json:"earliestFinish"`
-	LatestStart    float64      `json:"latestStart"`
-	LatestFinish   float64      `json:"latestFinish"`
-	Slack          float64      `json:"slack"`
-	Position       NodePosition `json:"position"`
+	Id          string            `json:"id"`
+	Title       string            `json:"title"`
+	Description string            `json:"description"`
+	Meta        map[string]string `json:"meta"`
+	Position    NodePosition      `json:"position"`
+
+	Duration       float64 `json:"duration"`
+	Label          string  `json:"label"`
+	EarliestStart  float64 `json:"earliestStart"`
+	EarliestFinish float64 `json:"earliestFinish"`
+	LatestStart    float64 `json:"latestStart"`
+	LatestFinish   float64 `json:"latestFinish"`
+	Slack          float64 `json:"slack"`
 
 	task         Task    // Task is the root data this Node was initialized from.
 	predecessors []*Node // predecessors contains the Nodes that this one needs to run first.
@@ -258,6 +265,9 @@ func nodeFromTask(t Task) *Node {
 	after := make([]*Node, 0)
 	return &Node{
 		Id:             t.Uid(),
+		Title:          t.Title(),
+		Description:    t.Description(),
+		Meta:           t.Meta(),
 		Duration:       t.Duration(),
 		Label:          t.Label(),
 		EarliestStart:  0,

@@ -3,6 +3,7 @@ package activity
 import (
 	"fmt"
 	"github.com/cockroachdb/errors"
+	"github.com/rs/zerolog/log"
 )
 
 // GraphStore describes how we will save, load, and delete Graphs.
@@ -20,9 +21,11 @@ type InMemoryGraphStore struct {
 }
 
 func NewInMemoryGraphStore() *InMemoryGraphStore {
+	log.Warn().Msg("using InMemoryGraphStore - only InMemoryGraph is supported on Load")
 	return &InMemoryGraphStore{storage: make(map[string]Graph)}
 }
 
+// Save adds the Graph to the store, but also saves the Chart JSON to `/tmp/<id>.json` as a backup measure.
 func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	if graph == nil {
 		return "", errors.New("cannot store Graph with nil pointer")
