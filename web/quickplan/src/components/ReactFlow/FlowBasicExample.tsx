@@ -8,7 +8,7 @@ export const FlowBasicExample: FC = () => {
     const {setNodes, setEdges} = useReactFlow()
 
     useEffect(() => {
-        api.getExampleBasic().then((response) => {
+        api.graphExample().then((response) => {
                 const n = response.data.nodes.map((n) => {
                     return ChartNodeToCpmTask(n)
                 })
