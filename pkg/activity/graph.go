@@ -91,7 +91,8 @@ func (i *InMemoryGraph) ActivityAdd(activity Activity) (Graph, error) {
 	if activity.Id == "" {
 		// Allow the API to simply call for a new Activity, and we can
 		// let them fill in the blanks later.
-		activity.Id = fmt.Sprintf(`%v`, time.Now().Unix())[5:]
+		truncTs := fmt.Sprintf(`%v`, time.Now().UnixMilli())[8:]
+		activity.Id = fmt.Sprintf(`RND-%s`, truncTs)
 	}
 	if err := i.validateIdNotExists(activity.Id); err != nil {
 		return i, err
