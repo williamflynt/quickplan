@@ -3,7 +3,7 @@ import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
 import {Col, Row, Typography} from "antd";
 import {ChartNode} from "../../api/types";
 
-type CpmNodeData = {
+export type CpmNodeData = {
     label: string
     description?: string
     cpm: {

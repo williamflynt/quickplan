@@ -19,6 +19,10 @@ type RFState = {
     onNodesChange: OnNodesChange;
     onEdgesChange: OnEdgesChange;
     onConnect: OnConnect;
+
+    activeChartId: string | null; // The cpm.Chart we're working on right now.
+    activeNodeId: string | null; // The node that is clicked/active. This is what will show in nodeTools.
+    nodeToolsVisible: boolean // Are the node tools open or closed?
 };
 
 export const useStore = create<RFState>((set, get) => ({
@@ -39,4 +43,7 @@ export const useStore = create<RFState>((set, get) => ({
             edges: addEdge(connection, get().edges),
         });
     },
+    activeChartId: null,
+    activeNodeId: null,
+    nodeToolsVisible: false,
 }));
