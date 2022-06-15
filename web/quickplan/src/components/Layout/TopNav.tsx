@@ -13,7 +13,7 @@ export const TopNav: FC = () => {
     }
     const showNodeToolsButton = (
         <Button type="primary" onClick={toggleNodeTools}>
-            Show Node Tools
+            Activity Tools
         </Button>
     )
 

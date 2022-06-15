@@ -41,8 +41,18 @@ func NewInMemoryGraph(title string) InMemoryGraph {
 		Name:        title,
 		ActivityMap: make(map[string]*Activity),
 	}
-	g.Id = fmt.Sprintf(`%v`, &g)
+	startNode := Activity{
+		Id:        "START",
+		Name:      "Start",
+		dependsOn: make(map[string]*Activity),
+	}
+	g.ActivityMap[startNode.Id] = &startNode
+	g.Id = ptrId(&g)
 	return g
+}
+
+func ptrId(g Graph) string {
+	return fmt.Sprintf(`%v`, &g)
 }
 
 func (i *InMemoryGraph) Uid() string {

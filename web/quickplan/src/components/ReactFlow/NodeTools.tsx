@@ -1,5 +1,5 @@
 import React, {FC} from 'react'
-import {Button, Divider, Drawer, Space, Table} from "antd";
+import {Button, Divider, Drawer, Space, Table, Typography} from "antd";
 import {useStore} from "../../store/store";
 import {Node} from "react-flow-renderer";
 import {CpmNodeData} from "./CpmTaskNode";
@@ -50,14 +50,15 @@ export const NodesTable: FC = () => {
 }
 
 export const NodeTools: FC = () => {
-    const {nodeToolsVisible} = useStore()
+    const {nodeToolsVisible, activeNodeId} = useStore()
     return (
         <Drawer
+            headerStyle={{display: 'none'}}
+            key="table-drawer"
+            mask={false}
+            onClose={() => useStore.setState({nodeToolsVisible: false})}
             placement="bottom"
             visible={nodeToolsVisible}
-            key="table-drawer"
-            onClose={() => useStore.setState({nodeToolsVisible: false})}
-            mask={false}
         >
                 <div><Button>Placeholder</Button></div>
                 <Divider orientation="left" plain>Activities</Divider>

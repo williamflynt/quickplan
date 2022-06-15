@@ -12,6 +12,7 @@ func (s *Server) routes() chi.Router {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(OptionsMiddleware)
+	r.Use(RequestLoggerMiddleware)
 
 	r.Group(func(r chi.Router) {
 		r.Get("/", s.healthcheckHandlerFunc)

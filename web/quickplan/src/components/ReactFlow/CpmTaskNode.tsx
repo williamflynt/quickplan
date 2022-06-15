@@ -1,6 +1,6 @@
 import React, {FC, memo} from 'react'
 import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
-import {Col, Row, Typography} from "antd";
+import {Col, Row, Tooltip, Typography} from "antd";
 import {ChartNode} from "../../api/types";
 import {useStore} from "../../store/store";
 
@@ -16,8 +16,6 @@ export type CpmNodeData = {
         slack: number
     }
 }
-
-type CpmNodeProps = NodeProps<CpmNodeData>
 
 export const ChartNodeToCpmTask = (n: ChartNode): Node<CpmNodeData> => {
     return {
@@ -125,6 +123,24 @@ const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right}) => {
     return <DataRow border={border} components={[leftElem, centerElem, rightElem]}/>
 }
 
+type CpmNodeProps = NodeProps<CpmNodeData>
+
+/**
+ * NodeTextComponent is the center, bolded display label of the Node in React Flow.
+ * @param data
+ * @constructor
+ */
+const NodeTextComponent: FC<{ data: CpmNodeProps }> = ({data}) => {
+    const labelComponent = <Typography.Text strong style={{fontSize: '0.8em'}}>{data.data.label}</Typography.Text>
+    return (
+        <Tooltip title={`${data.id}: ${data.data.description || 'No description.'}`}>
+            <div style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>
+                {labelComponent}
+            </div>
+        </Tooltip>
+    )
+}
+
 const CpmTaskNode: FC<CpmNodeProps> = (props) => {
     const {activeNodeId} = useStore()
 
@@ -140,6 +156,7 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
     const topRowComponents = [props.data.cpm.earlyStart, props.data.cpm.duration, props.data.cpm.earlyFinish]
 
     const className = activeNodeId === props.id ? "cpm-node-active" : "cpm-node"
+
     return (
         <div className={className} onClick={toggleNodeActive}>
             <Handle type="target" position={Position.Left} isConnectable/>
@@ -148,8 +165,7 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
                         center={topRowComponents[1]}
                         right={topRowComponents[2]}/>
 
-            <Row justify="space-around"><Col><Typography.Text
-                strong>{props.data?.label}</Typography.Text></Col></Row>
+            <Row justify="space-around"><Col><NodeTextComponent data={props}/></Col></Row>
 
             <CpmDataRow type="lateNums"
                         left={bottomRowComponents[0]}
