@@ -35,7 +35,7 @@ export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
             }
         },
         // Scale positions to avoid clustering.
-        position: {x: n.position.x * 2, y: n.position.y * 3.5},
+        position: {x: n.position.x * 2.3, y: n.position.y * 3.5},
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
     }
@@ -161,7 +161,7 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
 
     return (
         <div className={className} onClick={toggleNodeActive}>
-            <Handle type="target" position={Position.Left} isConnectable/>
+            <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}} isConnectable/>
             <CpmDataRow type="earlyNums"
                         left={topRowComponents[0]}
                         center={topRowComponents[1]}
@@ -173,7 +173,7 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
                         left={bottomRowComponents[0]}
                         center={bottomRowComponents[1]}
                         right={bottomRowComponents[2]}/>
-            <Handle type="source" position={Position.Right} isConnectable/>
+            <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}} isConnectable/>
         </div>
     )
 }

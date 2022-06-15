@@ -33,3 +33,8 @@ export type Chart = {
     id: string
     title: string
 }
+
+export type GraphDependency = {
+    firstId: string
+    nextId: string
+}

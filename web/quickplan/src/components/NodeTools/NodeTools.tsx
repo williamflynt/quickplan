@@ -1,9 +1,10 @@
 import React, {FC, useEffect, useState} from 'react'
-import {Button, Divider, Drawer, Space, Table} from "antd";
+import {Button, Divider, Drawer, Space, Table, Typography} from "antd";
 import {useStore} from "../../store/store";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {LeftOutlined, PlusOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityAddButton} from "./ActivityAddButton";
+import {Edge} from "react-flow-renderer";
 
 export const NodesTable: FC = () => {
     const {nodes} = useStore()
@@ -52,8 +53,9 @@ export const NodesTable: FC = () => {
 
 type ActionsBarProps = {
     node: null | CpmNodeType
+    edge: null | Edge
 }
-export const ActionsBar: FC<ActionsBarProps> = ({node}) => {
+export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
     const {activeChartId} = useStore()
 
     if (!activeChartId) {
@@ -62,7 +64,7 @@ export const ActionsBar: FC<ActionsBarProps> = ({node}) => {
 
     return (
         <Space>
-            <ActivityAddButton graphId={activeChartId} />
+            <ActivityAddButton graphId={activeChartId}/>
             {node &&
                 <>
                     <Button ghost type="primary"><LeftOutlined/> Insert Before</Button>
@@ -70,13 +72,28 @@ export const ActionsBar: FC<ActionsBarProps> = ({node}) => {
                     <Button danger type="text">Delete Activity</Button>
                 </>
             }
+            {edge &&
+                <>
+                    <Button type="dashed">Split {edge.id}</Button>
+                    <Button danger type="dashed">Delete {edge.id}</Button>
+                </>
+            }
         </Space>
     )
 }
 
 export const NodeTools: FC = () => {
-    const {nodeToolsVisible, activeNodeId, nodes} = useStore()
+    const {nodeToolsVisible, activeEdgeId, activeNodeId, edges, nodes} = useStore()
+    const [edge, edgeSet] = useState<null | Edge>(null)
     const [node, nodeSet] = useState<null | CpmNodeType>(null)
+
+    useEffect(() => {
+        const activeE = edges.filter((e) => e.id === activeEdgeId)
+        if (activeE.length === 0) {
+            edgeSet(null)
+        }
+        edgeSet(activeE[0])
+    }, [activeEdgeId, edges])
 
     useEffect(() => {
         const activeN = nodes.filter((n) => n.id === activeNodeId)
@@ -95,7 +112,7 @@ export const NodeTools: FC = () => {
             placement="bottom"
             visible={nodeToolsVisible}
         >
-            <ActionsBar node={node}/>
+            <ActionsBar node={node} edge={edge}/>
             <Divider orientation="left" plain>Activities</Divider>
             <NodesTable/>
         </Drawer>

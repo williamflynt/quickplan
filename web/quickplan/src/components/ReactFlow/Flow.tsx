@@ -1,12 +1,16 @@
 import React, {FC} from 'react'
-import ReactFlow, {Background, BackgroundVariant, Controls, MiniMap} from 'react-flow-renderer';
+import ReactFlow, {Background, BackgroundVariant, Controls, MiniMap, ReactFlowInstance} from 'react-flow-renderer';
 import CpmTaskNode from "./CpmTaskNode";
 import {useStore} from "../../store/store";
 
 export const NodeTypes = {cpmTask: CpmTaskNode}
 
 export const Flow: FC = () => {
-    const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore();
+    const {nodes, edges, onNodesChange, onEdgesChange, onConnect, onSelectionChange} = useStore();
+
+    const onInit = (reactFlowInstance: ReactFlowInstance) => {
+        useStore.setState({flowInstance: reactFlowInstance})
+    }
 
     return (
         <>
@@ -18,11 +22,14 @@ export const Flow: FC = () => {
                        onNodesChange={onNodesChange}
                        onEdgesChange={onEdgesChange}
                        onConnect={onConnect}
+                       onInit={onInit}
+                       elevateEdgesOnSelect={true}
+                       onSelectionChange={onSelectionChange}
                        fitView
             >
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>
         </>
-    );
+    )
 }

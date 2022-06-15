@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from 'react'
+import React, {FC, useEffect} from 'react'
 import api from "../../api/api";
 import {Flow} from "./Flow";
 import {useReactFlow} from "react-flow-renderer";
@@ -14,21 +14,14 @@ export const FlowBase: FC = () => {
     useEffect(() => {
         if (activeChartId === null) {
             api.graphNew().then((response) => {
-                SetupChart(response.data, setNodes, setEdges)
-                useStore.setState({activeChartId: response.data.id, nodeToolsVisible: true})
-                if (response.data.nodes?.length) {
-                    useStore.setState({activeNodeId: response.data.nodes[0].id})
-                }
+                SetupChart(response.data)
+                useStore.setState({activeChartId: response.data.id})
                 message.success("Created a new Chart")
             })
             return
         }
         api.graphGet(activeChartId).then((response) => {
-            SetupChart(response.data, setNodes, setEdges)
-            useStore.setState({nodeToolsVisible: true})
-            if (response.data.nodes?.length) {
-                useStore.setState({activeNodeId: response.data.nodes[0].id})
-            }
+            SetupChart(response.data)
         }).catch((err: AxiosError) => {
             if (err.response) {
                 if (err.response.status === 404) {
