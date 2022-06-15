@@ -19,5 +19,4 @@ export const TopNav: FC = () => {
               style={{background: '#ffffff', position: 'relative', zIndex: 1}}
         />
     )
-
 }

@@ -1,17 +1,16 @@
 ARG GO_VERSION='1.18'
 ARG SERVER_PORT=3535
 
-FROM golang:${GO_VERSION}-alpine AS build
+FROM golang:${GO_VERSION} AS build
 
-RUN apk add --no-cache git
+RUN apt install -y git
 WORKDIR /src
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 COPY ./ ./
 
-# The build strategy below this line only works if we don't need CGO.
-RUN CGO_ENABLED=0 go build \
-    -installsuffix 'static' \
+RUN CGO_ENABLED=1 GOOS=linux go build \
+    -a -ldflags '-linkmode external -extldflags "-static"' \
     -o /bin/server \
     ./cmd/server
 
