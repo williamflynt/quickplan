@@ -9,7 +9,6 @@ export type ChartNode = {
     description: string,
     meta: Record<string, string>,
     duration: number,
-    label: string,
     earliestStart: number,
     earliestFinish: number,
     latestStart: number,

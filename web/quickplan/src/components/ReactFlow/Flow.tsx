@@ -1,38 +1,12 @@
-import React, {FC, useCallback, useState} from 'react'
-import ReactFlow, {
-    addEdge,
-    applyEdgeChanges,
-    applyNodeChanges,
-    Background,
-    BackgroundVariant,
-    Connection,
-    Controls,
-    Edge,
-    EdgeChange,
-    MiniMap,
-    Node,
-    NodeChange
-} from 'react-flow-renderer';
+import React, {FC} from 'react'
+import ReactFlow, {Background, BackgroundVariant, Controls, MiniMap} from 'react-flow-renderer';
 import CpmTaskNode from "./CpmTaskNode";
+import {useStore} from "../../store/store";
 
 export const NodeTypes = {cpmTask: CpmTaskNode}
 
 export const Flow: FC = () => {
-    const [nodes, nodesSet] = useState<Node[]>([])
-    const [edges, edgesSet] = useState<Edge[]>([])
-
-    const onNodesChange = useCallback(
-        (changes: NodeChange[]) => nodesSet((nds) => applyNodeChanges(changes, nds)),
-        [nodesSet]
-    );
-    const onEdgesChange = useCallback(
-        (changes: EdgeChange[]) => edgesSet((eds) => applyEdgeChanges(changes, eds)),
-        [edgesSet]
-    );
-    const onConnect = useCallback(
-        (connection: Edge | Connection) => edgesSet((eds) => addEdge(connection, eds)),
-        [edgesSet]
-    );
+    const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore();
 
     return (
         <>
