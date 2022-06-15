@@ -56,6 +56,7 @@ func (s *Server) routes() chi.Router {
 
 						// REST endpoints for exports.
 						r.Route("/exports", func(r chi.Router) {
+							r.Get("/csv", s.graphExportCsv)
 							r.Get("/dot", s.graphExportDot)
 							r.Get("/json", s.graphExportJson)
 						})

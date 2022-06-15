@@ -35,6 +35,11 @@ func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
 	}
 
 	g, err := util.ChartJsonToGraph(chartData)
+	if err != nil {
+		w.WriteHeader(400)
+		log.Error().Err(err).Msg("could not transform chart JSON to Graph")
+		return
+	}
 	if _, err := s.GraphStore.Save(g); err != nil {
 		log.Error().Err(err).Msg("error saved newly loaded Graph to store")
 		w.WriteHeader(500)
@@ -258,7 +263,27 @@ func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphExportCsv(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(405)
+	graphId := chi.URLParam(r, "id")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	c := util.GraphToChart(g)
+	writer := render.CsvWriter{}
+	data, err := writer.Render(&c)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not export to CSV")
+		return
+	}
+	w.Header().Set("Content-Type", "text/csv")
+	w.WriteHeader(200)
+	_, _ = w.Write([]byte(data))
 }
 
 func (s *Server) graphExportJson(w http.ResponseWriter, r *http.Request) {

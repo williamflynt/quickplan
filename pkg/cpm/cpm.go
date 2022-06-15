@@ -15,7 +15,6 @@ type Task interface {
 	DurationL() int          // DurationL is the low estimated duration for a Task.
 	DurationM() int          // DurationM is the likely estimated duration for a Task.
 	DurationH() int          // DurationH is the high estimated duration for a Task.
-	Label() string           // Label is the human-friendly label for Task.
 	Predecessors() []string  // Predecessors is the Uid listing of previous Task items.
 }
 
@@ -278,7 +277,6 @@ func nodeFromTask(t Task) *Node {
 		DurationLow:    t.DurationL(),
 		DurationLikely: t.DurationM(),
 		DurationHigh:   t.DurationH(),
-		Label:          t.Label(),
 		EarliestStart:  0,
 		EarliestFinish: t.Duration(),
 		LatestStart:    0,

@@ -66,7 +66,7 @@ func TestActivity_Label(t *testing.T) {
 				DurationHigh:   tt.fields.DurationHigh,
 				dependsOn:      tt.fields.dependsOn,
 			}
-			if got := a.Label(); got != tt.want {
+			if got := a.Title(); got != tt.want {
 				t.Errorf("Label() = %v, want %v", got, tt.want)
 			}
 		})
