@@ -47,11 +47,9 @@ func (s *Server) routes() chi.Router {
 
 						// REST endpoints for Dependency.
 						r.Route("/dependencies", func(r chi.Router) {
+							r.Delete("/", s.graphDependencyDelete)
 							r.Post("/add", s.graphDependencyNew)
-							r.Route("/{depId}", func(r chi.Router) {
-								r.Delete("/", s.graphDependencyDelete)
-								r.Post("/split", s.graphDependencySplit)
-							})
+							r.Post("/split", s.graphDependencySplit)
 						})
 
 						// REST endpoints for exports.

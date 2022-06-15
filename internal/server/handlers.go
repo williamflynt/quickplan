@@ -214,11 +214,65 @@ func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphActivityInsertBefore(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	activityId := chi.URLParam(r, "activityId")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	if _, err := g.ActivityInsertBefore(activityId); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not insert Activity before existing")
+		return
+	}
+
+	data, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not convert Graph to Chart")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
+	_, _ = w.Write(data)
 }
 
 func (s *Server) graphActivityInsertAfter(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	activityId := chi.URLParam(r, "activityId")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	if _, err := g.ActivityInsertAfter(activityId); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not insert Activity after existing")
+		return
+	}
+
+	data, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not convert Graph to Chart")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
+	_, _ = w.Write(data)
 }
 
 func (s *Server) graphDependencyNew(w http.ResponseWriter, r *http.Request) {
@@ -293,6 +347,7 @@ func (s *Server) graphDependencyDelete(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
+// graphDependencySplit accepts an activity.Dependency as JSON and splits it with a new activity.Activity.
 func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
 	graphId := chi.URLParam(r, "id")
 	g, err := s.GraphStore.Load(graphId)
@@ -305,8 +360,30 @@ func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	decoder := json.NewDecoder(r.Body)
+	d := new(activity.Dependency)
+	if err := decoder.Decode(d); err != nil || d.FirstId == "" || d.NextId == "" {
+		w.WriteHeader(400)
+		log.Info().Err(err).Str("firstId", d.FirstId).Str("nextId", d.NextId).Msg("improper body for Dependency")
+		return
+	}
+
+	if _, err := g.DependencySplit(d.FirstId, d.NextId); err != nil {
+		w.WriteHeader(400)
+		log.Error().Err(err).Msg("could not split dependency - does it exist?")
+		return
+	}
+
+	data, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not convert Graph to Chart")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
+	_, _ = w.Write(data)
 }
 
 func (s *Server) graphExportCsv(w http.ResponseWriter, r *http.Request) {
