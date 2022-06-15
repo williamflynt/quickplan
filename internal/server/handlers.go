@@ -72,7 +72,7 @@ func (s *Server) graphSetName(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	g.NameSet(graphName)
+	g.LabelSet(graphName)
 	w.WriteHeader(200)
 }
 

@@ -9,7 +9,11 @@ import (
 
 // Graph defines the interface for how we will construct our chart.
 type Graph interface {
-	Uid() string                                                   // Uid returns the unique ID for this Graph.
+	Uid() string                         // Uid returns the unique ID for this Graph.
+	Label() string                       // Label returns a human-readable label for the Graph.
+	Serialize() []byte                   // Serialize returns a full representation of the graph as bytes.
+	Deserialize(b []byte) (Graph, error) // Deserialize restores the graph from the output of Serialize.
+
 	Activities() []Activity                                        // Activities returns all activities in the graph.
 	ActivityAdd(activity Activity) (Graph, error)                  // ActivityAdd adds an Activity to our chart.
 	ActivityClone(id string) (Graph, error)                        // ActivityClone creates a new Activity from the old one, and clones inbound and outbound Dependency entities.
@@ -22,10 +26,10 @@ type Graph interface {
 	DependencyAdd(firstId string, nextId string) (Graph, error)    // DependencyAdd adds a Dependency between two Activity.
 	DependencyRemove(firstId string, nextId string) (Graph, error) // DependencyRemove clears a Dependency between two Activity.
 	DependencySplit(firstId string, nextId string) (Graph, error)  // DependencySplit adds a new Activity in the middle of a dependency relationship.
-	NameSet(name string) Graph                                     // NameSet sets a new name on the Graph.
+	LabelSet(label string) Graph                                   // LabelSet sets a new label on the Graph.
 }
 
-// InMemoryGraph stores the Activity and Dependency entities in local memory.
+// InMemoryGraph implements Graph. It stores the Activity and Dependency entities in local memory.
 type InMemoryGraph struct {
 	Id          string               `json:"id"`          // Id is the unique ID for this graph - we can use it in GraphStore.
 	Name        string               `json:"name"`        // Name is the display name for the chart.
@@ -46,6 +50,20 @@ func (i *InMemoryGraph) Uid() string {
 		i.Id = fmt.Sprintf(`%v`, i)
 	}
 	return i.Id
+}
+
+func (i *InMemoryGraph) Label() string {
+	return i.Name
+}
+
+func (i *InMemoryGraph) Serialize() []byte {
+	b, _ := json.Marshal(*i)
+	return b
+}
+
+func (i *InMemoryGraph) Deserialize(b []byte) (Graph, error) {
+	err := json.Unmarshal(b, i)
+	return i, err
 }
 
 func (i *InMemoryGraph) Activities() []Activity {
@@ -213,7 +231,7 @@ func (i *InMemoryGraph) DependencySplit(firstId string, nextId string) (Graph, e
 	return i, nil
 }
 
-func (i *InMemoryGraph) NameSet(name string) Graph {
+func (i *InMemoryGraph) LabelSet(name string) Graph {
 	i.Name = name
 	return i
 }

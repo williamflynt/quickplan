@@ -65,16 +65,15 @@ func Calculate(tasks []Task) (chart Chart, err error) {
 		return chart, errors.New("cycle detected - no starts found")
 	}
 
-	// Forward pass.
 	for _, n := range starts {
-		doForwardPass(n)
-	}
-	// Backward pass.
-	for _, n := range ends {
-		doBackwardPass(n, ends...)
+		doForwardPass(n) // Mutates Nodes.
 	}
 
-	err = chart.findCriticalPath(ends)
+	for _, n := range ends {
+		doBackwardPass(n, ends...) // Mutates Nodes.
+	}
+
+	err = chart.findCriticalPath(ends) // Mutates arrows and Chart.
 	return chart, err
 }
 
