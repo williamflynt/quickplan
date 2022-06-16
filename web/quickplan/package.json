@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@types/file-saver": "^2.0.5",
     "antd": "^4.21.1",
     "axios": "^0.27.2",
+    "file-saver": "^2.0.5",
     "graphviz-react": "^1.2.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
