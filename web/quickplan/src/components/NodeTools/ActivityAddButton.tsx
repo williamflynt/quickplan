@@ -12,5 +12,5 @@ export const ActivityAddButton: FC<{ graphId: string }> = ({graphId}) => {
             SetupChart(response.data)
         })
     }
-    return <Button type="primary" onClick={onClick}><PlusOutlined/>New Activity</Button>
+    return <Button type="primary" size="small" onClick={onClick}><PlusOutlined/>Add Activity</Button>
 }
