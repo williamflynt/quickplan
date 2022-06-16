@@ -2,6 +2,7 @@ import React, {FC} from 'react'
 import ReactFlow, {Background, BackgroundVariant, Controls, MiniMap, ReactFlowInstance} from 'react-flow-renderer';
 import CpmTaskNode from "./CpmTaskNode";
 import {useStore} from "../../store/store";
+import {ReflowButton} from "./ReflowButton";
 
 export const NodeTypes = {cpmTask: CpmTaskNode}
 
@@ -27,6 +28,7 @@ export const Flow: FC = () => {
                        onSelectionChange={onSelectionChange}
                        fitView
             >
+                <ReflowButton/>
                 <MiniMap/>
                 <Controls/>
             </ReactFlow>

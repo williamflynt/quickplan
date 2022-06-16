@@ -3,7 +3,7 @@ import {Chart, ChartNode} from "../../api/types";
 import {ChartNodeToCpmTask, CpmNodeType} from "./CpmTaskNode";
 import {useStore} from "../../store/store";
 
-export const SetupChart = (data: Chart): void => {
+export const SetupChart = (data: Chart, ovrdPositionHold?: true): void => {
     const {flowInstance, nodes, positionHold} = useStore.getState()
     if (!flowInstance) {
         return
@@ -12,7 +12,8 @@ export const SetupChart = (data: Chart): void => {
     const nodeArray = data.nodes || []
     const edgeArray = data.arrows || []
 
-    const n = maybePositionHoldNodes(nodeArray, nodes, positionHold)
+    const doHold = ovrdPositionHold ? false : positionHold // Allow override to force a layout update.
+    const [n, canReflow] = maybePositionHoldNodes(nodeArray, nodes, doHold)
 
     const e = edgeArray.map((a) => {
         const edge = {
@@ -28,17 +29,21 @@ export const SetupChart = (data: Chart): void => {
         return edge
     })
 
+    useStore.setState({positionHoldCanReflow: canReflow})
     flowInstance.setNodes(n)
     flowInstance.setEdges(e)
 }
 
-const maybePositionHoldNodes = (chartNodes: ChartNode[], existingNodes: CpmNodeType[], positionHold: boolean): CpmNodeType[] => {
+const maybePositionHoldNodes = (chartNodes: ChartNode[], existingNodes: CpmNodeType[], positionHold: boolean): [CpmNodeType[], boolean] => {
     if (!positionHold) {
         // No position hold, so just return the nodes with positions as calculated by server.
-        return chartNodes.map((n) => {
+        const n = chartNodes.map((n) => {
             return ChartNodeToCpmTask(n)
         })
+        return [n, false]
     }
+
+    let reflowable = false
 
     // Here we make a mapping of ID to existing nodes to optimize access later.
     const existingNodeMap = existingNodes.reduce<Record<string, CpmNodeType>>((coll, item) => {
@@ -49,14 +54,17 @@ const maybePositionHoldNodes = (chartNodes: ChartNode[], existingNodes: CpmNodeT
     // Every node returned from the server will be represented, but before returning it
     // we will check if we have an existing node with that ID.
     // If we DO have that existing node, overwrite the server's position with ours.
-    return chartNodes.map((c) => {
+    const n = chartNodes.map((c) => {
         const outNode = ChartNodeToCpmTask(c)
         const eNode = existingNodeMap[c.id]
         if (!eNode) {
             return outNode
         }
+        reflowable = true
         outNode.position.x = eNode.position.x
         outNode.position.y = eNode.position.y
         return outNode
     })
+
+    return [n, reflowable]
 }
