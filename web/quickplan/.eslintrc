@@ -8,11 +8,14 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
+    "prettier"
   ],
   "ignorePatterns": [
     "/node_modules/**/*",
     "**/*.js*"
-  ]
+  ],
+  "rules": {
+    "no-console": "warn"
+  }
 }
 

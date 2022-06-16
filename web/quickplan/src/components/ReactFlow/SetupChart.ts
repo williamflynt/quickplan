@@ -34,28 +34,29 @@ export const SetupChart = (data: Chart): void => {
 
 const maybePositionHoldNodes = (chartNodes: ChartNode[], existingNodes: CpmNodeType[], positionHold: boolean): CpmNodeType[] => {
     if (!positionHold) {
+        // No position hold, so just return the nodes with positions as calculated by server.
         return chartNodes.map((n) => {
             return ChartNodeToCpmTask(n)
         })
     }
 
-    const idMap = chartNodes.reduce<Map<string, ChartNode>>((coll, item) => {
-        coll.set(item.id, item)
+    // Here we make a mapping of ID to existing nodes to optimize access later.
+    const existingNodeMap = existingNodes.reduce<Record<string, CpmNodeType>>((coll, item) => {
+        coll[item.id] = item
         return coll
-    }, new Map())
+    }, {})
 
-    const outNodes = existingNodes.map((n) => {
-        const cNode = idMap.get(n.id)
-        if (!cNode) {
-            // If it's not in the nodes returned by the server, don't keep it in the Chart locally.
-            return
+    // Every node returned from the server will be represented, but before returning it
+    // we will check if we have an existing node with that ID.
+    // If we DO have that existing node, overwrite the server's position with ours.
+    return chartNodes.map((c) => {
+        const outNode = ChartNodeToCpmTask(c)
+        const eNode = existingNodeMap[c.id]
+        if (!eNode) {
+            return outNode
         }
-        const taskNode = ChartNodeToCpmTask(cNode)
-        taskNode.position.x = n.position.x
-        taskNode.position.y = n.position.y
-        return taskNode
+        outNode.position.x = eNode.position.x
+        outNode.position.y = eNode.position.y
+        return outNode
     })
-
-    const final = outNodes.filter((n) => n !== undefined)
-    return final as CpmNodeType[]
 }
