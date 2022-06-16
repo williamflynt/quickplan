@@ -3,6 +3,7 @@ import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
 import {Col, Row, Tooltip, Typography} from "antd";
 import {ChartNode} from "../../api/types";
 import {useStore} from "../../store/store";
+import {FlagFilled} from "@ant-design/icons";
 
 export type CpmNodeData = {
     label: string
@@ -103,18 +104,14 @@ type CpmDataRowProps = {
     left: string | number
     center: string | number
     right: string | number
+    isMilestone?: boolean
 }
 
 /**
  * CpmDataRow is a row on the top or bottom of the CpmTaskNode with early/late
  * start and finish, plus slack or duration.
- * @param type
- * @param left
- * @param center
- * @param right
- * @constructor
  */
-const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right}) => {
+const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right, isMilestone}) => {
     const border = type === 'earlyNums' ? 'bottom' : 'top'
     const titlePos = type === 'earlyNums' ? 'top' : 'bottom'
     // Color early times green, and latest times red.
@@ -129,6 +126,11 @@ const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right}) => {
     const leftElem = <CpmDataElement title={leftTitle} titlePos={titlePos} value={left} color={edgeTextColor}/>
     const centerElem = <CpmDataElement title={centerTitle} titlePos={titlePos} value={center} color={centerTextColor}/>
     const rightElem = <CpmDataElement title={rightTitle} titlePos={titlePos} value={right} color={edgeTextColor}/>
+
+    if (isMilestone) {
+        // For a milestone, don't worry about slack or duration.
+        return <DataRow border={border} components={[leftElem, rightElem]}/>
+    }
     return <DataRow border={border} components={[leftElem, centerElem, rightElem]}/>
 }
 
@@ -136,16 +138,18 @@ type CpmNodeProps = NodeProps<CpmNodeData>
 
 /**
  * NodeTextComponent is the center, bolded display label of the Node in React Flow.
- * @param data
- * @constructor
  */
-const NodeTextComponent: FC<{ data: CpmNodeProps }> = ({data}) => {
-    const labelComponent = <Typography.Text strong
-                                            style={{fontSize: '0.8em'}}>{data.data.label || data.id}</Typography.Text>
+const NodeTextComponent: FC<{ data: CpmNodeProps, isMilestone?: boolean }> = ({data, isMilestone}) => {
+    const milestoneIcon = isMilestone ? <FlagFilled style={{color: '#1890ff'}}/> : <></>
+    const labelComponent = (
+        <Typography.Text strong style={{fontSize: '0.8em'}}>
+            {data.data.label || data.id}
+        </Typography.Text>
+    )
     return (
         <Tooltip title={`${data.id}: ${data.data.description || 'No description.'}`}>
             <div style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>
-                {labelComponent}
+                {milestoneIcon} {labelComponent}
             </div>
         </Tooltip>
     )
@@ -167,23 +171,42 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
 
     const className = activeNodeId === props.id ? "cpm-node-active" : "cpm-node"
 
+    const isMilestone = props.data.cpm.duration === 0
+    const milestoneBanner = (
+        <Typography.Text style={{
+            fontSize: '0.7em',
+            padding: '3px',
+            border: '1px solid #bbb',
+            borderRadius: '3px'
+        }}>Milestone</Typography.Text>
+    )
+
     return (
-        <div className={className} onClick={toggleNodeActive}>
-            <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}}
-                    isConnectable/>
-            <CpmDataRow type="earlyNums"
-                        left={topRowComponents[0]}
-                        center={topRowComponents[1]}
-                        right={topRowComponents[2]}/>
+        <div>
+            <div className={className} onClick={toggleNodeActive}>
+                <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}}
+                        isConnectable/>
+                <CpmDataRow type="earlyNums"
+                            left={topRowComponents[0]}
+                            center={topRowComponents[1]}
+                            right={topRowComponents[2]}
+                            isMilestone={isMilestone}
+                />
 
-            <Row justify="space-around"><Col><NodeTextComponent data={props}/></Col></Row>
+                <Row justify="space-around">
+                    <Col><NodeTextComponent isMilestone={isMilestone} data={props}/></Col>
+                </Row>
 
-            <CpmDataRow type="lateNums"
-                        left={bottomRowComponents[0]}
-                        center={bottomRowComponents[1]}
-                        right={bottomRowComponents[2]}/>
-            <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}}
-                    isConnectable/>
+                <CpmDataRow type="lateNums"
+                            left={bottomRowComponents[0]}
+                            center={bottomRowComponents[1]}
+                            right={bottomRowComponents[2]}
+                            isMilestone={isMilestone}
+                />
+                <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}}
+                        isConnectable/>
+            </div>
+            {isMilestone && milestoneBanner}
         </div>
     )
 }
