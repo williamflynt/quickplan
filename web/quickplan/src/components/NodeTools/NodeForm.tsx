@@ -32,20 +32,20 @@ export const NodeForm: FC<NodeFormProps> = ({node}) => {
     };
 
     return (
-        <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
-            <Form.Item name="name" label={"Title"}>
+        <Form onFinish={onFinish} onFinishFailed={onFinishFailed} key={node.id}>
+            <Form.Item name="name" label={"Title"} initialValue={undefined}>
                 <Input placeholder={node.data.label}/>
             </Form.Item>
-            <Form.Item name="description" label={"Description"}>
+            <Form.Item name="description" label={"Description"} initialValue={undefined}>
                 <Input placeholder={node.data.description}/>
             </Form.Item>
-            <Form.Item name={"durationLow"} label={"DurationLow"}>
+            <Form.Item name={"durationLow"} label={"DurationLow"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationLow.toString()}/>
             </Form.Item>
-            <Form.Item name={"durationLikely"} label={"DurationLikely"}>
+            <Form.Item name={"durationLikely"} label={"DurationLikely"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationLikely.toString()}/>
             </Form.Item>
-            <Form.Item name="durationHigh" label={"DurationHigh"}>
+            <Form.Item name="durationHigh" label={"DurationHigh"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationHigh.toString()}/>
             </Form.Item>
 
