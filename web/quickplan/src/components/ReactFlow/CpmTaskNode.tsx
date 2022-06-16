@@ -28,6 +28,7 @@ export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
         type: 'cpmTask',
         data: {
             label: n.title,
+            description: n.description,
             cpm: {
                 duration: n.duration,
                 durationLow: n.durationLow,
