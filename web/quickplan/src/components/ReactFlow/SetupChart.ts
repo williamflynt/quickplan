@@ -29,7 +29,9 @@ export const SetupChart = (data: Chart, ovrdPositionHold?: true): void => {
         return edge
     })
 
-    useStore.setState({positionHoldCanReflow: canReflow})
+    // We can have an active edge that's animated, but this function will overwrite the edges.
+    // So deselect that one.
+    useStore.setState({positionHoldCanReflow: canReflow, activeEdgeId: null})
     flowInstance.setNodes(n)
     flowInstance.setEdges(e)
 }

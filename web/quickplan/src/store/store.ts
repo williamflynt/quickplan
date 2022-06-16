@@ -16,6 +16,7 @@ import {
 import api from "../api/api";
 import {GraphDependency} from "../api/types";
 import {SetupChart} from "../components/ReactFlow/SetupChart";
+import {MouseEvent as ReactMouseEvent} from "react";
 
 type RFState = {
     nodes: Node[];
@@ -24,6 +25,7 @@ type RFState = {
     onNodesChange: OnNodesChange;
     onEdgesChange: OnEdgesChange;
     onConnect: OnConnect;
+    onPaneClick: (event: ReactMouseEvent) => void;
     onSelectionChange: OnSelectionChangeFunc;
 
     activeChartId: string | null; // The cpm.Chart we're working on right now.
@@ -57,9 +59,24 @@ export const useStore = create<RFState>((set, get) => ({
             })
         }
     },
+    onPaneClick: () => {
+        // Deselect any selected Edge (and un-animate it).
+        const newEdges = get().edges.map((e) => {
+            return {...e, animated: false}
+        })
+        set({activeEdgeId: null, edges: newEdges})
+    },
     onSelectionChange: ({edges}) => {
+        // If we select an Edge, animate it and set that ID to active.
         if (edges.length > 0) {
-            set({activeEdgeId: edges[0].id})
+            const eId = edges[0].id
+            const newEdges = get().edges.map((e) => {
+                if (e.id !== eId) {
+                    return {...e, animated: false}
+                }
+                return {...e, animated: true}
+            })
+            set({activeEdgeId: eId, edges: newEdges})
         }
     },
     activeChartId: null,

@@ -7,7 +7,7 @@ import {ReflowButton} from "./ReflowButton";
 export const NodeTypes = {cpmTask: CpmTaskNode}
 
 export const Flow: FC = () => {
-    const {nodes, edges, onNodesChange, onEdgesChange, onConnect, onSelectionChange} = useStore();
+    const {nodes, edges, onNodesChange, onEdgesChange, onConnect, onPaneClick, onSelectionChange} = useStore();
 
     const onInit = (reactFlowInstance: ReactFlowInstance) => {
         useStore.setState({flowInstance: reactFlowInstance})
@@ -24,6 +24,7 @@ export const Flow: FC = () => {
                        onEdgesChange={onEdgesChange}
                        onConnect={onConnect}
                        onInit={onInit}
+                       onPaneClick={onPaneClick}
                        elevateEdgesOnSelect={true}
                        onSelectionChange={onSelectionChange}
                        fitView
