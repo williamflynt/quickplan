@@ -38,6 +38,7 @@ func (s *Server) routes() chi.Router {
 							r.Route("/{activityId}", func(r chi.Router) {
 								r.Patch("/", s.graphActivityPatch)
 								r.Delete("/", s.graphActivityDelete)
+								r.Post("/clone", s.graphActivityClone)
 								r.Post("/insert/before", s.graphActivityInsertBefore)
 								r.Post("/insert/after", s.graphActivityInsertAfter)
 							})

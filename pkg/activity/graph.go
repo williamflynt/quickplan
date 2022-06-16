@@ -112,9 +112,15 @@ func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 		return i, err
 	}
 
-	// Clone dependencies.
+	// Clone dependencies inbound.
 	for k, v := range i.ActivityMap[id].DependsOn {
 		i.ActivityMap[newId].DependsOn[k] = v
+	}
+	// Clone dependencies outbound.
+	for _, a := range i.ActivityMap {
+		if _, ok := a.DependsOn[id]; ok {
+			a.DependsOn[newId] = i.ActivityMap[newId]
+		}
 	}
 
 	return i, nil
