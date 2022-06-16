@@ -30,6 +30,7 @@ type RFState = {
     activeEdgeId: string | null; // The edge that is clicked/active. This is what will show in nodeTools.
     activeNodeId: string | null; // The node that is clicked/active. This is what will show in nodeTools.
     nodeToolsVisible: boolean // Are the node tools open or closed?
+    positionHold: boolean // Hold positions of nodes on new data, or reflow every time?
 };
 
 export const useStore = create<RFState>((set, get) => ({
@@ -55,7 +56,7 @@ export const useStore = create<RFState>((set, get) => ({
             })
         }
     },
-    onSelectionChange: ({nodes, edges}) => {
+    onSelectionChange: ({edges}) => {
         if (edges.length > 0) {
             set({activeEdgeId: edges[0].id})
         }
@@ -64,4 +65,5 @@ export const useStore = create<RFState>((set, get) => ({
     activeEdgeId: null,
     activeNodeId: null,
     nodeToolsVisible: false,
+    positionHold: true,
 }));
