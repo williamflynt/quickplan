@@ -5,6 +5,7 @@ import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {Button, Space} from "antd";
 import {ActivityAddButton} from "./ActivityAddButton";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
+import {ActivityDeleteButton} from "./ActivityDeleteButton";
 
 type ActionsBarProps = {
     node: CpmNodeType | null
@@ -25,7 +26,7 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
                 <>
                     <Button ghost type="primary"><LeftOutlined/> Insert Before</Button>
                     <Button ghost type="primary"><RightOutlined/> Insert After</Button>
-                    <Button danger type="text">Delete Activity</Button>
+                    <ActivityDeleteButton graphId={activeChartId} node={node}/>
                 </>
             }
             {edge &&
