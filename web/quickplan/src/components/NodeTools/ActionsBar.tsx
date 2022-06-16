@@ -6,6 +6,7 @@ import {Button, Space} from "antd";
 import {ActivityAddButton} from "./ActivityAddButton";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityDeleteButton} from "./ActivityDeleteButton";
+import {EdgeDeleteButton} from "./EdgeDeleteButton";
 
 type ActionsBarProps = {
     node: CpmNodeType | null
@@ -24,15 +25,15 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
             <ActivityAddButton graphId={activeChartId}/>
             {node &&
                 <>
-                    <Button ghost type="primary"><LeftOutlined/> Insert Before</Button>
-                    <Button ghost type="primary"><RightOutlined/> Insert After</Button>
+                    <Button size="small" ghost type="primary"><LeftOutlined/> Insert Before</Button>
+                    <Button size="small" ghost type="primary"><RightOutlined/> Insert After</Button>
                     <ActivityDeleteButton graphId={activeChartId} node={node}/>
                 </>
             }
             {edge &&
                 <>
-                    <Button type="dashed">Split {edge.id}</Button>
-                    <Button danger type="dashed">Delete {edge.id}</Button>
+                    <Button size="small" type="dashed">Split {edge.id}</Button>
+                    <EdgeDeleteButton graphId={activeChartId} edge={edge}/>
                 </>
             }
         </Space>
