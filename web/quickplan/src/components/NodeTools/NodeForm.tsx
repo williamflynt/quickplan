@@ -1,5 +1,5 @@
 import React, {FC} from 'react'
-import {Button, Form, Input, InputNumber, message} from "antd";
+import {Button, Form, Input, InputNumber, notification} from "antd";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {useStore} from "../../store/store";
 import api from "../../api/api";
@@ -23,12 +23,20 @@ export const NodeForm: FC<NodeFormProps> = ({node}) => {
         api.graphActivityPatch(activeChartId, node.id, asStr).then((response) => {
             SetupChart(response.data)
         }).catch((err: AxiosError) => {
-            message.error("could not save updates to Activity")
+            notification.error({
+                message: "Could not save updates to Activity",
+                description: `Got status ${err.response?.status} from server.`,
+                duration: 3
+            })
         })
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
+    const onFinishFailed = (errorInfo: unknown) => {
+        notification.error({
+            message: "Did not save updates to Activity",
+            description: JSON.stringify(errorInfo),
+            duration: 3
+        })
     };
 
     return (
