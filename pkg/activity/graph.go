@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cockroachdb/errors"
+	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 )
@@ -112,9 +113,15 @@ func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 		return i, err
 	}
 
-	// Clone dependencies.
+	// Clone dependencies inbound.
 	for k, v := range i.ActivityMap[id].DependsOn {
 		i.ActivityMap[newId].DependsOn[k] = v
+	}
+	// Clone dependencies outbound.
+	for _, a := range i.ActivityMap {
+		if _, ok := a.DependsOn[id]; ok {
+			a.DependsOn[newId] = i.ActivityMap[newId]
+		}
 	}
 
 	return i, nil
@@ -168,13 +175,27 @@ func (i *InMemoryGraph) ActivityInsertBefore(existingId string) (Graph, error) {
 }
 
 func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Graph, error) {
-	// Natural protection against ID mutation.
 	if err := i.validateIdExists(id); err != nil {
 		return i, err
 	}
 	j, err := json.Marshal(attrs)
 	if err != nil {
 		return i, err
+	}
+	if newIdAny, ok := attrs["id"]; ok {
+		newId, isString := newIdAny.(string)
+		if !isString {
+			log.Error().Msg("got non-string ID on PATCH - skipping")
+		}
+		if isString {
+			// We updated the ID, so update dependencies first.
+			for _, activity := range i.ActivityMap {
+				if _, hasDep := activity.DependsOn[id]; hasDep {
+					activity.DependsOn[newId] = activity.DependsOn[id]
+					delete(activity.DependsOn, id)
+				}
+			}
+		}
 	}
 	err = json.Unmarshal(j, i.ActivityMap[id])
 	return i, err

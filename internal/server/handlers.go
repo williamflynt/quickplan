@@ -243,6 +243,43 @@ func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
+func (s *Server) graphActivityClone(w http.ResponseWriter, r *http.Request) {
+	graphId := chi.URLParam(r, "id")
+	activityId := chi.URLParam(r, "activityId")
+	g, err := s.GraphStore.Load(graphId)
+	if g == nil {
+		w.WriteHeader(404)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	if _, err := g.ActivityClone(activityId); err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not insert Activity before existing")
+		return
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
+	}
+
+	data, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not convert Graph to Chart")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, _ = w.Write(data)
+}
+
 func (s *Server) graphActivityInsertBefore(w http.ResponseWriter, r *http.Request) {
 	graphId := chi.URLParam(r, "id")
 	activityId := chi.URLParam(r, "activityId")

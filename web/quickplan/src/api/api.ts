@@ -71,6 +71,11 @@ class Api {
         return axios.delete(this.url(`/api/v1/graph/${graphId}/activities/${activityId}`))
     }
 
+    async graphActivityClone(graphId: string, activityId: string): Promise<AxiosResponse<Chart>> {
+        const headers = {"Content-Type": "application/json"}
+        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/clone`), undefined, {headers})
+    }
+
     async graphActivityInsertBefore(graphId: string, activityId: string, activityJson: string): Promise<AxiosResponse<Chart>> {
         const headers = {"Content-Type": "application/json"}
         return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/before`), activityJson, {headers})

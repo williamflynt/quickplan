@@ -9,6 +9,7 @@ import {ActivityDeleteButton} from "./ActivityDeleteButton";
 import {EdgeDeleteButton} from "./EdgeDeleteButton";
 import {EdgeSplitButton} from "./EdgeSplitButton";
 import {ActivityInsertBefore, ActivityInsertAfter} from "./ActivityInsert";
+import {ActivityCloneButton} from "./ActivityCloneButton";
 
 type ActionsBarProps = {
     node: CpmNodeType | null
@@ -29,6 +30,7 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
                 <>
                     <ActivityInsertBefore graphId={activeChartId} node={node}/>
                     <ActivityInsertAfter graphId={activeChartId} node={node}/>
+                    <ActivityCloneButton graphId={activeChartId} node={node}/>
                     <ActivityDeleteButton graphId={activeChartId} node={node}/>
                 </>
             }

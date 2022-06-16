@@ -40,7 +40,10 @@ export const NodeForm: FC<NodeFormProps> = ({node}) => {
     };
 
     return (
-        <Form onFinish={onFinish} onFinishFailed={onFinishFailed} key={node.id}>
+        <Form onFinish={onFinish} onFinishFailed={onFinishFailed} key={node.id} size="small">
+            <Form.Item name="id" label={"ID"} initialValue={undefined}>
+                <Input placeholder={node.id}/>
+            </Form.Item>
             <Form.Item name="name" label={"Title"} initialValue={undefined}>
                 <Input placeholder={node.data.label}/>
             </Form.Item>
