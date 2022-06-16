@@ -73,12 +73,12 @@ class Api {
 
     async graphActivityInsertBefore(graphId: string, activityId: string, activityJson: string): Promise<AxiosResponse<Chart>> {
         const headers = {"Content-Type": "application/json"}
-        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/insert/before`), activityJson, {headers})
+        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/before`), activityJson, {headers})
     }
 
     async graphActivityInsertAfter(graphId: string, activityId: string, activityJson: string): Promise<AxiosResponse<Chart>> {
         const headers = {"Content-Type": "application/json"}
-        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/insert/after`), activityJson, {headers})
+        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/after`), activityJson, {headers})
     }
 
     // --- DEPENDENCY / ARROW / EDGE ---

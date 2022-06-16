@@ -8,6 +8,7 @@ import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityDeleteButton} from "./ActivityDeleteButton";
 import {EdgeDeleteButton} from "./EdgeDeleteButton";
 import {EdgeSplitButton} from "./EdgeSplitButton";
+import {ActivityInsertBefore, ActivityInsertAfter} from "./ActivityInsert";
 
 type ActionsBarProps = {
     node: CpmNodeType | null
@@ -26,8 +27,8 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
             <ActivityAddButton graphId={activeChartId}/>
             {node &&
                 <>
-                    <Button size="small" ghost type="primary"><LeftOutlined/> Insert Before</Button>
-                    <Button size="small" ghost type="primary"><RightOutlined/> Insert After</Button>
+                    <ActivityInsertBefore graphId={activeChartId} node={node}/>
+                    <ActivityInsertAfter graphId={activeChartId} node={node}/>
                     <ActivityDeleteButton graphId={activeChartId} node={node}/>
                 </>
             }

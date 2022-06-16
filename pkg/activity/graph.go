@@ -131,8 +131,16 @@ func (i *InMemoryGraph) ActivityInsertAfter(existingId string) (Graph, error) {
 		return i, err
 	}
 
+	// Move all outbound arrows from existing to this node.
+	for _, a := range i.ActivityMap {
+		if _, ok := a.dependsOn[existingId]; ok {
+			delete(a.dependsOn, existingId)
+			a.dependsOn[newId] = i.ActivityMap[newId]
+		}
+	}
 	// Add existing to the dependsOn for the new Activity.
 	i.ActivityMap[newId].dependsOn[existingId] = i.ActivityMap[existingId]
+	
 	return i, nil
 }
 
