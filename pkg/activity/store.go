@@ -37,7 +37,8 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	}
 	s.storage[id] = graph
 	b := graph.Serialize()
-	err := writeTmpGraphFile(id, b)
+	err := writeTmpGraphFile(b)
+	log.Debug().Msgf(`saved Graph with id %s`, id)
 	return id, err
 }
 
@@ -64,8 +65,12 @@ func (s *InMemoryGraphStore) Delete(id string) {
 
 // --- HELPERS ---
 
-func writeTmpGraphFile(id string, data []byte) error {
-	path := fmt.Sprintf(`/tmp/%s.graph`, id)
+func graphFilePath() string {
+	return `/tmp/quickplan.tmp.graph`
+}
+
+func writeTmpGraphFile(data []byte) error {
+	path := graphFilePath()
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err

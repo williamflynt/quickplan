@@ -41,7 +41,7 @@ func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err := s.GraphStore.Save(g); err != nil {
-		log.Error().Err(err).Msg("error saved newly loaded Graph to store")
+		log.Error().Err(err).Msg("error saving newly loaded Graph to store")
 		w.WriteHeader(500)
 		return
 	}
@@ -113,6 +113,12 @@ func (s *Server) graphSetLabel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	g.LabelSet(graphName)
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
+	}
 	w.WriteHeader(200)
 }
 
@@ -137,6 +143,12 @@ func (s *Server) graphActivityNew(w http.ResponseWriter, r *http.Request) {
 	if _, err := g.ActivityAdd(*a); err != nil {
 		w.WriteHeader(500)
 		log.Error().Err(err).Msg("could not add Activity to graph")
+		return
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
 		return
 	}
 	data, err := util.GraphToChartJson(g)
@@ -177,6 +189,12 @@ func (s *Server) graphActivityPatch(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("could not patch Activity")
 		return
 	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
+	}
 
 	data, err := util.GraphToChartJson(g)
 	if err != nil {
@@ -205,6 +223,12 @@ func (s *Server) graphActivityDelete(w http.ResponseWriter, r *http.Request) {
 	if _, err = g.ActivityRemove(activityId); err != nil {
 		w.WriteHeader(500)
 		log.Error().Err(err).Msg("could not delete Activity")
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
 	}
 
 	data, err := util.GraphToChartJson(g)
@@ -237,6 +261,12 @@ func (s *Server) graphActivityInsertBefore(w http.ResponseWriter, r *http.Reques
 		log.Error().Err(err).Msg("could not insert Activity before existing")
 		return
 	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
+	}
 
 	data, err := util.GraphToChartJson(g)
 	if err != nil {
@@ -266,6 +296,12 @@ func (s *Server) graphActivityInsertAfter(w http.ResponseWriter, r *http.Request
 	if _, err := g.ActivityInsertAfter(activityId); err != nil {
 		w.WriteHeader(500)
 		log.Error().Err(err).Msg("could not insert Activity after existing")
+		return
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
 		return
 	}
 
@@ -304,6 +340,12 @@ func (s *Server) graphDependencyNew(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("could not add Dependency to Graph")
 		return
 	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
+		return
+	}
 
 	data, err := util.GraphToChartJson(g)
 	if err != nil {
@@ -338,6 +380,12 @@ func (s *Server) graphDependencyDelete(w http.ResponseWriter, r *http.Request) {
 	if _, err := g.DependencyRemove(d.FirstId, d.NextId); err != nil {
 		w.WriteHeader(500)
 		log.Error().Err(err).Msg("could not remove Dependency from Graph")
+		return
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
 		return
 	}
 
@@ -377,6 +425,12 @@ func (s *Server) graphDependencySplit(w http.ResponseWriter, r *http.Request) {
 	if _, err := g.DependencySplit(d.FirstId, d.NextId); err != nil {
 		w.WriteHeader(400)
 		log.Error().Err(err).Msg("could not split dependency - does it exist?")
+		return
+	}
+	_, err = s.GraphStore.Save(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not save Graph to GraphStore")
 		return
 	}
 
