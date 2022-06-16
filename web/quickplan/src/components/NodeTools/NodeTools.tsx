@@ -1,14 +1,15 @@
 import React, {FC, useEffect, useState} from 'react'
-import {Button, Divider, Drawer, Space} from "antd";
+import {Col, Divider, Drawer, Row} from "antd";
 import {useStore} from "../../store/store";
-import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
-import {LeftOutlined, RightOutlined} from "@ant-design/icons";
-import {ActivityAddButton} from "./ActivityAddButton";
-import {Edge} from "react-flow-renderer";
 import {NodesTable} from "./NodesTable";
+import {NodeForm} from "./NodeForm";
+import {ActionsBar} from "./ActionsBar";
+import {Edge} from "react-flow-renderer";
+import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 
-export const ActionsBar: FC = () => {
-    const {activeChartId, activeEdgeId, activeNodeId, edges, nodes} = useStore()
+export const NodeTools: FC = () => {
+    const {activeChartId, nodeToolsVisible, activeEdgeId, edges, activeNodeId, nodes} = useStore()
+
     const [edge, edgeSet] = useState<null | Edge>(null)
     const [node, nodeSet] = useState<null | CpmNodeType>(null)
 
@@ -33,29 +34,6 @@ export const ActionsBar: FC = () => {
     }
 
     return (
-        <Space>
-            <ActivityAddButton graphId={activeChartId}/>
-            {node &&
-                <>
-                    <Button ghost type="primary"><LeftOutlined/> Insert Before</Button>
-                    <Button ghost type="primary"><RightOutlined/> Insert After</Button>
-                    <Button danger type="text">Delete Activity</Button>
-                </>
-            }
-            {edge &&
-                <>
-                    <Button type="dashed">Split {edge.id}</Button>
-                    <Button danger type="dashed">Delete {edge.id}</Button>
-                </>
-            }
-        </Space>
-    )
-}
-
-export const NodeTools: FC = () => {
-    const {nodeToolsVisible} = useStore()
-
-    return (
         <Drawer
             headerStyle={{display: 'none'}}
             key="table-drawer"
@@ -63,10 +41,14 @@ export const NodeTools: FC = () => {
             onClose={() => useStore.setState({nodeToolsVisible: false})}
             placement="bottom"
             visible={nodeToolsVisible}
+            height={430}
         >
-            <ActionsBar />
-            <Divider orientation="left" plain>Activities</Divider>
-            <NodesTable/>
+            <ActionsBar node={node} edge={edge}/>
+            <Divider orientation="left" plain/>
+            <Row justify="start" gutter={[32, 16]}>
+                <Col flex="none"><NodeForm node={node}/></Col>
+                <Col flex="auto"><NodesTable/></Col>
+            </Row>
         </Drawer>
     )
 }

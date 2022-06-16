@@ -50,5 +50,5 @@ export const NodesTable: FC = () => {
         },
     ]
 
-    return <Table dataSource={nodes} columns={columns} size="small"/>
+    return <Table dataSource={nodes} columns={columns} pagination={false} size="small"/>
 }
