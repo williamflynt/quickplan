@@ -16,6 +16,7 @@ import {
 import api from "../api/api";
 import {GraphDependency} from "../api/types";
 import {SetupChart} from "../components/ReactFlow/SetupChart";
+import {MouseEvent as ReactMouseEvent} from "react";
 
 type RFState = {
     nodes: Node[];
@@ -24,12 +25,15 @@ type RFState = {
     onNodesChange: OnNodesChange;
     onEdgesChange: OnEdgesChange;
     onConnect: OnConnect;
+    onPaneClick: (event: ReactMouseEvent) => void;
     onSelectionChange: OnSelectionChangeFunc;
 
     activeChartId: string | null; // The cpm.Chart we're working on right now.
     activeEdgeId: string | null; // The edge that is clicked/active. This is what will show in nodeTools.
     activeNodeId: string | null; // The node that is clicked/active. This is what will show in nodeTools.
     nodeToolsVisible: boolean // Are the node tools open or closed?
+    positionHold: boolean // Hold positions of nodes on new data, or reflow every time?
+    positionHoldCanReflow: boolean // Is there updated information from the server on position?
 };
 
 export const useStore = create<RFState>((set, get) => ({
@@ -55,13 +59,30 @@ export const useStore = create<RFState>((set, get) => ({
             })
         }
     },
-    onSelectionChange: ({nodes, edges}) => {
+    onPaneClick: () => {
+        // Deselect any selected Edge (and un-animate it).
+        const newEdges = get().edges.map((e) => {
+            return {...e, animated: false}
+        })
+        set({activeEdgeId: null, edges: newEdges})
+    },
+    onSelectionChange: ({edges}) => {
+        // If we select an Edge, animate it and set that ID to active.
         if (edges.length > 0) {
-            set({activeEdgeId: edges[0].id})
+            const eId = edges[0].id
+            const newEdges = get().edges.map((e) => {
+                if (e.id !== eId) {
+                    return {...e, animated: false}
+                }
+                return {...e, animated: true}
+            })
+            set({activeEdgeId: eId, edges: newEdges})
         }
     },
     activeChartId: null,
     activeEdgeId: null,
     activeNodeId: null,
     nodeToolsVisible: false,
+    positionHold: true,
+    positionHoldCanReflow: false,
 }));

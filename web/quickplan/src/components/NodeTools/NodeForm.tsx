@@ -1,5 +1,5 @@
 import React, {FC} from 'react'
-import {Button, Form, Input, InputNumber, message} from "antd";
+import {Button, Form, Input, InputNumber, notification} from "antd";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {useStore} from "../../store/store";
 import api from "../../api/api";
@@ -23,29 +23,37 @@ export const NodeForm: FC<NodeFormProps> = ({node}) => {
         api.graphActivityPatch(activeChartId, node.id, asStr).then((response) => {
             SetupChart(response.data)
         }).catch((err: AxiosError) => {
-            message.error("could not save updates to Activity")
+            notification.error({
+                message: "Could not save updates to Activity",
+                description: `Got status ${err.response?.status} from server.`,
+                duration: 3
+            })
         })
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
+    const onFinishFailed = (errorInfo: unknown) => {
+        notification.error({
+            message: "Did not save updates to Activity",
+            description: JSON.stringify(errorInfo),
+            duration: 3
+        })
     };
 
     return (
-        <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
-            <Form.Item name="name" label={"Title"}>
+        <Form onFinish={onFinish} onFinishFailed={onFinishFailed} key={node.id}>
+            <Form.Item name="name" label={"Title"} initialValue={undefined}>
                 <Input placeholder={node.data.label}/>
             </Form.Item>
-            <Form.Item name="description" label={"Description"}>
+            <Form.Item name="description" label={"Description"} initialValue={undefined}>
                 <Input placeholder={node.data.description}/>
             </Form.Item>
-            <Form.Item name={"durationLow"} label={"DurationLow"}>
+            <Form.Item name={"durationLow"} label={"DurationLow"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationLow.toString()}/>
             </Form.Item>
-            <Form.Item name={"durationLikely"} label={"DurationLikely"}>
+            <Form.Item name={"durationLikely"} label={"DurationLikely"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationLikely.toString()}/>
             </Form.Item>
-            <Form.Item name="durationHigh" label={"DurationHigh"}>
+            <Form.Item name="durationHigh" label={"DurationHigh"} initialValue={undefined}>
                 <InputNumber style={{width: '100%'}} placeholder={node.data.cpm.durationHigh.toString()}/>
             </Form.Item>
 
