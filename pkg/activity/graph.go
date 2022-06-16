@@ -131,8 +131,16 @@ func (i *InMemoryGraph) ActivityInsertAfter(existingId string) (Graph, error) {
 		return i, err
 	}
 
+	// Move all outbound arrows from existing to this node.
+	for _, a := range i.ActivityMap {
+		if _, ok := a.dependsOn[existingId]; ok {
+			delete(a.dependsOn, existingId)
+			a.dependsOn[newId] = i.ActivityMap[newId]
+		}
+	}
 	// Add existing to the dependsOn for the new Activity.
 	i.ActivityMap[newId].dependsOn[existingId] = i.ActivityMap[existingId]
+	
 	return i, nil
 }
 
@@ -264,19 +272,20 @@ func (i *InMemoryGraph) activityClone(a Activity, newId string) (Activity, error
 func (i *InMemoryGraph) generateNewId(id string) string {
 	// Find the base ID in case we've already exploded, so that we normalize generated IDs.
 	baseId := id
-	idComponents := strings.Split(id, "-")
+	idComponents := strings.Split(id, "+")
 	if len(idComponents) > 1 {
-		baseId = strings.Join(idComponents[:len(idComponents)-1], "-")
+		baseId = strings.Join(idComponents[:len(idComponents)-1], "+")
 	}
 
 	// Generate a new ID in numerical sequence.
 	iteration := 1
 	for {
-		newId := fmt.Sprintf(`%s-%v`, baseId, iteration)
+		newId := fmt.Sprintf(`%s+%v`, baseId, iteration)
 		_, ok := i.ActivityMap[newId]
 		if !ok {
 			return newId
 		}
+		iteration += 1
 	}
 }
 
