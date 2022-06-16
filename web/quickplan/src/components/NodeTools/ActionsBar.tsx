@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import {useStore} from "../../store/store";
 import {Edge} from "react-flow-renderer";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
-import {Button, Space} from "antd";
+import {Button, Divider, Space} from "antd";
 import {ActivityAddButton} from "./ActivityAddButton";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityDeleteButton} from "./ActivityDeleteButton";
@@ -32,6 +32,7 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
             }
             {edge &&
                 <>
+                    <Divider type={"vertical"} />
                     <Button size="small" type="dashed">Split {edge.id}</Button>
                     <EdgeDeleteButton graphId={activeChartId} edge={edge}/>
                 </>
