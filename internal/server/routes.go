@@ -12,6 +12,7 @@ func (s *Server) routes() chi.Router {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(OptionsMiddleware)
+	r.Use(RequestLoggerMiddleware)
 
 	r.Group(func(r chi.Router) {
 		r.Get("/", s.healthcheckHandlerFunc)
@@ -37,9 +38,6 @@ func (s *Server) routes() chi.Router {
 							r.Route("/{activityId}", func(r chi.Router) {
 								r.Patch("/", s.graphActivityPatch)
 								r.Delete("/", s.graphActivityDelete)
-								r.Route("/explode", func(r chi.Router) {
-									r.Post("/", s.healthcheckHandlerFunc)
-								})
 								r.Post("/insert/before", s.graphActivityInsertBefore)
 								r.Post("/insert/after", s.graphActivityInsertAfter)
 							})
@@ -47,8 +45,8 @@ func (s *Server) routes() chi.Router {
 
 						// REST endpoints for Dependency.
 						r.Route("/dependencies", func(r chi.Router) {
-							r.Delete("/", s.graphDependencyDelete)
-							r.Post("/add", s.graphDependencyNew)
+							r.Post("/", s.graphDependencyNew)
+							r.Delete("/remove", s.graphDependencyDelete)
 							r.Post("/split", s.graphDependencySplit)
 						})
 

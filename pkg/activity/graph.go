@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"strings"
+	"time"
 )
 
 // Graph defines the interface for how we will construct our chart.
@@ -41,8 +42,18 @@ func NewInMemoryGraph(title string) InMemoryGraph {
 		Name:        title,
 		ActivityMap: make(map[string]*Activity),
 	}
-	g.Id = fmt.Sprintf(`%v`, &g)
+	startNode := Activity{
+		Id:        "START",
+		Name:      "Start",
+		dependsOn: make(map[string]*Activity),
+	}
+	g.ActivityMap[startNode.Id] = &startNode
+	g.Id = ptrId(&g)
 	return g
+}
+
+func ptrId(g Graph) string {
+	return fmt.Sprintf(`%v`, &g)
 }
 
 func (i *InMemoryGraph) Uid() string {
@@ -77,6 +88,12 @@ func (i *InMemoryGraph) Activities() []Activity {
 }
 
 func (i *InMemoryGraph) ActivityAdd(activity Activity) (Graph, error) {
+	if activity.Id == "" {
+		// Allow the API to simply call for a new Activity, and we can
+		// let them fill in the blanks later.
+		truncTs := fmt.Sprintf(`%v`, time.Now().UnixMilli())[8:]
+		activity.Id = fmt.Sprintf(`RND-%s`, truncTs)
+	}
 	if err := i.validateIdNotExists(activity.Id); err != nil {
 		return i, err
 	}

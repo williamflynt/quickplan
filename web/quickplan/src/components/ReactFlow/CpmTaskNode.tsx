@@ -1,13 +1,17 @@
 import React, {FC, memo} from 'react'
 import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
-import {Col, Row, Typography} from "antd";
+import {Col, Row, Tooltip, Typography} from "antd";
 import {ChartNode} from "../../api/types";
+import {useStore} from "../../store/store";
 
 export type CpmNodeData = {
     label: string
     description?: string
     cpm: {
         duration: number
+        durationLow: number,
+        durationLikely: number,
+        durationHigh: number,
         earlyStart: number
         earlyFinish: number
         lateStart: number
@@ -16,9 +20,9 @@ export type CpmNodeData = {
     }
 }
 
-type CpmNodeProps = NodeProps<CpmNodeData>
+export type CpmNodeType = Node<CpmNodeData>
 
-export const ChartNodeToCpmTask = (n: ChartNode): Node<CpmNodeData> => {
+export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
     return {
         id: n.id,
         type: 'cpmTask',
@@ -26,6 +30,9 @@ export const ChartNodeToCpmTask = (n: ChartNode): Node<CpmNodeData> => {
             label: n.title,
             cpm: {
                 duration: n.duration,
+                durationLow: n.durationLow,
+                durationLikely: n.durationLikely,
+                durationHigh: n.durationHigh,
                 earlyStart: n.earliestStart,
                 earlyFinish: n.earliestFinish,
                 lateStart: n.latestStart,
@@ -34,7 +41,7 @@ export const ChartNodeToCpmTask = (n: ChartNode): Node<CpmNodeData> => {
             }
         },
         // Scale positions to avoid clustering.
-        position: {x: n.position.x * 2, y: n.position.y * 3.5},
+        position: {x: n.position.x * 2.3, y: n.position.y * 3.5},
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
     }
@@ -124,33 +131,58 @@ const CpmDataRow: FC<CpmDataRowProps> = ({type, left, center, right}) => {
     return <DataRow border={border} components={[leftElem, centerElem, rightElem]}/>
 }
 
+type CpmNodeProps = NodeProps<CpmNodeData>
+
+/**
+ * NodeTextComponent is the center, bolded display label of the Node in React Flow.
+ * @param data
+ * @constructor
+ */
+const NodeTextComponent: FC<{ data: CpmNodeProps }> = ({data}) => {
+    const labelComponent = <Typography.Text strong
+                                            style={{fontSize: '0.8em'}}>{data.data.label || data.id}</Typography.Text>
+    return (
+        <Tooltip title={`${data.id}: ${data.data.description || 'No description.'}`}>
+            <div style={{whiteSpace: 'nowrap', overflow: 'hidden'}}>
+                {labelComponent}
+            </div>
+        </Tooltip>
+    )
+}
+
 const CpmTaskNode: FC<CpmNodeProps> = (props) => {
+    const {activeNodeId} = useStore()
+
+    const toggleNodeActive = () => {
+        if (activeNodeId === props.id) {
+            useStore.setState({activeNodeId: null})
+            return
+        }
+        useStore.setState({activeNodeId: props.id, nodeToolsVisible: true})
+    }
+
     const bottomRowComponents = [props.data.cpm.lateStart, props.data.cpm.slack, props.data.cpm.lateFinish]
     const topRowComponents = [props.data.cpm.earlyStart, props.data.cpm.duration, props.data.cpm.earlyFinish]
 
-    const outerStyles = {
-        border: '1px solid #bbb',
-        padding: '5px',
-        borderRadius: '5px',
-        background: '#fff',
-        width: '150px'
-    }
+    const className = activeNodeId === props.id ? "cpm-node-active" : "cpm-node"
 
     return (
-        <div style={outerStyles}>
-            <Handle type="target" position={Position.Left} isConnectable/>
+        <div className={className} onClick={toggleNodeActive}>
+            <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}}
+                    isConnectable/>
             <CpmDataRow type="earlyNums"
                         left={topRowComponents[0]}
                         center={topRowComponents[1]}
                         right={topRowComponents[2]}/>
 
-            <Row justify="space-around"><Col><Typography.Text strong>{props.data?.label}</Typography.Text></Col></Row>
+            <Row justify="space-around"><Col><NodeTextComponent data={props}/></Col></Row>
 
             <CpmDataRow type="lateNums"
                         left={bottomRowComponents[0]}
                         center={bottomRowComponents[1]}
                         right={bottomRowComponents[2]}/>
-            <Handle type="source" position={Position.Right} isConnectable/>
+            <Handle type="source" position={Position.Right} style={{width: '12px', height: '12px', right: -5}}
+                    isConnectable/>
         </div>
     )
 }

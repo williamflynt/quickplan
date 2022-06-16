@@ -1,0 +1,29 @@
+div .cpm-node {
+    border: 1px solid #bbb;
+    padding: 5px;
+    border-radius: 5px;
+    background: #ffffff;
+    width: 150px;
+    transition: all .2s ease-in-out;
+}
+
+div .cpm-node:hover {
+    border: 1px solid #bbb;
+    box-shadow: 2px 4px 4px lightblue;
+    transform: scale(1.1);
+}
+
+div .cpm-node-active {
+    border: 2px solid #1890ff;
+    padding: 5px;
+    border-radius: 5px;
+    background: #ffffff;
+    width: 150px;
+    transition: all .2s ease-in-out;
+}
+
+div .cpm-node-active:hover {
+    border: 2px solid #1890ff;
+    box-shadow: 2px 4px 4px lightblue;
+    transform: scale(1.1);
+}

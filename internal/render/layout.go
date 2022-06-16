@@ -35,7 +35,9 @@ func DotLayout(c *cpm.Chart) (outC *cpm.Chart, pos map[string]XYPosition, err er
 	for _, n := range g.Nodes.Nodes {
 		if p, ok := n.Attrs["pos"]; ok {
 			if xy, err := coordsToXYPos(p); err == nil && xy != nil {
-				pos[n.Name] = *xy
+				// This graphviz package adds extra quotes to the name.
+				nName := strings.Trim(n.Name, "\"'")
+				pos[nName] = *xy
 			}
 		}
 	}

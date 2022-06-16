@@ -28,8 +28,13 @@ export type ChartArrow = {
 }
 
 export type Chart = {
-    nodes: ChartNode[]
-    arrows: ChartArrow[]
+    nodes: ChartNode[] | null
+    arrows: ChartArrow[] | null
     id: string
     title: string
+}
+
+export type GraphDependency = {
+    firstId: string
+    nextId: string
 }
