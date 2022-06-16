@@ -7,6 +7,7 @@ import {ActivityAddButton} from "./ActivityAddButton";
 import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityDeleteButton} from "./ActivityDeleteButton";
 import {EdgeDeleteButton} from "./EdgeDeleteButton";
+import {EdgeSplitButton} from "./EdgeSplitButton";
 
 type ActionsBarProps = {
     node: CpmNodeType | null
@@ -32,8 +33,8 @@ export const ActionsBar: FC<ActionsBarProps> = ({node, edge}) => {
             }
             {edge &&
                 <>
-                    <Divider type={"vertical"} />
-                    <Button size="small" type="dashed">Split {edge.id}</Button>
+                    <Divider type={"vertical"}/>
+                    <EdgeSplitButton graphId={activeChartId} edge={edge}/>
                     <EdgeDeleteButton graphId={activeChartId} edge={edge}/>
                 </>
             }
