@@ -9,8 +9,9 @@ import {
     NodeChange,
     OnConnect,
     OnEdgesChange,
-    OnNodesChange, ReactFlowInstance,
-    OnSelectionChangeFunc
+    OnNodesChange,
+    OnSelectionChangeFunc,
+    ReactFlowInstance
 } from 'react-flow-renderer';
 import api from "../api/api";
 import {GraphDependency} from "../api/types";

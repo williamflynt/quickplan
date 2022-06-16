@@ -3,6 +3,7 @@ package cpm
 import (
 	"fmt"
 	"github.com/cockroachdb/errors"
+	"math"
 )
 
 // Task is a unit of work in a project.
@@ -168,10 +169,10 @@ func setEarlyStartFinish(n *Node) (start float64, finish float64) {
 	for i := range n.predecessors {
 		_, fin := setEarlyStartFinish(n.predecessors[i])
 		if fin > n.EarliestStart {
-			n.EarliestStart = fin
+			n.EarliestStart = tenthRound(fin)
 		}
 	}
-	n.EarliestFinish = n.EarliestStart + n.Duration
+	n.EarliestFinish = tenthRound(n.EarliestStart + n.Duration)
 	return n.EarliestStart, n.EarliestFinish
 }
 
@@ -197,14 +198,14 @@ func setLateStartFinish(n *Node) (start float64, finish float64) {
 		}
 		s, _ := setLateStartFinish(n.requiredBy[i])
 		if i == 0 {
-			n.LatestFinish = s
+			n.LatestFinish = tenthRound(s)
 		}
 		if n.LatestFinish > s {
-			n.LatestFinish = s
+			n.LatestFinish = tenthRound(s)
 		}
 	}
-	n.LatestStart = n.LatestFinish - n.Duration
-	n.Slack = n.LatestFinish - n.EarliestFinish
+	n.LatestStart = tenthRound(n.LatestFinish - n.Duration)
+	n.Slack = tenthRound(n.LatestFinish - n.EarliestFinish)
 	return n.LatestStart, n.LatestFinish
 }
 
@@ -286,4 +287,9 @@ func nodeFromTask(t Task) *Node {
 		predecessors:   before,
 		requiredBy:     after,
 	}
+}
+
+func tenthRound(f float64) float64 {
+	ratio := math.Pow(10, float64(1))
+	return math.Round(f*ratio) / ratio
 }

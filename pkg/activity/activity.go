@@ -36,7 +36,7 @@ func (a *Activity) Meta() map[string]string {
 func (a *Activity) Duration() float64 {
 	ans := float64(a.DurationLow+(a.DurationLikely*4)+a.DurationHigh) / 6
 	// Round to nearest tenth.
-	return math.Round(ans/0.1) * 0.1
+	return tenthRound(ans)
 }
 
 // DurationL is the low estimated duration for an Activity.
@@ -68,4 +68,11 @@ func (a *Activity) Predecessors() []string {
 type Dependency struct {
 	FirstId string `json:"firstId"` // FirstId is the ID of the first Activity (the dependency).
 	NextId  string `json:"nextId"`  // NextId is the ID of the downstream activity (depends on first).
+}
+
+// --- HELPERS ---
+
+func tenthRound(f float64) float64 {
+	ratio := math.Pow(10, float64(1))
+	return math.Round(f*ratio) / ratio
 }
