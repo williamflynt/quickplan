@@ -6,14 +6,13 @@ import (
 
 // Activity represents a discrete work item in a project. It implements cpm.Task.
 type Activity struct {
-	Id             string `json:"id"`             // Id is the unique Activity ID. It may not have semantic meaning.
-	Name           string `json:"name"`           // Name is the human-readable label name for the Activity.
-	Descr          string `json:"description"`    // Descr is a longer-form description of this Activity.
-	DurationLow    int    `json:"durationLow"`    // DurationLow is the minimum length to accomplish the Activity in arbitrary units.
-	DurationLikely int    `json:"durationLikely"` // DurationLikely is the most likely length to accomplish the Activity in arbitrary units.
-	DurationHigh   int    `json:"durationHigh"`   // DurationHigh is the longest length to accomplish the Activity in arbitrary units.
-
-	dependsOn map[string]*Activity // dependsOn is the list of Activity that must finish before this can start.
+	Id             string               `json:"id"`             // Id is the unique Activity ID. It may not have semantic meaning.
+	Name           string               `json:"name"`           // Name is the human-readable label name for the Activity.
+	Descr          string               `json:"description"`    // Descr is a longer-form description of this Activity.
+	DurationLow    int                  `json:"durationLow"`    // DurationLow is the minimum length to accomplish the Activity in arbitrary units.
+	DurationLikely int                  `json:"durationLikely"` // DurationLikely is the most likely length to accomplish the Activity in arbitrary units.
+	DurationHigh   int                  `json:"durationHigh"`   // DurationHigh is the longest length to accomplish the Activity in arbitrary units.
+	DependsOn      map[string]*Activity `json:"dependsOn"`      // DependsOn is the list of Activity that must finish before this can start.
 }
 
 func (a *Activity) Uid() string {
@@ -56,7 +55,7 @@ func (a *Activity) DurationH() int {
 
 func (a *Activity) Predecessors() []string {
 	ado := make([]string, 0)
-	for _, v := range a.dependsOn {
+	for _, v := range a.DependsOn {
 		if v != nil {
 			ado = append(ado, v.Id)
 		}

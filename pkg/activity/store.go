@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"io/ioutil"
 	"os"
 )
 
@@ -23,7 +24,18 @@ type InMemoryGraphStore struct {
 
 func NewInMemoryGraphStore() *InMemoryGraphStore {
 	log.Warn().Msg("using InMemoryGraphStore - only InMemoryGraph is supported on Load")
-	return &InMemoryGraphStore{storage: make(map[string]Graph)}
+	store := &InMemoryGraphStore{storage: make(map[string]Graph)}
+	existingGraphData := readTmpGraphFile()
+	if len(existingGraphData) > 0 {
+		log.Info().Msg("loading existing Graph from tmp file")
+		g := NewInMemoryGraph("")
+		if _, err := g.Deserialize(existingGraphData); err != nil {
+			log.Error().Err(err).Msg("failed to deserialize tmp data to Graph")
+			return store
+		}
+		store.storage[g.Id] = &g
+	}
+	return store
 }
 
 // Save adds the Graph to the store, but also saves the Chart JSON to `/tmp/<id>.graph` as a backup measure.
@@ -37,7 +49,8 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	}
 	s.storage[id] = graph
 	b := graph.Serialize()
-	err := writeTmpGraphFile(id, b)
+	err := writeTmpGraphFile(b)
+	log.Debug().Msgf(`saved Graph with id %s`, id)
 	return id, err
 }
 
@@ -64,8 +77,22 @@ func (s *InMemoryGraphStore) Delete(id string) {
 
 // --- HELPERS ---
 
-func writeTmpGraphFile(id string, data []byte) error {
-	path := fmt.Sprintf(`/tmp/%s.graph`, id)
+func graphFilePath() string {
+	return `/tmp/quickplan.tmp.graph`
+}
+
+func readTmpGraphFile() []byte {
+	path := graphFilePath()
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Error().Err(err).Msg("could not read tmp graph file")
+		return []byte{}
+	}
+	return content
+}
+
+func writeTmpGraphFile(data []byte) error {
+	path := graphFilePath()
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err

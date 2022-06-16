@@ -45,7 +45,7 @@ func NewInMemoryGraph(title string) InMemoryGraph {
 	startNode := Activity{
 		Id:        "START",
 		Name:      "Start",
-		dependsOn: make(map[string]*Activity),
+		DependsOn: make(map[string]*Activity),
 	}
 	g.ActivityMap[startNode.Id] = &startNode
 	g.Id = ptrId(&g)
@@ -97,7 +97,7 @@ func (i *InMemoryGraph) ActivityAdd(activity Activity) (Graph, error) {
 	if err := i.validateIdNotExists(activity.Id); err != nil {
 		return i, err
 	}
-	activity.dependsOn = make(map[string]*Activity, 0)
+	activity.DependsOn = make(map[string]*Activity, 0)
 	i.ActivityMap[activity.Id] = &activity
 	return i, nil
 }
@@ -113,8 +113,8 @@ func (i *InMemoryGraph) ActivityClone(id string) (Graph, error) {
 	}
 
 	// Clone dependencies.
-	for k, v := range i.ActivityMap[id].dependsOn {
-		i.ActivityMap[newId].dependsOn[k] = v
+	for k, v := range i.ActivityMap[id].DependsOn {
+		i.ActivityMap[newId].DependsOn[k] = v
 	}
 
 	return i, nil
@@ -133,14 +133,14 @@ func (i *InMemoryGraph) ActivityInsertAfter(existingId string) (Graph, error) {
 
 	// Move all outbound arrows from existing to this node.
 	for _, a := range i.ActivityMap {
-		if _, ok := a.dependsOn[existingId]; ok {
-			delete(a.dependsOn, existingId)
-			a.dependsOn[newId] = i.ActivityMap[newId]
+		if _, ok := a.DependsOn[existingId]; ok {
+			delete(a.DependsOn, existingId)
+			a.DependsOn[newId] = i.ActivityMap[newId]
 		}
 	}
-	// Add existing to the dependsOn for the new Activity.
-	i.ActivityMap[newId].dependsOn[existingId] = i.ActivityMap[existingId]
-	
+	// Add existing to the DependsOn for the new Activity.
+	i.ActivityMap[newId].DependsOn[existingId] = i.ActivityMap[existingId]
+
 	return i, nil
 }
 
@@ -156,13 +156,13 @@ func (i *InMemoryGraph) ActivityInsertBefore(existingId string) (Graph, error) {
 	}
 
 	// Point all inbound Dependencies from the existing Activity to this new Activity.
-	for id, p := range i.ActivityMap[existingId].dependsOn {
+	for id, p := range i.ActivityMap[existingId].DependsOn {
 		if p != nil {
-			i.ActivityMap[newId].dependsOn[id] = p
+			i.ActivityMap[newId].DependsOn[id] = p
 		}
 	}
 	// Update the existing Activity to only rely on the new one.
-	i.ActivityMap[existingId].dependsOn = map[string]*Activity{newId: i.ActivityMap[newId]}
+	i.ActivityMap[existingId].DependsOn = map[string]*Activity{newId: i.ActivityMap[newId]}
 
 	return i, nil
 }
@@ -192,7 +192,7 @@ func (i *InMemoryGraph) ActivityRemove(id string) (Graph, error) {
 	delete(i.ActivityMap, id)
 	// Remove related Dependencies.
 	for _, a := range i.ActivityMap {
-		delete(a.dependsOn, id)
+		delete(a.DependsOn, id)
 	}
 	return i, nil
 }
@@ -200,7 +200,7 @@ func (i *InMemoryGraph) ActivityRemove(id string) (Graph, error) {
 func (i *InMemoryGraph) Dependencies() []Dependency {
 	allDeps := make([]Dependency, 0)
 	for _, a := range i.ActivityMap {
-		for _, d := range a.dependsOn {
+		for _, d := range a.DependsOn {
 			allDeps = append(allDeps, Dependency{
 				FirstId: d.Id,
 				NextId:  a.Id,
@@ -222,7 +222,7 @@ func (i *InMemoryGraph) DependencyAdd(firstId string, nextId string) (Graph, err
 		return i, err
 	}
 
-	i.ActivityMap[nextId].dependsOn[firstId] = i.ActivityMap[firstId]
+	i.ActivityMap[nextId].DependsOn[firstId] = i.ActivityMap[firstId]
 
 	return i, nil
 }
@@ -231,7 +231,7 @@ func (i *InMemoryGraph) DependencyRemove(firstId string, nextId string) (Graph, 
 	if err := i.validateIdExists(nextId); err != nil {
 		return i, err
 	}
-	delete(i.ActivityMap[nextId].dependsOn, firstId)
+	delete(i.ActivityMap[nextId].DependsOn, firstId)
 	return i, nil
 }
 
