@@ -213,16 +213,16 @@ func setLateStartFinish(n *Node) (start float64, finish float64) {
 // the latest start and finish Duration.
 func doBackwardPass(n *Node, ends ...*Node) {
 	for i := range ends {
-		ends[i].LatestStart = ends[i].EarliestStart
-		ends[i].LatestFinish = ends[i].EarliestFinish
+		ends[i].LatestStart = tenthRound(ends[i].EarliestStart)
+		ends[i].LatestFinish = tenthRound(ends[i].EarliestFinish)
 	}
 	for i, e := range ends {
 		// Take the highest latest finish from the group and use for all ender nodes.
 		if e.LatestFinish > n.LatestFinish {
 			for j := range ends {
-				ends[j].LatestFinish = e.LatestFinish
-				ends[j].LatestStart = e.LatestFinish - ends[i].Duration
-				ends[j].Slack = e.LatestFinish - ends[i].EarliestFinish
+				ends[j].LatestFinish = tenthRound(e.LatestFinish)
+				ends[j].LatestStart = tenthRound(e.LatestFinish - ends[i].Duration)
+				ends[j].Slack = tenthRound(e.LatestFinish - ends[i].EarliestFinish)
 			}
 		}
 	}
