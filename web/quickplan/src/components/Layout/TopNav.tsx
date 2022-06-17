@@ -9,6 +9,7 @@ import {ExportCsvButton} from "./ExportCSVButton";
 import {ExportGraphvizButton} from "./ExportGraphvizButton";
 import {LoadJsonButton} from "./LoadJsonButton";
 import {LoadCsvButton} from "./LoadCsvButton";
+import {ChartSelect} from "./ChartSelect";
 
 export const TopNav: FC<{ enableExport: boolean }> = ({enableExport}) => {
     const {nodeToolsVisible} = useStore()
@@ -30,6 +31,7 @@ export const TopNav: FC<{ enableExport: boolean }> = ({enableExport}) => {
         {key: 'load-json', label: <LoadJsonButton/>},
         {key: 'load-csv', label: <LoadCsvButton/>},
         {key: 'show-node-tools', label: showNodeToolsButton},
+        {key: 'chart-select', label: <ChartSelect/>},
     ]
     return (
         <Menu mode="horizontal"
