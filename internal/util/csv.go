@@ -17,7 +17,7 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 	if err != nil {
 		return nil, err
 	}
-	headerTemplate := []string{"id", "name", "description", "durationLow", "durationLikely", "durationHigh"}
+	headerTemplate := []string{"id", "name", "description", "durationLow", "durationLikely", "durationHigh", "dependsOn"}
 	if len(records) < 1 {
 		return nil, errors.New("no data in CSV")
 	}
@@ -34,6 +34,8 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 	}
 
 	g := activity.NewInMemoryGraph("New Graph")
+
+	deps := make([]activity.Dependency, 0)
 
 	for _, vals := range records[1:] {
 		dLo, err := strconv.Atoi(vals[3])
@@ -64,7 +66,32 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 		if err != nil {
 			log.Error().Err(err).Str("id", vals[0]).Msg("failed to add Activity - skipping")
 		}
+		deps = append(deps, stringToDeps(vals[0], vals[6])...)
+	}
+
+	for _, d := range deps {
+		if _, err := g.DependencyAdd(d.FirstId, d.NextId); err != nil {
+			log.Error().Err(err).Msg("failed to add Dependency - skipping")
+		}
 	}
 
 	return &g, nil
+}
+
+func stringToDeps(rowId string, s string) []activity.Dependency {
+	deps := make([]activity.Dependency, 0)
+	if rowId == "" {
+		log.Warn().Msg("got empty rowId for deps")
+		return deps
+	}
+	fromIds := strings.Split(s, ",")
+	for _, val := range fromIds {
+		if val != "" {
+			deps = append(deps, activity.Dependency{
+				FirstId: val,
+				NextId:  rowId,
+			})
+		}
+	}
+	return deps
 }
