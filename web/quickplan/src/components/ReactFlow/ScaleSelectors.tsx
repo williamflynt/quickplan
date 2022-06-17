@@ -17,7 +17,7 @@ export const ScaleSelectors: FC = () => {
         if (!value) {
             return
         }
-        useStore.setState({positionScaleX: Number(value)})
+        useStore.setState({positionScaleY: Number(value)})
     }
 
     return (

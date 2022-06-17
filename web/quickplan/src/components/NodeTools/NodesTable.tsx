@@ -46,17 +46,17 @@ export const NodesTable: FC = () => {
         },
         {
             title: 'Duration Low',
-            dataIndex: ['data', 'cpm', 'duration'],
+            dataIndex: ['data', 'cpm', 'durationLow'],
             key: 'cpm.durationLow',
         },
         {
             title: 'Duration Likely',
-            dataIndex: ['data', 'cpm', 'duration'],
+            dataIndex: ['data', 'cpm', 'durationLikely'],
             key: 'cpm.durationLikely',
         },
         {
             title: 'Duration High',
-            dataIndex: ['data', 'cpm', 'duration'],
+            dataIndex: ['data', 'cpm', 'durationHigh'],
             key: 'cpm.durationHigh',
         },
     ]
