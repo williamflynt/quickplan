@@ -24,6 +24,9 @@ export type CpmNodeData = {
 export type CpmNodeType = Node<CpmNodeData>
 
 export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
+    const positionScaleX = useStore.getState().positionScaleX || 3.5
+    const positionScaleY = useStore.getState().positionScaleY || 2.0
+
     return {
         id: n.id,
         type: 'cpmTask',
@@ -43,7 +46,7 @@ export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
             }
         },
         // Scale positions to avoid clustering.
-        position: {x: n.position.x * 2.3, y: n.position.y * 3.5},
+        position: {x: n.position.x * positionScaleX, y: n.position.y * positionScaleY},
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
     }
