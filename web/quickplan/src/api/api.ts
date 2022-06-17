@@ -43,6 +43,11 @@ class Api {
         return axios.get(this.url(`/api/v1/graph/new`))
     }
 
+    async graphNewFromCsv(chartCsv: string): Promise<AxiosResponse<Chart>> {
+        const headers = {"Content-Type": "text/csv"}
+        return axios.post(this.url(`/api/v1/graph/new/csv`), chartCsv, {headers})
+    }
+
     async graphGet(id: string): Promise<AxiosResponse<Chart>> {
         return axios.get(this.url(`/api/v1/graph/${id}`))
     }

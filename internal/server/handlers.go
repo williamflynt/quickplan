@@ -69,6 +69,37 @@ func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(b)
 }
 
+func (s *Server) graphNewFromCsv(w http.ResponseWriter, r *http.Request) {
+	graphData, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
+	g, err := util.ChartFromCsv(graphData)
+	if err != nil {
+		w.WriteHeader(400)
+		log.Error().Err(err).Msg("could not transform CSV to Graph")
+		return
+	}
+	if _, err := s.GraphStore.Save(g); err != nil {
+		log.Error().Err(err).Msg("error saving newly loaded Graph to store")
+		w.WriteHeader(500)
+		return
+	}
+
+	chartData, err := util.GraphToChartJson(g)
+	if err != nil {
+		w.WriteHeader(500)
+		log.Error().Err(err).Msg("could not get Chart from Graph")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	_, _ = w.Write(chartData)
+}
+
 func (s *Server) graphGet(w http.ResponseWriter, r *http.Request) {
 	graphId := chi.URLParam(r, "id")
 	g, err := s.GraphStore.Load(graphId)

@@ -26,6 +26,7 @@ func (s *Server) routes() chi.Router {
 					r.Get("/example", s.exampleChartHandlerFunc)
 					r.Post("/load", s.graphLoad)
 					r.Get("/new", s.graphNew)
+					r.Post("/new/csv", s.graphNewFromCsv)
 
 					r.Route("/{id}", func(r chi.Router) {
 						r.Get("/", s.graphGet)
