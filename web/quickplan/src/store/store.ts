@@ -32,8 +32,11 @@ type RFState = {
     activeEdgeId: string | null; // The edge that is clicked/active. This is what will show in nodeTools.
     activeNodeId: string | null; // The node that is clicked/active. This is what will show in nodeTools.
     nodeToolsVisible: boolean // Are the node tools open or closed?
+
     positionHold: boolean // Hold positions of nodes on new data, or reflow every time?
     positionHoldCanReflow: boolean // Is there updated information from the server on position?
+    positionScaleX: number // How much to scale the server-provided coords in the horizontal axis.
+    positionScaleY: number // How much to scale the server-provided coords in the vertical axis.
 };
 
 export const useStore = create<RFState>((set, get) => ({
@@ -85,4 +88,6 @@ export const useStore = create<RFState>((set, get) => ({
     nodeToolsVisible: false,
     positionHold: true,
     positionHoldCanReflow: false,
+    positionScaleX: 3.5,
+    positionScaleY: 2.0,
 }));
