@@ -27,7 +27,7 @@ func NewInMemoryGraphStore() *InMemoryGraphStore {
 	store := &InMemoryGraphStore{storage: make(map[string]Graph)}
 	existingGraphData := readTmpGraphFile()
 	if len(existingGraphData) > 0 {
-		log.Info().Msg("loading existing Graph from tmp file")
+		log.Info().Msg("loading most recent Graph from tmp file")
 		g := NewInMemoryGraph("")
 		if _, err := g.Deserialize(existingGraphData); err != nil {
 			log.Error().Err(err).Msg("failed to deserialize tmp data to Graph")
@@ -49,7 +49,8 @@ func (s *InMemoryGraphStore) Save(graph Graph) (string, error) {
 	}
 	s.storage[id] = graph
 	b := graph.Serialize()
-	err := writeTmpGraphFile(b)
+	_ = writeTmpGraphFile(b, "")    // Save to the default tmp file.
+	err := writeTmpGraphFile(b, id) // Save to a dedicated tmp file.
 	log.Debug().Msgf(`saved Graph with id %s`, id)
 	return id, err
 }
@@ -77,12 +78,15 @@ func (s *InMemoryGraphStore) Delete(id string) {
 
 // --- HELPERS ---
 
-func graphFilePath() string {
-	return `/tmp/quickplan.tmp.graph`
+func graphFilePath(id string) string {
+	if id == "" {
+		return `/tmp/quickplan.tmp.graph`
+	}
+	return fmt.Sprintf(`/tmp/quickplan.%s.tmp.graph`, id)
 }
 
 func readTmpGraphFile() []byte {
-	path := graphFilePath()
+	path := graphFilePath("")
 	content, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Error().Err(err).Msg("could not read tmp graph file")
@@ -91,8 +95,8 @@ func readTmpGraphFile() []byte {
 	return content
 }
 
-func writeTmpGraphFile(data []byte) error {
-	path := graphFilePath()
+func writeTmpGraphFile(data []byte, id string) error {
+	path := graphFilePath(id)
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
