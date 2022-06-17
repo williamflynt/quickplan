@@ -191,17 +191,25 @@ func (i *InMemoryGraph) ActivityPatch(id string, attrs map[string]any) (Graph, e
 	if newIdAny, ok := attrs["id"]; ok {
 		newId, isString := newIdAny.(string)
 		if !isString {
-			log.Error().Msg("got non-string ID on PATCH - skipping")
+			err := errors.New("got non-string id on PATCH")
+			log.Error().Err(err).Msg("id value must be a string")
+			return i, err
 		}
-		if isString {
-			// We updated the ID, so update dependencies first.
-			for _, activity := range i.ActivityMap {
-				if _, hasDep := activity.DependsOn[id]; hasDep {
-					activity.DependsOn[newId] = activity.DependsOn[id]
-					delete(activity.DependsOn, id)
-				}
+		if err := i.validateIdNotExists(newId); err != nil {
+			return i, err
+		}
+		// We're updating the ID, so update dependencies first.
+		for _, activity := range i.ActivityMap {
+			if _, hasDep := activity.DependsOn[id]; hasDep {
+				activity.DependsOn[newId] = activity.DependsOn[id]
+				delete(activity.DependsOn, id)
 			}
 		}
+		// Replace the map entry for the old ID with the new ID.
+		i.ActivityMap[newId] = i.ActivityMap[id]
+		delete(i.ActivityMap, id)
+		err = json.Unmarshal(j, i.ActivityMap[newId])
+		return i, err
 	}
 	err = json.Unmarshal(j, i.ActivityMap[id])
 	return i, err
