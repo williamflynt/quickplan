@@ -21,10 +21,10 @@ export const SetupChart = (data: Chart, ovrdPositionHold?: true): void => {
             source: a.from,
             target: a.to,
             markerEnd: {type: MarkerType.ArrowClosed},
-            style: {strokeWidth: 2}
+            style: {strokeWidth: 3}
         }
         if (a.criticalPath) {
-            return {...edge, style: {stroke: 'red', strokeWidth: 2}, markerEnd: {...edge.markerEnd, color: 'red'}}
+            return {...edge, style: {stroke: 'red', strokeWidth: 3, opacity: 0.5}, markerEnd: {...edge.markerEnd, color: 'red'}}
         }
         return edge
     })

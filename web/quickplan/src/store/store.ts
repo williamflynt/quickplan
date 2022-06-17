@@ -89,5 +89,5 @@ export const useStore = create<RFState>((set, get) => ({
     positionHold: true,
     positionHoldCanReflow: false,
     positionScaleX: 3.5,
-    positionScaleY: 2.0,
+    positionScaleY: 1.5,
 }));
