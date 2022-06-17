@@ -43,7 +43,7 @@ func TestInMemoryGraph_Serialize(t *testing.T) {
 	g := newTestGraph()
 	data := g.Serialize()
 
-	newG := NewInMemoryGraph("")
+	newG := NewInMemoryGraph()
 	if _, err := newG.Deserialize(data); err != nil {
 		t.Fatal("expected err to be nil")
 	}

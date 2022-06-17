@@ -52,7 +52,8 @@ func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
-	g := activity.NewInMemoryGraph("New Graph")
+	g := activity.NewInMemoryGraph()
+	g.LabelSet("New Graph")
 	_, err := s.GraphStore.Save(&g)
 	if err != nil {
 		w.WriteHeader(500)

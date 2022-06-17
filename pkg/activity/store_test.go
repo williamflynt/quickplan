@@ -31,7 +31,8 @@ func TestInMemoryGraphStore(t *testing.T) {
 }
 
 func newTestGraph() InMemoryGraph {
-	g := NewInMemoryGraph("Basic Example")
+	g := NewInMemoryGraph()
+	g.LabelSet("Basic Example")
 	_, _ = g.ActivityAdd(Activity{
 		Id:             "START",
 		Name:           "Start",

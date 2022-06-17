@@ -38,9 +38,8 @@ type InMemoryGraph struct {
 	ActivityMap map[string]*Activity `json:"activityMap"` // ActivityMap stores Activity entities, mapped by Id.
 }
 
-func NewInMemoryGraph(title string) InMemoryGraph {
+func NewInMemoryGraph() InMemoryGraph {
 	g := InMemoryGraph{
-		Name:        title,
 		ActivityMap: make(map[string]*Activity),
 	}
 	startNode := Activity{
@@ -48,7 +47,14 @@ func NewInMemoryGraph(title string) InMemoryGraph {
 		Name:      "Start",
 		DependsOn: make(map[string]*Activity),
 	}
+	// Initialize the endNode with startNode as a dependency.
+	endNode := Activity{
+		Id:        "END",
+		Name:      "End",
+		DependsOn: map[string]*Activity{startNode.Id: &startNode},
+	}
 	g.ActivityMap[startNode.Id] = &startNode
+	g.ActivityMap[endNode.Id] = &endNode
 	g.Id = ptrId(&g)
 	return g
 }

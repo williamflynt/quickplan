@@ -33,7 +33,8 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 		}
 	}
 
-	g := activity.NewInMemoryGraph("New Graph")
+	g := activity.NewInMemoryGraph()
+	g.LabelSet("New Graph")
 
 	deps := make([]activity.Dependency, 0)
 

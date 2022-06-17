@@ -8,7 +8,8 @@ import (
 )
 
 func Basic() *cpm.Chart {
-	g := activity.NewInMemoryGraph("Basic Example")
+	g := activity.NewInMemoryGraph()
+	g.LabelSet("Basic Example")
 	_, _ = g.ActivityAdd(activity.Activity{
 		Id:             "START",
 		Name:           "Start",

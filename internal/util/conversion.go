@@ -21,7 +21,8 @@ func ChartJsonToGraph(data []byte) (activity.Graph, error) {
 
 // ChartToGraph converts a cpm.Chart to an activity.Graph.
 func ChartToGraph(c cpm.Chart) activity.Graph {
-	g := activity.NewInMemoryGraph(c.Title)
+	g := activity.NewInMemoryGraph()
+	g.LabelSet(c.Title)
 	g.Id = c.Id
 	for _, n := range c.Nodes {
 		a := activity.Activity{

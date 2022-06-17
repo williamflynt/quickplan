@@ -28,7 +28,7 @@ func NewInMemoryGraphStore() *InMemoryGraphStore {
 	existingGraphData := readTmpGraphFile()
 	if len(existingGraphData) > 0 {
 		log.Info().Msg("loading most recent Graph from tmp file")
-		g := NewInMemoryGraph("")
+		g := NewInMemoryGraph()
 		if _, err := g.Deserialize(existingGraphData); err != nil {
 			log.Error().Err(err).Msg("failed to deserialize tmp data to Graph")
 			return store
