@@ -8,6 +8,7 @@ import {ExportJsonButton} from "./ExportJsonButton";
 import {ExportCsvButton} from "./ExportCSVButton";
 import {ExportGraphvizButton} from "./ExportGraphvizButton";
 import {LoadJsonButton} from "./LoadJsonButton";
+import {LoadCsvButton} from "./LoadCsvButton";
 
 export const TopNav: FC<{ enableExport: boolean }> = ({enableExport}) => {
     const {nodeToolsVisible} = useStore()
@@ -27,6 +28,7 @@ export const TopNav: FC<{ enableExport: boolean }> = ({enableExport}) => {
         {key: 'export-graphiz', label: <ExportGraphvizButton enabled={enableExport}/>},
         {key: 'export-json', label: <ExportJsonButton enabled={enableExport}/>},
         {key: 'load-json', label: <LoadJsonButton/>},
+        {key: 'load-csv', label: <LoadCsvButton/>},
         {key: 'see-example', label: <Link href={Routes.exampleBasic}>See Example</Link>},
         {key: 'show-node-tools', label: showNodeToolsButton},
     ]
