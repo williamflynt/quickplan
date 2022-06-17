@@ -1,21 +1,32 @@
 import React, {FC} from "react";
 import {useStore} from "../../store/store";
-import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {Table, Typography} from "antd";
+import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 
 export const NodesTable: FC = () => {
     const {activeNodeId, nodes} = useStore()
+
+    const stringSorter = (s1: string, s2: string) => {
+        if (s1 > s2) {
+            return 1
+        }
+        if (s2 > s1) {
+            return -1
+        }
+        return 0
+    }
 
     const columns = [
         {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
+            sorter: (a: CpmNodeType, b: CpmNodeType) => stringSorter(a.id, b.id),
             render: (id: string) => {
                 if (id === activeNodeId) {
                     return <Typography.Text strong>{id}</Typography.Text>
                 }
-                return id
+                return <Typography.Link>{id}</Typography.Link>
             }
         },
         {
@@ -50,5 +61,19 @@ export const NodesTable: FC = () => {
         },
     ]
 
-    return <Table dataSource={nodes} columns={columns} pagination={false} size="small"/>
+    const selectNodeOnRow = (record: { id: string }) => {
+        return {
+            onClick: () => {
+                useStore.setState({activeNodeId: record.id})
+            }
+        }
+    }
+
+    return <Table dataSource={nodes}
+                  columns={columns}
+                  pagination={false}
+                  size="small"
+                  onRow={selectNodeOnRow}
+                  rowKey={(r: CpmNodeType) => r.id}
+    />
 }
