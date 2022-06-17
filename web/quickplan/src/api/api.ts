@@ -81,14 +81,12 @@ class Api {
         return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/clone`), undefined, {headers})
     }
 
-    async graphActivityInsertBefore(graphId: string, activityId: string, activityJson: string): Promise<AxiosResponse<Chart>> {
-        const headers = {"Content-Type": "application/json"}
-        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/before`), activityJson, {headers})
+    async graphActivityInsertBefore(graphId: string, activityId: string): Promise<AxiosResponse<Chart>> {
+        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/before`), undefined)
     }
 
-    async graphActivityInsertAfter(graphId: string, activityId: string, activityJson: string): Promise<AxiosResponse<Chart>> {
-        const headers = {"Content-Type": "application/json"}
-        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/after`), activityJson, {headers})
+    async graphActivityInsertAfter(graphId: string, activityId: string): Promise<AxiosResponse<Chart>> {
+        return axios.post(this.url(`/api/v1/graph/${graphId}/activities/${activityId}/insert/after`), undefined)
     }
 
     // --- DEPENDENCY / ARROW / EDGE ---

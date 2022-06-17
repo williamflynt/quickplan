@@ -181,8 +181,15 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
         }}>Milestone</Typography.Text>
     )
 
+    const tinyIdTag = (
+        <Typography.Text style={{fontSize: '0.4em', position: "absolute", top: 30, left: 5}} code>
+            {props.id}
+        </Typography.Text>
+    )
+
     return (
         <div>
+            {tinyIdTag}
             <div className={className} onClick={toggleNodeActive}>
                 <Handle type="target" position={Position.Left} style={{width: '12px', height: '12px', left: -5}}
                         isConnectable/>

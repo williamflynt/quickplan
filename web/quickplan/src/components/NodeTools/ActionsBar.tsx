@@ -2,13 +2,12 @@ import React, {FC} from "react";
 import {useStore} from "../../store/store";
 import {Edge} from "react-flow-renderer";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
-import {Button, Divider, Space} from "antd";
+import {Divider, Space} from "antd";
 import {ActivityAddButton} from "./ActivityAddButton";
-import {LeftOutlined, RightOutlined} from "@ant-design/icons";
 import {ActivityDeleteButton} from "./ActivityDeleteButton";
 import {EdgeDeleteButton} from "./EdgeDeleteButton";
 import {EdgeSplitButton} from "./EdgeSplitButton";
-import {ActivityInsertBefore, ActivityInsertAfter} from "./ActivityInsert";
+import {ActivityInsertAfter, ActivityInsertBefore} from "./ActivityInsert";
 import {ActivityCloneButton} from "./ActivityCloneButton";
 
 type ActionsBarProps = {
