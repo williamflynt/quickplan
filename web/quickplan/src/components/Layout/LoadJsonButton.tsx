@@ -8,8 +8,8 @@ import {useStore} from "../../store/store";
 export const LoadJsonButton: FC = () => {
     const doLoad = (fileData: string) => {
         api.graphLoad(fileData).then((response) => {
-            useStore.setState({activeChartId: response.data.id})
             SetupChart(response.data)
+            useStore.setState({activeChartId: response.data.id})
             message.success('Loaded Chart');
         })
             .catch(() => {
