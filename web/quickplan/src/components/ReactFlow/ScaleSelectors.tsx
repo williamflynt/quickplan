@@ -1,8 +1,7 @@
 import React, {FC} from 'react'
 import {useStore} from "../../store/store";
-import {InputNumber, Select} from "antd";
+import {InputNumber} from "antd";
 
-const {Option} = Select
 
 export const ScaleSelectors: FC = () => {
     const {positionScaleX, positionScaleY} = useStore()

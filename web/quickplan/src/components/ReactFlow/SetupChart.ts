@@ -1,10 +1,10 @@
 import {MarkerType} from "react-flow-renderer";
-import {Chart, ChartNode} from "../../api/types";
+import {Chart, ChartNode, ChartNodePosition} from "../../api/types";
 import {ChartNodeToCpmTask, CpmNodeType} from "./CpmTaskNode";
 import {useStore} from "../../store/store";
 
 export const SetupChart = (data: Chart, ovrdPositionHold?: true): void => {
-    const {flowInstance, nodes, positionHold} = useStore.getState()
+    const {flowInstance, nodes, positionHold, activeNodeId} = useStore.getState()
     if (!flowInstance) {
         return
     }
@@ -29,11 +29,33 @@ export const SetupChart = (data: Chart, ovrdPositionHold?: true): void => {
         return edge
     })
 
+    // If we made a new node, let's select it. If not, just keep what we have already set as active.
+    const newActiveNodeId = maybeNewActiveNodeId(nodes, nodeArray) || activeNodeId
     // We can have an active edge that's animated, but this function will overwrite the edges.
     // So deselect that one.
-    useStore.setState({positionHoldCanReflow: canReflow, activeEdgeId: null})
+    useStore.setState({positionHoldCanReflow: canReflow, activeEdgeId: null, activeNodeId: newActiveNodeId})
     flowInstance.setNodes(n)
     flowInstance.setEdges(e)
+}
+
+/**
+ * maybeNewActiveNodeId checks if there is a single new node. If so, select that one as active node.
+ * This is useful to auto-select the node that is just created for editing.
+ */
+const maybeNewActiveNodeId = (oldNodes: {id: string}[], newNodes: {id: string}[]): string | null => {
+    if (newNodes.length - 1 !== oldNodes.length) {
+        return null
+    }
+    const oldIdSet = oldNodes.reduce((coll, n) => {
+        coll.add(n.id);
+        return coll
+    }, new Set<string>())
+    for (let i = 0; i < newNodes.length; i++) {
+        if (!oldIdSet.has(newNodes[i].id)) {
+            return newNodes[i].id
+        }
+    }
+    return null
 }
 
 const maybePositionHoldNodes = (chartNodes: ChartNode[], existingNodes: CpmNodeType[], positionHold: boolean): [CpmNodeType[], boolean] => {
