@@ -19,7 +19,7 @@ Faster PERT charts.
 
 ## Quickstart
 
-This gets you up as quickly as possible.
+This gets you up and running as quickly as possible.
 
 ### Prerequisites
 
