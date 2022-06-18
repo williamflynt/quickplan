@@ -8,8 +8,8 @@ Faster PERT charts.
 
 1. [Quickstart](#quickstart)
     * [Prerequisites](#prerequisites)
-    * [Running the App](#running-the-app)
     * [Using Docker](#using-docker)
+    * [Using Go](#using-go)
 2. [What and Why?](#what-and-why)
 3. [Deployment](#deployment)
 4. [Limitations](#limitations)
@@ -23,37 +23,29 @@ This gets you up and running as quickly as possible.
 
 ### Prerequisites
 
-You need these things installed on your machine to run the application:
+You need either [Docker] or [Go and NPM] installed on your machine to run the application.
 
-1. NPM
-2. Go (or Docker)
+### Using Docker
 
-### Running the App
+If you don't have Go, you can use Docker. The `build/Dockerfile` works great, and it's a pretty small image (~24MB)!
 
-Now you're ready to run locally. We run the UI and the server separately.
+```shell
+docker build -f build/Dockerfile . -t quickplan
+docker run -p 3535:3535 quickplan
+```
 
+Now you can visit `http://localhost:3535` in your web browser!
+
+### Using Go
+
+This command will use NPM to build the newest 
 From project root:
 
 ```shell
 ./scripts/run-local.sh
 ```
 
-The UI and server are running in the background. Visit the UI at `http://localhost:3000` - no login required!
-
-### Using Docker
-
-If you don't have Go, you can use Docker. The `build/Dockerfile` works great, and it's a pretty small image (~23MB)!
-
-```shell
-docker build -f build/Dockerfile . -t quickplan
-docker run quickplan -p 3535:3535
-```
-
-You'll still need to run the UI:
-
-```shell
-cd web/quickplan && npm install && npm run dev
-```
+The server is running in the background - visit `http://localhost:3535` in your web browser!
 
 ## What and Why?
 
