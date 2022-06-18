@@ -1,11 +1,15 @@
 package server
 
 import (
+	"embed"
 	"github.com/go-chi/chi"
 	"net/http"
 	"quickplan/internal/config"
 	"quickplan/pkg/activity"
 )
+
+//go:embed web
+var webFs embed.FS
 
 type Server struct {
 	GraphStore activity.GraphStore

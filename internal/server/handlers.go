@@ -2,14 +2,17 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"quickplan/examples"
 	"quickplan/internal/render"
 	"quickplan/internal/util"
 	"quickplan/pkg/activity"
+	"strings"
 )
 
 // --- GRAPH HANDLERS ---
@@ -568,11 +571,6 @@ func (s *Server) graphExportDot(w http.ResponseWriter, r *http.Request) {
 
 // --- SYSTEM HANDLERS ---
 
-func (s *Server) healthcheckHandlerFunc(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
-	_, _ = w.Write([]byte("ok"))
-}
-
 func (s *Server) exampleChartHandlerFunc(w http.ResponseWriter, r *http.Request) {
 	c := examples.Basic()
 	b, err := json.Marshal(c)
@@ -584,4 +582,49 @@ func (s *Server) exampleChartHandlerFunc(w http.ResponseWriter, r *http.Request)
 	}
 	w.WriteHeader(200)
 	_, _ = w.Write(b)
+}
+
+func (s *Server) healthcheckHandlerFunc(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	_, _ = w.Write([]byte("ok"))
+}
+
+func (s *Server) uiHandlerFunc(w http.ResponseWriter, r *http.Request) {
+	htmlContent, err := webFs.ReadFile("web/index.html")
+	if err != nil {
+		w.WriteHeader(500)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(200)
+	_, _ = w.Write(htmlContent)
+}
+
+func (s *Server) uiStaticHandlerFunc(w http.ResponseWriter, r *http.Request) {
+	fileName := chi.URLParam(r, "fileName")
+	filePath := fmt.Sprintf(`web/assets/%s`, fileName)
+	fileContent, err := webFs.ReadFile(filePath)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+	w.Header().Set("Content-Type", mimeType(fileName))
+	w.WriteHeader(200)
+	_, _ = w.Write(fileContent)
+}
+
+// --- HELPERS ---
+
+func mimeType(fileName string) string {
+	components := strings.Split(fileName, ".")
+	if len(components) < 2 {
+		// Use plain text as unknown file-type MIME.
+		return "text/plain"
+	}
+	ext := components[len(components)-1]
+	t := mime.TypeByExtension(fmt.Sprintf(`.%s`, ext))
+	if t == "" {
+		return "text/plain"
+	}
+	return t
 }

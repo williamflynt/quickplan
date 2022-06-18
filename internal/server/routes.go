@@ -15,7 +15,8 @@ func (s *Server) routes() chi.Router {
 	r.Use(RequestLoggerMiddleware)
 
 	r.Group(func(r chi.Router) {
-		r.Get("/", s.healthcheckHandlerFunc)
+		r.Get("/", s.uiHandlerFunc)
+		r.Get("/assets/{fileName}", s.uiStaticHandlerFunc)
 		r.Get("/healthcheck", s.healthcheckHandlerFunc)
 
 		r.Route("/api", func(r chi.Router) {
