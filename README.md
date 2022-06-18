@@ -38,7 +38,7 @@ Now you can visit `http://localhost:3535` in your web browser!
 
 ### Using Go
 
-This command will use NPM to build the newest 
+This command will use NPM to build the newest UI, then build the Go binary (with UI embedded).
 From project root:
 
 ```shell
