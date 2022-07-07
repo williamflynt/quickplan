@@ -24,6 +24,8 @@ func ChartToGraph(c cpm.Chart) activity.Graph {
 	g := activity.NewInMemoryGraph()
 	g.LabelSet(c.Title)
 	g.Id = c.Id
+	g.ActivityMap = make(map[string]*activity.Activity) // Reset the activity map because we initialize with starter nodes.
+
 	for _, n := range c.Nodes {
 		a := activity.Activity{
 			Id:             n.Id,
