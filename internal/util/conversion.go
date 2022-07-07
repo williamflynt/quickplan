@@ -27,7 +27,7 @@ func ChartToGraph(c cpm.Chart) activity.Graph {
 	for _, n := range c.Nodes {
 		a := activity.Activity{
 			Id:             n.Id,
-			Name:           n.Label,
+			Name:           n.Title,
 			Descr:          n.Description,
 			DurationLow:    n.DurationLow,
 			DurationLikely: n.DurationLikely,
