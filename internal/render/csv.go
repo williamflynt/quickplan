@@ -17,7 +17,7 @@ func (cw *CsvWriter) Render(c *cpm.Chart) (string, error) {
 		return "", errors.New("cannot export nil Chart")
 	}
 	var data = [][]string{
-		{"Id", "Title", "Description", "Duration", "DurationLow", "DurationLikely", "DurationHigh", "X", "Y", "DependsOn", "CriticalPath", "Meta"},
+		{"id", "name", "description", "durationLow", "durationLikely", "durationHigh", "dependsOn", "x", "y", "duration", "criticalPath", "meta"},
 	}
 
 	for _, n := range c.Nodes {
@@ -39,13 +39,13 @@ func nodeToRow(n *cpm.Node, arrows []cpm.Arrow) []string {
 	row[0] = n.Id
 	row[1] = n.Title
 	row[2] = n.Description
-	row[3] = fmt.Sprintf(`%.2f`, n.Duration)
-	row[4] = strconv.Itoa(n.DurationLow)
-	row[5] = strconv.Itoa(n.DurationLikely)
-	row[6] = strconv.Itoa(n.DurationHigh)
+	row[3] = strconv.Itoa(n.DurationLow)
+	row[4] = strconv.Itoa(n.DurationLikely)
+	row[5] = strconv.Itoa(n.DurationHigh)
+	row[6] = deps
 	row[7] = fmt.Sprintf(`%.2f`, n.Position.X)
 	row[8] = fmt.Sprintf(`%.2f`, n.Position.Y)
-	row[9] = deps
+	row[9] = fmt.Sprintf(`%.2f`, n.Duration)
 	row[10] = strconv.FormatBool(crit)
 	row[11] = meta
 	return row

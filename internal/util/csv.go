@@ -24,8 +24,8 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 	if len(records) < 2 {
 		return nil, errors.New("need CSV header and data")
 	}
-	if len(headerTemplate) != len(records[0]) {
-		return nil, errors.Newf("header must match template '%s'", strings.Join(headerTemplate, ","))
+	if len(headerTemplate) > len(records[0]) {
+		return nil, errors.Newf("first header items must match template '%s'", strings.Join(headerTemplate, ","))
 	}
 	for i := range headerTemplate {
 		if records[0][i] != headerTemplate[i] {
@@ -35,6 +35,7 @@ func ChartFromCsv(data []byte) (activity.Graph, error) {
 
 	g := activity.NewInMemoryGraph()
 	g.LabelSet("New Graph")
+	g.ActivityMap = make(map[string]*activity.Activity) // Reset the activity map because we initialize with starter nodes.
 
 	deps := make([]activity.Dependency, 0)
 
