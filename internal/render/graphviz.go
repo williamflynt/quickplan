@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
+	"github.com/rs/zerolog/log"
 	"quickplan/pkg/cpm"
 )
 
@@ -20,6 +21,12 @@ func NewGraphviz() Graphviz {
 }
 
 func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error().Msg("SIGSEGV in graphviz.Render")
+		}
+	}()
+
 	graph, err := gvz.g.Graph()
 	graph.SetRankDir("LR") // Flow this chart out left to right.
 	gvz.graph = graph
@@ -62,7 +69,7 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 
 	buf := new(bytes.Buffer)
 	// TODO: Calling this function can cause a C SIGSEGV - which we can't catch in Go.
-	//   How to manage this? Why/when does it happen? (wf 14 June 22)
+	//   We implemented a recover, but why/when does it happen? (wf 14 June 22)
 	if err := gvz.g.Render(graph, "dot", buf); err != nil {
 		return "", err
 	}

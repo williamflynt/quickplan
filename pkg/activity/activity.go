@@ -33,26 +33,29 @@ func (a *Activity) Meta() map[string]string {
 
 // Duration calculates the estimated duration for an Activity.
 func (a *Activity) Duration() float64 {
-	// TODO: Update duration tracking to understand "set" vs. "not set". (wf 6 Jul 22)
-	if (a.DurationLow > 0 || a.DurationLikely > 0 || a.DurationHigh > 0) &&
-		!(a.DurationLikely > 0 && a.DurationHigh > 0) {
+	if a.isSpecificDurationSet() {
 		// They set something, but not the other things. Just do the average of "things that are set".
-		// Don't check DurationLow in the && clause because it might legit be zero.
 		setCount := 1 // We will always count the low value (even if it's zero).
-		sum := 0
-		for _, v := range []int{a.DurationLikely, a.DurationHigh} {
-			if v > 0 {
-				sum += v
-				setCount += 1
-			}
+		sum := a.DurationLow
+		if a.DurationLikely > 0 {
+			sum += a.DurationLikely
+			setCount++
 		}
-		sum += a.DurationLow
+		if a.DurationHigh > 0 {
+			sum += a.DurationHigh
+			setCount++
+		}
 		return tenthRound(float64(sum) / float64(setCount))
 	}
 	// The standard CPM duration figure.
 	ans := float64(a.DurationLow+(a.DurationLikely*4)+a.DurationHigh) / 6
 	// Round to nearest tenth.
 	return tenthRound(ans)
+}
+
+// isSpecificDurationSet checks if any specific duration field is set (DurationLow, DurationLikely, or DurationHigh).
+func (a *Activity) isSpecificDurationSet() bool {
+	return a.DurationLow > 0 || a.DurationLikely > 0 || a.DurationHigh > 0
 }
 
 // DurationL is the low estimated duration for an Activity.
