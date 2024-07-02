@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
-	"io/ioutil"
+	"io"
 	"mime"
 	"net/http"
 	"quickplan/examples"
@@ -31,7 +31,7 @@ func (s *Server) graphList(w http.ResponseWriter, r *http.Request) {
 // Then, it saves the Graph in the server-local GraphStore.
 // Finally, it returns the Chart as JSON to the caller.
 func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
-	chartData, err := ioutil.ReadAll(r.Body)
+	chartData, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -48,10 +48,17 @@ func (s *Server) graphLoad(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
+	b, err := json.Marshal(g)
+	if err != nil {
+		log.Error().Err(err).Msg("error marshal loaded Graph to JSON")
+		w.WriteHeader(500)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	_, _ = w.Write(chartData)
+
+	_, _ = w.Write(b)
 }
 
 func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +81,7 @@ func (s *Server) graphNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) graphNewFromCsv(w http.ResponseWriter, r *http.Request) {
-	graphData, err := ioutil.ReadAll(r.Body)
+	graphData, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(400)
 		return

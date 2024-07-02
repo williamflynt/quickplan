@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
-	"io/ioutil"
 	"os"
 )
 
@@ -87,7 +86,7 @@ func graphFilePath(id string) string {
 
 func readTmpGraphFile() []byte {
 	path := graphFilePath("")
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		log.Error().Err(err).Msg("could not read tmp graph file")
 		return []byte{}

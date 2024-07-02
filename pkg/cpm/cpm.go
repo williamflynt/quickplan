@@ -177,7 +177,7 @@ func setEarlyStartFinish(n *Node) (start float64, finish float64) {
 }
 
 // setLateStartFinish
-// This is different than setEarlyStartFinish in an important respect - when you're
+// This is different from setEarlyStartFinish in an important respect - when you're
 // setting early times, you only move backward. In this function, we move backward,
 // but then look ahead for value comparisons. That's why the structure is slightly
 // different between them.
@@ -290,6 +290,6 @@ func nodeFromTask(t Task) *Node {
 }
 
 func tenthRound(f float64) float64 {
-	ratio := math.Pow(10, float64(1))
+	ratio := math.Pow(10, 1.0)
 	return math.Round(f*ratio) / ratio
 }
