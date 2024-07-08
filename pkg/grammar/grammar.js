@@ -1,6 +1,15 @@
 module.exports = grammar({
     name: 'project_flow_syntax',
 
+    // Allow whitespace between rules without specifying every time.
+    extras: $ => [
+        $.whitespace,
+    ],
+
+    precedences: $ => [
+        [$.task_split_operation, $.roadmap_item],
+    ],
+
     rules: {
         source: $ => choice(
             $.commands,
@@ -33,17 +42,14 @@ module.exports = grammar({
 
         comment: $ => seq($.comment_sigil, /[^\n\r]*/),
 
-        dependency: $ => seq(
-            $.roadmap_items,
-            optional($.negation_op),
-            $.required_by_op,
-            $.roadmap_items
+        dependency: $ => choice(
+            seq($.roadmap_items, optional($.negation_op), $.required_by_op, $.roadmap_items)
         ),
 
-        task_split_operation: $ => choice(
+        task_split_operation: $ => prec.left(choice(
             seq($.new_task_sigil, $.required_by_op, $.task),
             seq($.task, $.required_by_op, $.new_task_sigil)
-        ),
+        )),
 
         entity_create_or_update: $ => $.entity,
 
@@ -87,10 +93,10 @@ module.exports = grammar({
             $.resource
         ),
 
-        tasks: $ => seq(
+        tasks: $ => prec(1, seq(
             $.task,
             repeat(seq($.separator, $.task))
-        ),
+        )),
 
         task: $ => seq(
             $.identifier,
@@ -152,27 +158,23 @@ module.exports = grammar({
 
         identifier: $ => /[A-Za-z][A-Za-z0-9_-]*/,
 
-        cluster_sigil: $ => seq(optional($.whitespace), '@', optional($.whitespace)),
-        comment_sigil: $ => seq(optional($.whitespace), '#', optional($.whitespace)),
-        milestone_sigil: $ => seq(optional($.whitespace), '%', optional($.whitespace)),
-        new_task_sigil: $ => seq(optional($.whitespace), '*', optional($.whitespace)),
-        resource_sigil: $ => seq(optional($.whitespace), '$', optional($.whitespace)),
+        cluster_sigil: $ => '@',
+        comment_sigil: $ => '#',
+        milestone_sigil: $ => '%',
+        new_task_sigil: $ => '*',
+        resource_sigil: $ => '$',
 
-        explode_op: $ => seq(optional($.whitespace), '!', optional($.whitespace)),
-        implode_op: $ => seq($.negation_op, $.explode_op),
-        required_by_op: $ => seq(optional($.whitespace), '>', optional($.whitespace)),
-        negation_op: $ => seq(optional($.whitespace), '~', optional($.whitespace)),
+        explode_op: $ => '!',
+        implode_op: $ => seq('~', '!'),
+        required_by_op: $ => '>',
+        negation_op: $ => '~',
 
-        kv_separator: $ => seq(optional($.whitespace), ':', optional($.whitespace)),
-        separator: $ => choice(
-            seq(optional($.whitespace), ',', optional($.whitespace)),
-            $.whitespace
-        ),
-
-        number: $ => /[0-9]+/,
+        kv_separator: $ => ':',
+        separator: $ => ',',
 
         whitespace: $ => /[ \t]+/,
+        newline: $ => /[\n\r]+/,
 
-        newline: $ => /[\n\r]+/
+        number: $ => /[0-9]+/,
     }
 });
