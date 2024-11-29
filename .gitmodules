@@ -1,4 +1,0 @@
-[submodule "pkg/grammar"]
-	path = pkg/grammar
-	url = https://github.com/williamflynt/ProjectFlowSyntax.git
-	branch = main
