@@ -2,7 +2,7 @@
 
 Faster PERT charts.
 
-[![Go: 1.18](https://img.shields.io/badge/Go-v1.18-blue.svg)](https://golang.org/dl/)
+[![Go: 1.22](https://img.shields.io/badge/Go-v1.22-blue.svg)](https://golang.org/dl/)
 
 #### Contents
 
