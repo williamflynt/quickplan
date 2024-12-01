@@ -1,3 +1,5 @@
+//go:generate ./generate_bindings.sh
+
 package main
 
 import (

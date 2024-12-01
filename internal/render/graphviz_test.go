@@ -1,6 +1,7 @@
 package render
 
 import (
+	"context"
 	"github.com/goccy/go-graphviz"
 	"quickplan/pkg/cpm"
 	"testing"
@@ -18,7 +19,8 @@ func TestGraphviz_Render(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 	}
-	gvz := &Graphviz{g: graphviz.New()}
+	g, _ := graphviz.New(context.Background())
+	gvz := &Graphviz{g: g}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := gvz.Render(tt.args.c)

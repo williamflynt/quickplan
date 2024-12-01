@@ -77,3 +77,15 @@ These are the JSON exports for the most recent version of your PERT chart.
 ## Contributing
 
 The project needs work - please feel free to submit your PR!
+
+### Getting Grammar
+
+This project (will) rely on a tree-sitter grammar and generated bindings.
+To get the grammar and generate bindings, do this:
+
+```shell
+# Pull in ProjectFlowSyntax to the submodules directory.
+git submodule update --init --recursive
+# Run the `generate_bindings.sh` script via `//go:generate`.
+go generate ./...
+```

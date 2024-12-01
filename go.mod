@@ -2,8 +2,6 @@ module quickplan
 
 go 1.22.0
 
-toolchain go1.22.3
-
 require (
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/cockroachdb/errors v1.11.3

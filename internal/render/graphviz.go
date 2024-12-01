@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/goccy/go-graphviz"
 	"github.com/goccy/go-graphviz/cgraph"
@@ -15,8 +16,8 @@ type Graphviz struct {
 }
 
 func NewGraphviz() Graphviz {
-	g := graphviz.New()
-	graphviz.StrictDirected(g)
+	ctx := context.Background()
+	g, _ := graphviz.New(ctx)
 	return Graphviz{g: g}
 }
 
@@ -39,7 +40,7 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 	// Map of our Node.Id to the graphviz Node.
 	graphNodes := make(map[string]*cgraph.Node)
 	for i := range c.Nodes {
-		gn, err := graph.CreateNode(c.Nodes[i].Id)
+		gn, err := graph.CreateNodeByName(c.Nodes[i].Id)
 		if err != nil {
 			return "", err
 		}
@@ -54,7 +55,7 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 	}
 
 	for i := range c.Arrows {
-		e, err := graph.CreateEdge(
+		e, err := graph.CreateEdgeByName(
 			c.Arrows[i].Id,
 			graphNodes[c.Arrows[i].From],
 			graphNodes[c.Arrows[i].To],
@@ -70,7 +71,8 @@ func (gvz *Graphviz) Render(c *cpm.Chart) (string, error) {
 	buf := new(bytes.Buffer)
 	// TODO: Calling this function can cause a C SIGSEGV - which we can't catch in Go.
 	//   We implemented a recover, but why/when does it happen? (wf 14 June 22)
-	if err := gvz.g.Render(graph, "dot", buf); err != nil {
+	ctx := context.Background()
+	if err := gvz.g.Render(ctx, graph, "dot", buf); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
