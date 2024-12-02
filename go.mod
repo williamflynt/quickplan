@@ -1,6 +1,6 @@
 module quickplan
 
-go 1.22.0
+go 1.22.3
 
 require (
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
@@ -9,6 +9,7 @@ require (
 	github.com/goccy/go-graphviz v0.2.9
 	github.com/knadh/koanf v1.5.0
 	github.com/rs/zerolog v1.33.0
+	github.com/tree-sitter/go-tree-sitter v0.24.0
 )
 
 require (
@@ -24,6 +25,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

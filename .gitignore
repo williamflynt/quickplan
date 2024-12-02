@@ -2,6 +2,12 @@
 
 node_modules
 
-# Ignore IDE folders.
+# IDE folders.
 .idea
 .vscode
+
+# Build files.
+bin/
+
+# Generated code.
+internal/grammar/
