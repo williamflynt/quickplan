@@ -9,7 +9,9 @@ import (
 
 func main() {
 	ctx := context.Background()
-	tree, err := pfs.ParsePfs(ctx, "X > Y > Z")
+	input := "X > Y > Z\n A > Y  \nB>Z"
+	inputBytes := []byte(input)
+	tree, err := pfs.ParseToTree(ctx, inputBytes)
 	if err != nil {
 		log.Err(err).Msg("failed to parse PFS string")
 		return
@@ -22,4 +24,6 @@ func main() {
 	// TODO(wf 1 Dec 2024): Convert to Chart.
 	root := tree.RootNode()
 	fmt.Println(root.ToSexp())
+	ast := pfs.ParseToAST(root, inputBytes)
+	print(ast)
 }

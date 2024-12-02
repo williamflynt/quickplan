@@ -26,8 +26,8 @@ tree-sitter build --wasm
 
 echo "Replacing binding.go packaging..."
 cp bindings/go/binding.go .
-sed -i '0,/tree_sitter_project_flow_syntax/s//grammar/' binding.go
-sed -i 's/..\/..\/src/src/g' binding.go
+sed -i '' '0,/tree_sitter_project_flow_syntax/s//grammar/' binding.go
+sed -i '' 's/..\/..\/src/src/g' binding.go
 rm -rf bindings go.mod go.sum
 
 echo "Bindings compilation completed."
