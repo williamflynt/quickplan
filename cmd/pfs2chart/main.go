@@ -18,6 +18,8 @@ func main() {
 		log.Error().Msg("got nil tree")
 		return
 	}
+	defer tree.Close()
+	// TODO(wf 1 Dec 2024): Convert to Chart.
 	root := tree.RootNode()
 	fmt.Println(root.ToSexp())
 }
