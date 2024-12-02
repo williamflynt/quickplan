@@ -8,6 +8,47 @@ import (
 	"quickplan/internal/grammar"
 )
 
+type Project struct {
+	Tasks        map[string]Task      `json:"tasks" yaml:"tasks"`
+	Milestones   map[string]Milestone `json:"milestones" yaml:"milestones"`
+	Resources    map[string]Resource  `json:"resources" yaml:"resources"`
+	Clusters     map[string]Cluster   `json:"clusters" yaml:"clusters"`
+	Dependencies []Dependency         `json:"dependencies" yaml:"dependencies"`
+	Assignments  []Assignment         `json:"assignments" yaml:"assignments"`
+}
+
+type Task struct {
+	Id         string            `json:"id" yaml:"id"`
+	Attributes map[string]string `json:"attributes" yaml:"attributes"`
+}
+
+type Milestone struct {
+	Id         string            `json:"id" yaml:"id"`
+	Attributes map[string]string `json:"attributes" yaml:"attributes"`
+}
+
+type Resource struct {
+	Id         string            `json:"id" yaml:"id"`
+	Attributes map[string]string `json:"attributes" yaml:"attributes"`
+}
+
+type Cluster struct {
+	Id         string            `json:"id" yaml:"id"`
+	Attributes map[string]string `json:"attributes" yaml:"attributes"`
+	Tasks      map[string]string `json:"tasks" yaml:"tasks"`
+	Milestones map[string]string `json:"milestones" yaml:"milestones"`
+}
+
+type Dependency struct {
+	Src  string `json:"src" yaml:"src"`
+	Dest string `json:"dest" yaml:"dest"`
+}
+
+type Assignment struct {
+	TaskId     string `json:"taskId" yaml:"taskId"`
+	ResourceId string `json:"resourceId" yaml:"resourceId"`
+}
+
 type ASTNode struct {
 	Type     string     `json:"type"`
 	Value    string     `json:"value,omitempty"`
