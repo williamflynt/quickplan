@@ -55,6 +55,22 @@ type ASTNode struct {
 	Children []*ASTNode `json:"children,omitempty"`
 }
 
+func ASTToProject(ast *ASTNode, existing *Project) (*Project, error) {
+	project := existing
+	if existing == nil {
+		project = &Project{
+			Tasks:        make(map[string]Task),
+			Milestones:   make(map[string]Milestone),
+			Resources:    make(map[string]Resource),
+			Clusters:     make(map[string]Cluster),
+			Dependencies: make([]Dependency, 0),
+			Assignments:  make([]Assignment, 0),
+		}
+	}
+	// TODO(wf 2 Dec 2024): Convert to Project.
+	return project, nil
+}
+
 func ParseToAST(node *treesitter.Node, inputBytes []byte) *ASTNode {
 	if node == nil {
 		return nil

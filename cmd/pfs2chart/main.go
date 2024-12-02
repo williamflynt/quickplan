@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"quickplan/pkg/pfs"
@@ -25,5 +26,10 @@ func main() {
 	root := tree.RootNode()
 	fmt.Println(root.ToSexp())
 	ast := pfs.ParseToAST(root, inputBytes)
-	print(ast)
+	project, err := pfs.ASTToProject(ast, nil)
+	if err != nil {
+		log.Err(err).Msg("failed to parse AST to Project")
+	}
+	bytes, _ := json.MarshalIndent(project, "", "  ")
+	fmt.Println(string(bytes))
 }
