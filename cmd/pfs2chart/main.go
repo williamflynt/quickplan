@@ -10,7 +10,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	input := "X > Y > Z\n A > Y  \nB>Z"
+	input := "entity\n%entity\n$entity(speciality: embedded)\n~ %entity\nX(duration: 6) > Y > Z\n A > Y  \nB>Z\n%M > A\n* > Y\nY > *\n T1, T2, T3 > T4, T5, T6\n T1, T2, T2 ~> T4, T5, T6"
 	inputBytes := []byte(input)
 	tree, err := pfs.ParseToTree(ctx, inputBytes)
 	if err != nil {

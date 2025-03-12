@@ -5,7 +5,7 @@ package pfs
 import (
 	"context"
 	treesitter "github.com/tree-sitter/go-tree-sitter"
-	"quickplan/internal/grammar"
+	grammar "quickplan/internal/grammar"
 )
 
 type Project struct {
@@ -33,15 +33,17 @@ type Resource struct {
 }
 
 type Cluster struct {
-	Id         string            `json:"id" yaml:"id"`
-	Attributes map[string]string `json:"attributes" yaml:"attributes"`
-	Tasks      map[string]string `json:"tasks" yaml:"tasks"`
-	Milestones map[string]string `json:"milestones" yaml:"milestones"`
+	Id         string              `json:"id" yaml:"id"`
+	Attributes map[string]string   `json:"attributes" yaml:"attributes"`
+	Tasks      map[string]struct{} `json:"tasks" yaml:"tasks"`
+	Milestones map[string]struct{} `json:"milestones" yaml:"milestones"`
 }
 
 type Dependency struct {
-	Src  string `json:"src" yaml:"src"`
-	Dest string `json:"dest" yaml:"dest"`
+	Src      string `json:"src" yaml:"src"`
+	SrcType  string `json:"srcType" yaml:"srcType"`
+	Dest     string `json:"dest" yaml:"dest"`
+	DestType string `json:"destType" yaml:"destType"`
 }
 
 type Assignment struct {
@@ -67,7 +69,40 @@ func ASTToProject(ast *ASTNode, existing *Project) (*Project, error) {
 			Assignments:  make([]Assignment, 0),
 		}
 	}
-	// TODO(wf 2 Dec 2024): Convert to Project.
+	for _, child := range ast.Children {
+
+		switch child.Type {
+		case "newline":
+			continue
+		case "dependency":
+			if err := insertDependency(child, project); err != nil {
+				return nil, err
+			}
+		case "task_split_operation":
+			if err := splitTask(child, project); err != nil {
+				return nil, err
+			}
+		case "entity_create_or_update":
+			if err := entityCreateOrUpdate(child, project); err != nil {
+				return nil, err
+			}
+		case "entity_remove":
+			if err := entityRemove(child, project); err != nil {
+				return nil, err
+			}
+		case "task_explode_implode":
+			panic("not implemented")
+		case "cluster_operation":
+			panic("not implemented")
+		case "resource_assignment":
+			panic("not implemented")
+		}
+
+		_, err := ASTToProject(child, project)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return project, nil
 }
 

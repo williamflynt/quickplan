@@ -21,6 +21,12 @@ Faster PERT charts.
 
 This gets you up and running as quickly as possible.
 
+```shell
+go get ./...
+go generate ./...
+go build ./...
+```
+
 ### Prerequisites
 
 You need either [Docker] or [Go and NPM] installed on your machine to run the application.
@@ -62,7 +68,7 @@ I needed to plan a big project at work. I couldn't find any tools that would cha
 
 The `deployment/` directory has empty Kubernetes files - so that's a TODO.
 
-Something like `fly.io` would host the backend fine, and the UI could go on GitHub Pages. 
+Something like `fly.io` would host the backend fine, and the UI could go on GitHub Pages.
 
 ## Limitations
 
