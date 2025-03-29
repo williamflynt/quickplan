@@ -4,7 +4,7 @@ import {useStore} from "../../store/store";
 import {NodesTable} from "./NodesTable";
 import {NodeForm} from "./NodeForm";
 import {ActionsBar} from "./ActionsBar";
-import {Edge} from "react-flow-renderer";
+import {Edge} from "@xyflow/react";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 
 export const NodeTools: FC = () => {

@@ -3,7 +3,7 @@ import {Button} from "antd";
 import api from "../../api/api";
 import {SetupChart} from "../ReactFlow/SetupChart";
 import {useStore} from "../../store/store";
-import {Edge} from "react-flow-renderer";
+import {Edge} from "@xyflow/react";
 import {GraphDependency} from "../../api/types";
 import {ArrowLeftOutlined, ArrowRightOutlined, PlusSquareOutlined} from "@ant-design/icons";
 

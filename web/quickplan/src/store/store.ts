@@ -12,7 +12,7 @@ import {
     OnNodesChange,
     OnSelectionChangeFunc,
     ReactFlowInstance
-} from 'react-flow-renderer';
+} from '@xyflow/react';
 import api from "../api/api";
 import {GraphDependency} from "../api/types";
 import {SetupChart} from "../components/ReactFlow/SetupChart";

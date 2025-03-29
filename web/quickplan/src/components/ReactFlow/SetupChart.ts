@@ -1,5 +1,5 @@
-import {MarkerType} from "react-flow-renderer";
-import {Chart, ChartNode, ChartNodePosition} from "../../api/types";
+import {MarkerType} from "@xyflow/react";
+import {Chart, ChartNode} from "../../api/types";
 import {ChartNodeToCpmTask, CpmNodeType} from "./CpmTaskNode";
 import {useStore} from "../../store/store";
 

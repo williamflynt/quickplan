@@ -1,5 +1,5 @@
 import React, {FC, memo} from 'react'
-import {Handle, Node, NodeProps, Position} from 'react-flow-renderer'
+import {Handle, Node, NodeProps, Position} from '@xyflow/react'
 import {Col, Row, Tooltip, Typography} from "antd";
 import {ChartNode} from "../../api/types";
 import {useStore} from "../../store/store";
@@ -89,12 +89,13 @@ const CpmDataElementTitle: FC<CpmDataElementTitleProps> = ({title, pos, leftOffs
     }}>{title}</Typography.Text>)
 }
 
-type CpmDataElementProps = { title: string, titlePos: 'top' | 'bottom', value: string | number, color?: string }
+type CpmDataElementProps = { title: string, titlePos: 'top' | 'bottom', value?: string | number, color?: string }
 
 const CpmDataElement: FC<CpmDataElementProps> = (props) => {
+    const value = props.value === undefined ? '' : props.value
     // Empirically determined "okay" offsets.
     const baseOffset = -props.title.length + 5
-    const leftOffset = props.value.toString().length >= 2 ? baseOffset : baseOffset - 6
+    const leftOffset = value.toString().length >= 2 ? baseOffset : baseOffset - 6
 
     const titleElem = <CpmDataElementTitle title={props.title} pos={props.titlePos} leftOffset={leftOffset}/>
     return (
@@ -169,8 +170,8 @@ const CpmTaskNode: FC<CpmNodeProps> = (props) => {
         useStore.setState({activeNodeId: props.id, nodeToolsVisible: true})
     }
 
-    const bottomRowComponents = [props.data.cpm.lateStart, props.data.cpm.slack, props.data.cpm.lateFinish]
-    const topRowComponents = [props.data.cpm.earlyStart, props.data.cpm.duration, props.data.cpm.earlyFinish]
+    const bottomRowComponents = [props.data.cpm.latestStart, props.data.cpm.slack, props.data.cpm.latestFinish]
+    const topRowComponents = [props.data.cpm.earliestStart, props.data.cpm.duration, props.data.cpm.earliestFinish]
 
     const className = activeNodeId === props.id ? "cpm-node-active" : "cpm-node"
 

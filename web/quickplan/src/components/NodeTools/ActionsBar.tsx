@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {useStore} from "../../store/store";
-import {Edge} from "react-flow-renderer";
+import {Edge} from "@xyflow/react";
 import {CpmNodeType} from "../ReactFlow/CpmTaskNode";
 import {Divider, Space} from "antd";
 import {ActivityAddButton} from "./ActivityAddButton";

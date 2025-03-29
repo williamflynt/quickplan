@@ -4,7 +4,7 @@ import api from "../../api/api";
 import {SetupChart} from "../ReactFlow/SetupChart";
 import {useStore} from "../../store/store";
 import {QuestionCircleOutlined} from "@ant-design/icons";
-import {Edge} from "react-flow-renderer";
+import {Edge} from "@xyflow/react";
 import {GraphDependency} from "../../api/types";
 
 export const EdgeDeleteButton: FC<{ graphId: string, edge: Edge }> = ({graphId, edge}) => {
