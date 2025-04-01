@@ -26,9 +26,11 @@ import {
 } from './wasm/types'
 
 // Constants for layout breakpoints
-const BREAKPOINT_NARROW = 768 // px - Switch to 80 columns
-const BREAKPOINT_VERTICAL = 576 // px - Switch to vertical layout
-const elk = new ELK() // Layout engine.
+const BREAKPOINT_NARROW = 768 // px - Switch to ~80 columns.
+const BREAKPOINT_VERTICAL = 576 // px - Switch to vertical layout.
+const elk = new ELK() // Layout engine!
+
+type UiLayout = 'wide' | 'narrow' | 'vertical'
 
 export const App: FC = () => {
   // Refs for DOM elements and Monaco instances
@@ -37,12 +39,13 @@ export const App: FC = () => {
   const languageClientRef = useRef<any>(null)
 
   // State for layout management
-  const [layout, setLayout] = useState('wide') // 'wide', 'narrow', or 'vertical'
+  const [layout, setLayout] = useState<UiLayout>('wide')
   const flowInstance = useStore((state) => state.flowInstance)
 
   // TODO: Total refactor and fix @ts-ignore typing
   // TODO: Resources and Assignments and Clusters
   // TODO: Language change to add `<taskId> low? likely? high? <descr>`
+  //   Do this in the actual ProjectFlowSyntax repo.
   // TODO: Figure out why Monaco editor freezes and does weird stuff
   // TODO: Delete unused code/files in the project
 
@@ -93,7 +96,7 @@ export const App: FC = () => {
     }
   }, [])
 
-  const styles = getLayoutStyles(layout)
+  const styles = getUiLayoutStyles(layout)
 
   return (
     <ReactFlowProvider>
@@ -134,8 +137,8 @@ export const App: FC = () => {
 }
 
 // Get styles based on current layout.
-const getLayoutStyles = (layout: string): Record<string, CSSProperties> => {
-  switch (layout) {
+const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
+  switch (mode) {
     case 'vertical':
       return {
         container: {
@@ -374,13 +377,14 @@ const doLayout = async <T extends { id: string }>(
     }),
     edges: edges,
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   return elk.layout(graph).then(({ children }) => {
-    const positionedNodes = children?.map((node) => {
-      return { ...node, position: { x: node.x, y: node.y } }
+    if (!children) {
+      throw new Error('no nodes returned from Elk')
+    }
+    const positionedNodes = children.map((node) => {
+      return {...node, position: {x: node.x, y: node.y}} as unknown as T
     })
-    return [positionedNodes || [], edges]
+    return [positionedNodes, edges]
   })
 }
 
