@@ -25,6 +25,17 @@ This gets you up and running as quickly as possible.
 go get ./...
 go generate ./...
 go build ./...
+cd cmd/wasm
+# Builds the WASM bundle for the web app.
+GOOS=js GOARCH=wasm go build -o ../../bin/main.wasm
+cd ../..submodules/ProjectFlowSyntax/project-flow-syntax
+npm install
+cd ../../web/quickplan
+npm install
+cp ../../bin/main.wasm src/assets/main.wasm
+cp ~/go/go1.22.3/misc/wasm/wasm_exec.js src/assets/wasm_exec.js
+# Runs the dev server to do DSL-based planning in your browser.
+npm run dev
 ```
 
 ### Prerequisites

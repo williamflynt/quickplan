@@ -42,14 +42,12 @@ export const App: FC = () => {
   const [layout, setLayout] = useState<UiLayout>('wide')
   const flowInstance = useStore((state) => state.flowInstance)
 
-  // TODO: Total refactor and fix @ts-ignore typing
+  // TODO: Total refactor
   // TODO: Resources and Assignments and Clusters
-  // TODO: Language change to add `<taskId> low? likely? high? <descr>`
-  //   Do this in the actual ProjectFlowSyntax repo.
   // TODO: Figure out why Monaco editor freezes and does weird stuff
   // TODO: Delete unused code/files in the project
 
-  // Initialize Monaco editor and language client
+  // Initialize Monaco editor and language client.
   useEffect(() => {
     if (!editorRef.current) return
 
@@ -59,13 +57,16 @@ export const App: FC = () => {
         wrapperRef.current = wrapper
         languageClientRef.current = languageClient
         // Set up notification handler to update ReactFlow every time source code is edited.
-        languageClient.onNotification('browser/DocumentChange', (params) => {
-          // Update the ReactFlow graph depiction.
-          const content = JSON.parse(params.content) // Parse results of DSL.
-          const project = JSON.parse(params.project) // Extract project entities.
-          updateFlowFromDocument(flowInstance, { content, project })
-        })
-      }
+        languageClient.onNotification(
+          'browser/DocumentChange',
+          (params: { content: string; project: string }) => {
+            // Update the ReactFlow graph depiction with parse results from editor hook.
+            const content = JSON.parse(params.content) // Parse results of DSL.
+            const project = JSON.parse(params.project) // Extract project entities.
+            updateFlowFromDocument(flowInstance, { content, project })
+          },
+        )
+      },
     )
 
     return () => {
@@ -188,7 +189,7 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
   }
 }
 
-// These types all say that we're creating the same shape as the final node, but
+// These types say that we're creating the same shape as the final node, but
 // without all the calculations completed for critical path.
 type CpmDataPartial = Pick<
   CpmData,
@@ -202,12 +203,17 @@ type Node = {
   name: string
   attributes: Record<string, string | number>
 }
+
 type Durations = {
   durationLow?: number
   durationLikely?: number
   durationHigh?: number
 }
-type Task = Node & Durations
+
+type Task = Node & { attributes: Durations } & {
+  attributes: { description?: string }
+}
+
 type Milestone = Node
 type Resource = Node
 type NodeId = { type: string; name: string }
@@ -243,7 +249,7 @@ type Edge = {
 
 const updateFlowFromDocument = (
   flowInstance: ReactFlowInstance | null,
-  data: ProjectParseResults
+  data: ProjectParseResults,
 ) => {
   const edges: Edge[] = data.project.dependencies.map((e) => {
     const srcId = `${e.source.type}:${e.source.name}`
@@ -267,9 +273,9 @@ const updateFlowFromDocument = (
         label: t.name,
         description: t.name + t.name,
         cpm: {
-          durationLow: t.durationLow || 1,
-          durationLikely: t.durationLikely || 2,
-          durationHigh: t.durationHigh || 3,
+          durationLow: t.attributes.durationLow || 1,
+          durationLikely: t.attributes.durationLikely || 2,
+          durationHigh: t.attributes.durationHigh || 3,
         },
         predecessors: [],
         sourcePosition: Position.Right,
@@ -367,7 +373,7 @@ const LAYOUT_OPTIONS: LayoutOptions = {
 
 const doLayout = async <T extends { id: string }>(
   nodes: T[],
-  edges: Edge[]
+  edges: Edge[],
 ): Promise<[T[], Edge[]]> => {
   const graph: ElkNode = {
     id: 'root',
@@ -382,7 +388,7 @@ const doLayout = async <T extends { id: string }>(
       throw new Error('no nodes returned from Elk')
     }
     const positionedNodes = children.map((node) => {
-      return {...node, position: {x: node.x, y: node.y}} as unknown as T
+      return { ...node, position: { x: node.x, y: node.y } } as unknown as T
     })
     return [positionedNodes, edges]
   })
@@ -405,7 +411,7 @@ const doLayout = async <T extends { id: string }>(
  */
 const nodesForWasm = (
   edges: Edge[],
-  nodes: CpmNodePrecalc[]
+  nodes: CpmNodePrecalc[],
 ): WasmCpmInput[] => {
   // First get a map of { target: predecessor[] } from edges.
   const predMap: Record<string, string[]> = {}

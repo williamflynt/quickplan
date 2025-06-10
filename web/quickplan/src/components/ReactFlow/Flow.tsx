@@ -9,8 +9,8 @@ import {
 } from '@xyflow/react'
 import CpmTaskNode from './CpmTaskNode'
 import { useStore } from '../../store/store'
-import { ReflowButton } from './ReflowButton'
-import { ScaleSelectors } from './ScaleSelectors'
+// import { ReflowButton } from './ReflowButton'
+// import { ScaleSelectors } from './ScaleSelectors'
 
 export const NodeTypes = { cpmTask: CpmTaskNode }
 
@@ -34,6 +34,7 @@ export const Flow: FC = () => {
       <Background variant={BackgroundVariant.Lines} />
 
       <ReactFlow
+        // @ts-expect-error We are passing a stricter type.
         nodeTypes={NodeTypes}
         nodes={nodes}
         edges={edges}
@@ -46,8 +47,8 @@ export const Flow: FC = () => {
         onSelectionChange={onSelectionChange}
         fitView
       >
-        {/*<ScaleSelectors/>*/}
-        {/*<ReflowButton/>*/}
+        {/*<ScaleSelectors />*/}
+        {/*<ReflowButton />*/}
         <MiniMap position="bottom-right" />
         <Controls />
       </ReactFlow>
