@@ -33,7 +33,6 @@ div .milestone-node {
   padding: 5px;
   border-radius: 5px;
   background: #f9f9f9;
-  width: 180px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
@@ -49,7 +48,6 @@ div .milestone-node-active {
   padding: 5px;
   border-radius: 5px;
   background: #ffffff;
-  width: 180px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }

@@ -4,7 +4,18 @@ import { Col, Row, Tooltip, Typography } from 'antd'
 import { ChartNode } from '../../api/types'
 import { useStore } from '../../store/store'
 import { FlagFilled } from '@ant-design/icons'
-import { CpmData } from '../../wasm/types'
+
+export type CpmData = {
+  duration: number
+  durationLow: number
+  durationLikely: number
+  durationHigh: number
+  earliestStart: number
+  earliestFinish: number
+  latestStart: number
+  latestFinish: number
+  slack: number
+}
 
 export type CpmNodeData = {
   label: string

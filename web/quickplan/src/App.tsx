@@ -11,17 +11,10 @@ import { configureMonacoWorkers } from '../../../submodules/ProjectFlowSyntax/pr
 import { Monaco } from './components/Monaco'
 import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
-import { runCpm } from './wasm/wasmLoader'
+import { runCpm } from './cpm/cpm'
 import 'antd/dist/antd.css'
-import { CpmNodeData, CpmNodeShape } from './components/ReactFlow/CpmTaskNode'
 
-import {
-  CpmData,
-  WasmArrow,
-  WasmCpmInput,
-  WasmCpmOutput,
-  WasmNode,
-} from './wasm/types'
+import { CpmArrow, CpmInput, CpmOutput, CpmNode, CpmError } from './cpm/types'
 
 // Constants for layout breakpoints
 const BREAKPOINT_NARROW = 768 // px - Switch to ~80 columns.
@@ -75,7 +68,10 @@ export const App: FC = () => {
   // This is probably not the way to do it.
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < BREAKPOINT_VERTICAL) {
+      if (
+        window.innerWidth < BREAKPOINT_VERTICAL ||
+        window.innerHeight >= window.innerWidth * 1.7
+      ) {
         setLayout('vertical')
       } else if (window.innerWidth < BREAKPOINT_NARROW) {
         setLayout('narrow')
@@ -146,11 +142,11 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
         },
         editor: {
           width: '100%',
-          height: '30vh',
+          height: '35vh',
         },
         flow: {
           width: '100%',
-          height: '70vh',
+          height: '65vh',
         },
       }
     case 'narrow':
@@ -188,16 +184,8 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
 }
 
 /*
- * These types say that we're creating the same shape as the final node, but
- * without all the calculations completed for critical path.
+ * TODO: Revisit all these types (and redundancy across files).
  */
-
-type CpmDataPartial = Pick<
-  CpmData,
-  'durationLow' | 'durationLikely' | 'durationHigh'
->
-type CpmNodeDataPartial = Omit<CpmNodeData, 'cpm'> & { cpm: CpmDataPartial }
-type CpmNodePrecalc = Omit<CpmNodeShape, 'data'> & { data: CpmNodeDataPartial }
 
 type Node = {
   type: string
@@ -237,6 +225,27 @@ type ProjectParseResults = {
   project: Project
 }
 
+type PreCpmNode = {
+  id: string
+  type: 'cpmTask' | 'milestone'
+  position: {
+    x: number
+    y: number
+  }
+  data: {
+    label: string
+    description: string
+    cpm: {
+      durationLow: number
+      durationLikely: number
+      durationHigh: number
+    }
+    successors: string[]
+    sourcePosition: Position
+    targetPosition: Position
+  }
+}
+
 type Edge = {
   id: string
   source: string
@@ -265,7 +274,7 @@ const updateFlowFromDocument = (
       style: { strokeWidth: 3 }, // For ReactFlow.
     }
   })
-  const taskNodes = Object.values(data.project.tasks).map((t) => {
+  const taskNodes: PreCpmNode[] = Object.values(data.project.tasks).map((t) => {
     return {
       id: `${t.type}:${t.name}`,
       type: 'cpmTask',
@@ -274,17 +283,19 @@ const updateFlowFromDocument = (
         label: t.name,
         description: t.name + t.name,
         cpm: {
-          durationLow: t.attributes.durationLow || 1,
-          durationLikely: t.attributes.durationLikely || 2,
-          durationHigh: t.attributes.durationHigh || 3,
+          durationLow: t.attributes.durationLow || 0,
+          durationLikely: t.attributes.durationLikely || 0,
+          durationHigh: t.attributes.durationHigh || 0,
         },
-        predecessors: [],
+        successors: [],
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
       },
     }
   })
-  const milestoneNodes = Object.values(data.project.milestones).map((m) => {
+  const milestoneNodes: PreCpmNode[] = Object.values(
+    data.project.milestones,
+  ).map((m) => {
     return {
       id: `${m.type}:${m.name}`,
       type: 'milestone',
@@ -293,26 +304,31 @@ const updateFlowFromDocument = (
         label: m.name,
         description: '',
         cpm: { durationLow: 0, durationLikely: 0, durationHigh: 0 },
+        successors: [],
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
       },
-      predecessors: [],
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
     }
   })
 
-  const allNodes: CpmNodePrecalc[] = [...taskNodes, ...milestoneNodes]
+  // TODO: Codify these tasks in to a singular type.
+  const allNodes = [...taskNodes, ...milestoneNodes]
 
   void runCpm(nodesForWasm(edges, allNodes))
-    .then((chart: WasmCpmOutput) => {
+    .then((computed: CpmOutput | CpmError) => {
+      if ('error' in computed) {
+        console.error('CPM Error:', computed)
+        return
+      }
       // Create lookup maps for better runtime complexity.
-      const cpmNodesMap: Record<string, WasmNode> = {}
-      chart.nodes.forEach((cpmNode) => {
+      const cpmNodesMap: Record<string, CpmNode> = {}
+      computed.tasks.forEach((cpmNode) => {
         cpmNodesMap[cpmNode.id] = cpmNode
       })
 
-      const cpmArrowsMap: Record<string, WasmArrow> = {}
-      chart.arrows.forEach((arrow) => {
-        cpmArrowsMap[`${arrow.from} > ${arrow.to}`] = arrow
+      const cpmArrowsMap: Record<string, CpmArrow> = {}
+      computed.edges.forEach((arrow) => {
+        cpmArrowsMap[arrow.id] = arrow
       })
 
       // Update nodes with CPM data
@@ -331,7 +347,7 @@ const updateFlowFromDocument = (
               latestStart: cpmNode.latestStart,
               latestFinish: cpmNode.latestFinish,
               slack: cpmNode.slack,
-              duration: cpmNode.duration,
+              duration: cpmNode.expectedDuration,
             },
           },
         }
@@ -346,7 +362,7 @@ const updateFlowFromDocument = (
           ...edge,
           data: {
             ...edge.data,
-            criticalPath: cpmArrow.criticalPath,
+            criticalPath: cpmArrow.isCritical,
           },
         }
         if (e.data?.criticalPath) {
@@ -356,8 +372,13 @@ const updateFlowFromDocument = (
         return e
       })
 
-      return doLayout([...updatedNodes, ...milestoneNodes], updatedEdges)
+      return doLayout<PreCpmNode>(
+        [...updatedNodes, ...milestoneNodes],
+        updatedEdges,
+      )
     })
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     .then(([nodesPositioned, edgesPositioned]) => {
       if (!iframe.current?.contentWindow) {
         console.warn('No contentWindow in iframe, cannot post message')
@@ -400,46 +421,23 @@ const doLayout = async <T extends { id: string }>(
   })
 }
 
-/**
- * Transform a CpmTaskNode into the shape our WASM bundle expects:
- *
- * type jsTask struct {
- *    Uid_           string            `json:"uid"`
- *    Title_         string            `json:"title"`
- *    Description_   string            `json:"description"`
- *    Meta_          map[string]string `json:"meta"`
- *    DurationLow    int               `json:"durationLow"`
- *    DurationLikely int               `json:"durationLikely"`
- *    DurationHigh   int               `json:"durationHigh"`
- *    Predecessors_  []string          `json:"predecessors"`
- * }
- *
- */
-const nodesForWasm = (
-  edges: Edge[],
-  nodes: CpmNodePrecalc[],
-): WasmCpmInput[] => {
-  // First get a map of { target: predecessor[] } from edges.
-  const predMap: Record<string, string[]> = {}
-  for (const { source, targets } of edges) {
-    for (const target of targets) {
-      if (!predMap[target]) {
-        predMap[target] = [source]
-        continue
-      }
-      predMap[target].push(source)
+const nodesForWasm = (edges: Edge[], nodes: PreCpmNode[]): CpmInput[] => {
+  const successorsMap: Record<string, string[]> = {}
+  for (const e of edges) {
+    const srcId = e.source
+    const tgtId = e.target
+    if (!successorsMap[srcId]) {
+      successorsMap[srcId] = []
     }
+    successorsMap[srcId].push(tgtId)
   }
-  return nodes.map((n) => {
+  return nodes.map<CpmInput>((n) => {
     return {
-      uid: n.id,
-      title: '$RESET',
-      description: n.data.description,
-      meta: {},
+      id: n.id,
       durationLow: n.data.cpm.durationLow,
       durationLikely: n.data.cpm.durationLikely,
       durationHigh: n.data.cpm.durationHigh,
-      predecessors: predMap[n.id],
+      successors: successorsMap[n.id] || [],
     }
   })
 }

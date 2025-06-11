@@ -1,7 +1,7 @@
 import { FC, memo } from 'react'
 import { Handle, Position, XYPosition } from '@xyflow/react'
 import { useStore } from '../../store/store'
-import { Col, Row, Tooltip, Typography } from 'antd'
+import { Tooltip, Typography } from 'antd'
 import { FlagFilled } from '@ant-design/icons'
 
 export type MilestoneNodeData = {
@@ -41,16 +41,12 @@ const MilestoneNode: FC<MilestoneNodeShape> = (props) => {
           isConnectable
         />
 
-        <Row justify="center" align="middle" style={{ padding: 4 }}>
-          <Col>
-            <Tooltip title={`${id}: ${description || 'No description.'}`}>
-              <Typography.Text strong style={{ fontSize: '0.75em' }}>
-                <FlagFilled style={{ color: '#1890ff', marginRight: 4 }} />
-                {label}
-              </Typography.Text>
-            </Tooltip>
-          </Col>
-        </Row>
+        <Tooltip title={`${id}: ${description || 'No description.'}`}>
+          <Typography.Text strong style={{ fontSize: '0.75em' }}>
+            <FlagFilled style={{ color: '#1890ff', marginRight: 4 }} />
+            {label}
+          </Typography.Text>
+        </Tooltip>
 
         <Handle
           type="source"
