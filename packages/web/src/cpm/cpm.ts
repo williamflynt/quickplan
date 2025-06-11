@@ -243,9 +243,42 @@ export const runCpm = async (
     })
   }
 
-  return {
+  return roundAllNumbersImmutable({
     tasks: taskOut,
     edges: edgeList,
     criticalPaths: pathOut,
+  })
+}
+
+const roundAllNumbersImmutable = <T>(obj: unknown): T => {
+  if (typeof obj === 'number') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return Number(obj.toFixed(1))
   }
+
+  if (Array.isArray(obj)) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return obj.map((item) => roundAllNumbersImmutable(item))
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    const newObj = {}
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        newObj[key] = roundAllNumbersImmutable(obj[key])
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return newObj
+  }
+
+  // Return primitives as-is.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return obj
 }
