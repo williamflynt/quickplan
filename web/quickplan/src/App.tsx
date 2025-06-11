@@ -1,20 +1,18 @@
-import React, { CSSProperties, FC, useEffect, useRef, useState } from 'react'
+import React, {
+  CSSProperties,
+  FC,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { executeExtended } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupExtended'
 import { configureMonacoWorkers } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupCommon'
 import { Monaco } from './components/Monaco'
-import { Flow } from './components/ReactFlow/Flow'
-import {
-  MarkerType,
-  Position,
-  ReactFlowInstance,
-  ReactFlowProvider,
-} from '@xyflow/react'
-import { useStore } from './store/store'
+import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
 import { runCpm } from './wasm/wasmLoader'
 import 'antd/dist/antd.css'
-import './assets/App.css'
-import '@xyflow/react/dist/style.css'
 import { CpmNodeData, CpmNodeShape } from './components/ReactFlow/CpmTaskNode'
 
 import {
@@ -38,14 +36,10 @@ export const App: FC = () => {
   const wrapperRef = useRef<any>(null)
   const languageClientRef = useRef<any>(null)
 
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
   // State for layout management
   const [layout, setLayout] = useState<UiLayout>('wide')
-  const flowInstance = useStore((state) => state.flowInstance)
-
-  // TODO: Total refactor
-  // TODO: Resources and Assignments and Clusters
-  // TODO: Figure out why Monaco editor freezes and does weird stuff
-  // TODO: Delete unused code/files in the project
 
   // Initialize Monaco editor and language client.
   useEffect(() => {
@@ -63,7 +57,7 @@ export const App: FC = () => {
             // Update the ReactFlow graph depiction with parse results from editor hook.
             const content = JSON.parse(params.content) // Parse results of DSL.
             const project = JSON.parse(params.project) // Extract project entities.
-            updateFlowFromDocument(flowInstance, { content, project })
+            updateFlowFromDocument({ content, project }, iframeRef)
           },
         )
       },
@@ -75,7 +69,7 @@ export const App: FC = () => {
         // Nothing yet.
       }
     }
-  }, [editorRef.current, flowInstance])
+  }, [editorRef.current])
 
   // Handle window resize for responsive layout.
   // This is probably not the way to do it.
@@ -101,40 +95,43 @@ export const App: FC = () => {
   const styles = getUiLayoutStyles(layout)
 
   return (
-    <ReactFlowProvider>
+    <div
+      style={{
+        display: 'flex',
+        ...styles.container,
+        overflow: 'hidden',
+      }}
+    >
       <div
         style={{
-          display: 'flex',
-          ...styles.container,
+          ...styles.editor,
           overflow: 'hidden',
+          border: '1px solid #ddd',
+          boxShadow: '0 0 8px rgba(0,0,0,0.1)',
         }}
       >
-        <div
-          style={{
-            ...styles.editor,
-            overflow: 'hidden',
-            border: '1px solid #ddd',
-            boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-          }}
-        >
-          <Monaco
-            editorRef={editorRef}
-            style={{ width: '100%', height: '100%' }}
-          />
-        </div>
-
-        <div
-          style={{
-            ...styles.flow,
-            overflow: 'hidden',
-            border: '1px solid #ddd',
-            boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-          }}
-        >
-          <Flow />
-        </div>
+        <Monaco
+          editorRef={editorRef}
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
-    </ReactFlowProvider>
+
+      <div
+        style={{
+          ...styles.flow,
+          overflow: 'hidden',
+          border: '1px solid #ddd',
+          boxShadow: '0 0 8px rgba(0,0,0,0.1)',
+        }}
+      >
+        <iframe
+          ref={iframeRef}
+          src="/reactflow-viewer.html"
+          sandbox="allow-scripts allow-same-origin"
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
+    </div>
   )
 }
 
@@ -252,8 +249,8 @@ type Edge = {
 }
 
 const updateFlowFromDocument = (
-  flowInstance: ReactFlowInstance | null,
   data: ProjectParseResults,
+  iframe: RefObject<HTMLIFrameElement | null>,
 ) => {
   const edges: Edge[] = data.project.dependencies.map((e) => {
     const srcId = `${e.source.type}:${e.source.name}`
@@ -362,9 +359,14 @@ const updateFlowFromDocument = (
       return doLayout([...updatedNodes, ...milestoneNodes], updatedEdges)
     })
     .then(([nodesPositioned, edgesPositioned]) => {
-      if (!flowInstance) return
-      flowInstance.setNodes(nodesPositioned)
-      flowInstance.setEdges(edgesPositioned)
+      if (!iframe.current?.contentWindow) {
+        console.warn('No contentWindow in iframe, cannot post message')
+        return
+      }
+      iframe.current.contentWindow.postMessage({
+        nodes: JSON.stringify(nodesPositioned),
+        edges: JSON.stringify(edgesPositioned),
+      })
     })
 }
 
