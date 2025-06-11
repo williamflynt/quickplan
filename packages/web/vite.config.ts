@@ -31,4 +31,10 @@ export default defineConfig({
       ],
     },
   },
+  resolve: {
+    alias: {
+      '@quickplan/web': path.resolve(__dirname, './src'),
+      '@quickplan': path.resolve(__dirname, '../'),
+    },
+  },
 })
