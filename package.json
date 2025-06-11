@@ -1,0 +1,22 @@
+{
+  "name": "quickplan",
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@quickplan/web",
+    "build": "npm run build --workspace=@quickplan/web",
+    "build:all": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "~10.1.5",
+    "eslint-plugin-prettier": "~5.4.1",
+    "prettier": "~3.5.3",
+    "typescript": "~5.8.3"
+  }
+}

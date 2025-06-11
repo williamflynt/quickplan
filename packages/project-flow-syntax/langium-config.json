@@ -1,0 +1,15 @@
+{
+    "projectName": "ProjectFlowSyntax",
+    "languages": [{
+        "id": "project-flow-syntax",
+        "grammar": "src/language/project-flow-syntax.langium",
+        "fileExtensions": [".pfs"],
+        "textMate": {
+            "out": "syntaxes/project-flow-syntax.tmLanguage.json"
+        },
+        "monarch": {
+            "out": "src/syntaxes/project-flow-syntax.monarch.ts"
+        }
+    }],
+    "out": "src/language/generated"
+}
