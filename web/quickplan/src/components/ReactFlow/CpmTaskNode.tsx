@@ -1,7 +1,6 @@
 import React, { FC, memo } from 'react'
-import { Handle, Node, Position, XYPosition } from '@xyflow/react'
+import { Handle, Position, XYPosition } from '@xyflow/react'
 import { Col, Row, Tooltip, Typography } from 'antd'
-import { ChartNode } from '../../api/types'
 import { useStore } from '../../store/store'
 import { FlagFilled } from '@ant-design/icons'
 
@@ -27,40 +26,6 @@ export type CpmNodeShape = {
   id: string
   position: XYPosition
   data: CpmNodeData
-}
-
-export type CpmNodeType = Node<CpmNodeData>
-
-export const ChartNodeToCpmTask = (n: ChartNode): CpmNodeType => {
-  const positionScaleX = useStore.getState().positionScaleX || 3.5
-  const positionScaleY = useStore.getState().positionScaleY || 2.0
-
-  return {
-    id: n.id,
-    type: 'cpmTask',
-    data: {
-      label: n.title,
-      description: n.description,
-      cpm: {
-        duration: n.duration,
-        durationLow: n.durationLow,
-        durationLikely: n.durationLikely,
-        durationHigh: n.durationHigh,
-        earliestStart: n.earliestStart,
-        earliestFinish: n.earliestFinish,
-        latestStart: n.latestStart,
-        latestFinish: n.latestFinish,
-        slack: n.slack,
-      },
-    },
-    // Scale positions to avoid clustering.
-    position: {
-      x: n.position.x * positionScaleX,
-      y: n.position.y * positionScaleY,
-    },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-  }
 }
 
 type DataRowProps = {
@@ -286,12 +251,7 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
     <div>
       {tinyIdTag}
       <div className={className} onClick={toggleNodeActive}>
-        <Handle
-          type="target"
-          position={Position.Left}
-          style={{ width: '12px', height: '12px', left: -5 }}
-          isConnectable
-        />
+        <Handle type="target" position={Position.Left} isConnectable />
         <CpmDataRow
           type="earlyNums"
           left={topRowComponents[0]}
@@ -313,12 +273,7 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
           right={bottomRowComponents[2]}
           isMilestone={isMilestone}
         />
-        <Handle
-          type="source"
-          position={Position.Right}
-          style={{ width: '12px', height: '12px', right: -5 }}
-          isConnectable
-        />
+        <Handle type="source" position={Position.Right} isConnectable />
       </div>
       {isMilestone && milestoneBanner}
     </div>

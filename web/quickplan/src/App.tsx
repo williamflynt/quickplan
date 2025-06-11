@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { executeExtended } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupExtended'
 import { configureMonacoWorkers } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupCommon'
-import { Monaco } from './components/Monaco'
+import { Monaco } from './components/Editor/Monaco'
 import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
 import { runCpm } from './cpm/cpm'
@@ -19,7 +19,7 @@ import { CpmArrow, CpmInput, CpmOutput, CpmNode, CpmError } from './cpm/types'
 // Constants for layout breakpoints
 const BREAKPOINT_NARROW = 768 // px - Switch to ~80 columns.
 const BREAKPOINT_VERTICAL = 576 // px - Switch to vertical layout.
-const elk = new ELK() // Layout engine!
+const elk = new ELK() // Node layout engine!
 
 type UiLayout = 'wide' | 'narrow' | 'vertical'
 
@@ -122,7 +122,7 @@ export const App: FC = () => {
       >
         <iframe
           ref={iframeRef}
-          src="/reactflow-viewer.html"
+          src="/index-reactflow.html"
           sandbox="allow-scripts allow-same-origin"
           style={{ width: '100%', height: '100%' }}
         />
@@ -314,7 +314,7 @@ const updateFlowFromDocument = (
   // TODO: Codify these tasks in to a singular type.
   const allNodes = [...taskNodes, ...milestoneNodes]
 
-  void runCpm(nodesForWasm(edges, allNodes))
+  void runCpm(nodesForCpm(edges, allNodes))
     .then((computed: CpmOutput | CpmError) => {
       if ('error' in computed) {
         console.error('CPM Error:', computed)
@@ -421,7 +421,7 @@ const doLayout = async <T extends { id: string }>(
   })
 }
 
-const nodesForWasm = (edges: Edge[], nodes: PreCpmNode[]): CpmInput[] => {
+const nodesForCpm = (edges: Edge[], nodes: PreCpmNode[]): CpmInput[] => {
   const successorsMap: Record<string, string[]> = {}
   for (const e of edges) {
     const srcId = e.source

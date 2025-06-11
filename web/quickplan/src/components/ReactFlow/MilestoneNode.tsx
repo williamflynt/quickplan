@@ -34,12 +34,7 @@ const MilestoneNode: FC<MilestoneNodeShape> = (props) => {
   return (
     <div style={{ position: 'relative' }}>
       <div className={className} onClick={toggleNodeActive}>
-        <Handle
-          type="target"
-          position={Position.Left}
-          style={{ width: 10, height: 10, left: -5 }}
-          isConnectable
-        />
+        <Handle type="target" position={Position.Left} isConnectable />
 
         <Tooltip title={`${id}: ${description || 'No description.'}`}>
           <Typography.Text strong style={{ fontSize: '0.75em' }}>
@@ -48,12 +43,7 @@ const MilestoneNode: FC<MilestoneNodeShape> = (props) => {
           </Typography.Text>
         </Tooltip>
 
-        <Handle
-          type="source"
-          position={Position.Right}
-          style={{ width: 10, height: 10, right: -5 }}
-          isConnectable
-        />
+        <Handle type="source" position={Position.Right} isConnectable />
       </div>
     </div>
   )

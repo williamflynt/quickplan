@@ -14,22 +14,11 @@ import '../../assets/ReactFlowViewer.css'
 import CpmTaskNode from './CpmTaskNode'
 import { useStore } from '../../store/store'
 import MilestoneNode from './MilestoneNode'
-// import { ReflowButton } from './ReflowButton'
-// import { ScaleSelectors } from './ScaleSelectors'
 
 export const NodeTypes = { cpmTask: CpmTaskNode, milestone: MilestoneNode }
 
 export const Flow: FC = () => {
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    onPaneClick,
-    onSelectionChange,
-    flowInstance,
-  } = useStore()
+  const { nodes, edges, flowInstance } = useStore()
 
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
     useStore.setState({ flowInstance: reactFlowInstance })
@@ -77,20 +66,13 @@ export const Flow: FC = () => {
           nodeTypes={NodeTypes}
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
           onInit={onInit}
-          onPaneClick={onPaneClick}
           elevateEdgesOnSelect={true}
-          onSelectionChange={onSelectionChange}
           fitView
           nodesDraggable={true}
           nodesConnectable={false}
           connectOnClick={false}
         >
-          {/*<ScaleSelectors />*/}
-          {/*<ReflowButton />*/}
           <MiniMap position="bottom-right" />
           <Controls />
         </ReactFlow>

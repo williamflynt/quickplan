@@ -169,7 +169,7 @@ export const runCpm = async (
   const edgeSet = new Set<string>()
   for (const path of paths) {
     for (let i = 0; i < path.length - 1; i++) {
-      edgeSet.add(path[i] + '->' + path[i + 1])
+      edgeSet.add(path[i] + ' > ' + path[i + 1])
     }
   }
   const edgeList: {
@@ -180,7 +180,7 @@ export const runCpm = async (
   }[] = []
   for (const task of tasks.values()) {
     for (const succ of task.successors) {
-      const key = task.id + '->' + succ
+      const key = task.id + ' > ' + succ
       edgeList.push({
         id: key,
         from: task.id,
