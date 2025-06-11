@@ -281,7 +281,7 @@ const updateFlowFromDocument = (
       position: { x: 0, y: 0 },
       data: {
         label: t.name,
-        description: t.name + t.name,
+        description: (t.attributes.description || 'No description').toString(),
         cpm: {
           durationLow: t.attributes.durationLow || 0,
           durationLikely: t.attributes.durationLikely || 0,
@@ -302,7 +302,7 @@ const updateFlowFromDocument = (
       position: { x: 0, y: 0 },
       data: {
         label: m.name,
-        description: '',
+        description: (m.attributes.description || 'No description').toString(),
         cpm: { durationLow: 0, durationLikely: 0, durationHigh: 0 },
         successors: [],
         sourcePosition: Position.Right,
