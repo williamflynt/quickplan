@@ -6,8 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { executeExtended } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupExtended'
-import { configureMonacoWorkers } from '../../../submodules/ProjectFlowSyntax/project-flow-syntax/src/setupCommon'
+import { executeExtended } from '@quickplan/project-flow-syntax/src/setupExtended'
+import { configureMonacoWorkers } from '@quickplan/project-flow-syntax/src/setupCommon'
 import { Monaco } from './components/Editor/Monaco'
 import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'

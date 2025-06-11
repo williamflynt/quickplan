@@ -24,10 +24,12 @@ export default defineConfig({
     cors: true,
     fs: {
       allow: [
-        '../../submodules',
-        'src',
-        'node_modules/antd',
-        'node_modules/@xyflow',
+        // Allow access to the entire workspace.
+        path.resolve(__dirname, '../..'),
+        // Explicitly allow node_modules at root.
+        path.resolve(__dirname, '../../node_modules'),
+        // Allow local node_modules.
+        path.resolve(__dirname, './node_modules'),
       ],
     },
   },

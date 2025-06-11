@@ -1,0 +1,17 @@
+# This is a way to quickly mark out tasks for CPM/PERT.
+# It is fully compatible with the rest of Langium.
+#
+# SCRAMBLED EGGS
+ServeEggs 1 2 3 "Eggs on plate, plate to table"
+CookEggs 2 "About ten ways to do this"
+PourEggs 1 1 2 "Bowl to pan"
+PreheatPan 2 4 "Gotta do this part"
+WhiskEggs 1 2
+SeasonEggs 1 2 "Optionally add a bit of milk"
+CrackEggs 1 2 3 "One egg against the other for minimum shell bits"
+SelectBowl 1 2 "French crockery is best for style"
+SelectEggs 1 1 2
+SelectWhisk 1 "Could be a fork"
+@PrepareEggs: ServeEggs, CookEggs, PourEggs, PreheatPan, WhiskEggs, SeasonEggs, CrackEggs, SelectBowl, SelectEggs, SelectWhisk
+$me > ServeEggs
+ServeEggs > %Done
