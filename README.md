@@ -5,13 +5,11 @@ Faster PERT charts.
 #### Contents
 
 1. [Quickstart](#quickstart)
-    * [Prerequisites](#prerequisites)
-    * [Using Docker](#using-docker)
-    * [Using Go](#using-go)
+   * [Prerequisites](#prerequisites)
+   * [Build and Run](#build-and-run)
 2. [What and Why?](#what-and-why)
-3. [Deployment](#deployment)
-4. [Limitations](#limitations)
-5. [Contributing](#contributing)
+3. [Limitations](#limitations)
+4. [Contributing](#contributing)
 
 ---
 
