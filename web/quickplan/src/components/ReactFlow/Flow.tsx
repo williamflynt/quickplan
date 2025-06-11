@@ -9,10 +9,11 @@ import {
 } from '@xyflow/react'
 import CpmTaskNode from './CpmTaskNode'
 import { useStore } from '../../store/store'
+import MilestoneNode from './MilestoneNode'
 // import { ReflowButton } from './ReflowButton'
 // import { ScaleSelectors } from './ScaleSelectors'
 
-export const NodeTypes = { cpmTask: CpmTaskNode }
+export const NodeTypes = { cpmTask: CpmTaskNode, milestone: MilestoneNode }
 
 export const Flow: FC = () => {
   const {
@@ -28,8 +29,8 @@ export const Flow: FC = () => {
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
     useStore.setState({ flowInstance: reactFlowInstance })
   }
-
   return (
+    // TODO: Put ReactFlow into an iframe
     <>
       <Background variant={BackgroundVariant.Lines} />
 
@@ -46,6 +47,9 @@ export const Flow: FC = () => {
         elevateEdgesOnSelect={true}
         onSelectionChange={onSelectionChange}
         fitView
+        nodesDraggable={true}
+        nodesConnectable={false}
+        connectOnClick={false}
       >
         {/*<ScaleSelectors />*/}
         {/*<ReflowButton />*/}

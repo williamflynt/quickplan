@@ -77,7 +77,8 @@ export const App: FC = () => {
     }
   }, [editorRef.current, flowInstance])
 
-  // Handle window resize for responsive layout
+  // Handle window resize for responsive layout.
+  // This is probably not the way to do it.
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < BREAKPOINT_VERTICAL) {
@@ -162,7 +163,7 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
           height: '100vh',
         },
         editor: {
-          width: '320px', // Approximately 80 columns
+          width: '400px',
           height: '100%',
         },
         flow: {
@@ -178,7 +179,7 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
           height: '100vh',
         },
         editor: {
-          width: '480px', // Approximately 100-120 columns
+          width: '25%',
           height: '100%',
         },
         flow: {
@@ -189,8 +190,11 @@ const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
   }
 }
 
-// These types say that we're creating the same shape as the final node, but
-// without all the calculations completed for critical path.
+/*
+ * These types say that we're creating the same shape as the final node, but
+ * without all the calculations completed for critical path.
+ */
+
 type CpmDataPartial = Pick<
   CpmData,
   'durationLow' | 'durationLikely' | 'durationHigh'
