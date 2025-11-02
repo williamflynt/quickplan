@@ -174,10 +174,7 @@ const CpmDataRow: FC<CpmDataRowProps> = ({
 /**
  * NodeTextComponent is the center, bolded display label of the Node in React Flow.
  */
-const NodeTextComponent: FC<{ data: CpmNodeShape; isMilestone?: boolean }> = ({
-  data,
-  isMilestone,
-}) => {
+const NodeTextComponent: FC<{ data: CpmNodeShape }> = ({ data }) => {
   const labelComponent = (
     <Typography.Text strong style={{ fontSize: '0.8em' }}>
       {data.data.label || data.id}
@@ -225,19 +222,6 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
     boxShadow: '0 0 8px 2px rgba(255, 85, 85, 0.5)',
   } : {}
   
-  const milestoneBanner = (
-    <Typography.Text
-      style={{
-        fontSize: '0.7em',
-        padding: '3px',
-        border: '1px solid #bbb',
-        borderRadius: '3px',
-      }}
-    >
-      Milestone
-    </Typography.Text>
-  )
-
   const tinyIdTag = (
     <Typography.Text
       style={{ fontSize: '0.4em', position: 'absolute', top: 30, left: 5 }}
@@ -262,7 +246,7 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
 
         <Row justify="space-around">
           <Col>
-            <NodeTextComponent isMilestone={isMilestone} data={props} />
+            <NodeTextComponent data={props} />
           </Col>
         </Row>
 
@@ -275,7 +259,6 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
         />
         <Handle type="source" position={Position.Right} isConnectable />
       </div>
-      {isMilestone && milestoneBanner}
     </div>
   )
 }
