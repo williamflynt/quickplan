@@ -1,0 +1,37 @@
+site_name: QuickPlan Documentation
+site_description: Documentation for QuickPlan - A faster way to create PERT charts
+site_url: https://quickplan.example.com
+repo_url: https://github.com/yourusername/quickplan
+repo_name: quickplan
+
+docs_dir: content
+site_dir: site
+
+theme: readthedocs
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - tables
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - Overview: user-guide/overview.md
+      - Creating Projects: user-guide/creating-projects.md
+      - Working with Dependencies: user-guide/dependencies.md
+  - Reference:
+      - DSL Syntax: reference/dsl.md
+  - Development:
+      - Architecture: development/architecture.md
+      - Contributing: development/contributing.md
+  - About:
+      - License: about/license.md
+
+plugins:
+  - search
