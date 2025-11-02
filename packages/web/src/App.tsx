@@ -9,6 +9,7 @@ import React, {
 import { executeExtended } from '@quickplan/project-flow-syntax/src/setupExtended'
 import { configureMonacoWorkers } from '@quickplan/project-flow-syntax/src/setupCommon'
 import { Monaco } from './components/Editor/Monaco'
+import { ResizablePanels } from './components/ResizablePanels'
 import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
 import { runCpm } from './cpm/cpm'
@@ -90,95 +91,101 @@ export const App: FC = () => {
 
   const styles = getUiLayoutStyles(layout)
 
+  const editorPane = (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        border: '1px solid #ddd',
+        boxShadow: '0 0 8px rgba(0,0,0,0.1)',
+      }}
+    >
+      <Monaco
+        editorRef={editorRef}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
+  )
+
+  const flowPane = (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        border: '1px solid #ddd',
+        boxShadow: '0 0 8px rgba(0,0,0,0.1)',
+      }}
+    >
+      <iframe
+        ref={iframeRef}
+        src="/index-reactflow.html"
+        sandbox="allow-scripts allow-same-origin"
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
+  )
+
   return (
     <div
       style={{
-        display: 'flex',
         ...styles.container,
         overflow: 'hidden',
       }}
     >
-      <div
-        style={{
-          ...styles.editor,
-          overflow: 'hidden',
-          border: '1px solid #ddd',
-          boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-        }}
-      >
-        <Monaco
-          editorRef={editorRef}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
-
-      <div
-        style={{
-          ...styles.flow,
-          overflow: 'hidden',
-          border: '1px solid #ddd',
-          boxShadow: '0 0 8px rgba(0,0,0,0.1)',
-        }}
-      >
-        <iframe
-          ref={iframeRef}
-          src="/index-reactflow.html"
-          sandbox="allow-scripts allow-same-origin"
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
+      <ResizablePanels
+        leftPane={editorPane}
+        rightPane={flowPane}
+        defaultLeftWidth={styles.defaultLeftWidth}
+        minLeftWidth={styles.minLeftWidth}
+        maxLeftWidth={styles.maxLeftWidth}
+        direction={layout === 'vertical' ? 'vertical' : 'horizontal'}
+      />
     </div>
   )
 }
 
 // Get styles based on current layout.
-const getUiLayoutStyles = (mode: UiLayout): Record<string, CSSProperties> => {
+const getUiLayoutStyles = (
+  mode: UiLayout,
+): {
+  container: CSSProperties
+  defaultLeftWidth: number
+  minLeftWidth: number
+  maxLeftWidth: number
+} => {
   switch (mode) {
     case 'vertical':
       return {
         container: {
-          flexDirection: 'column',
+          width: '100%',
           height: '100vh',
         },
-        editor: {
-          width: '100%',
-          height: '35vh',
-        },
-        flow: {
-          width: '100%',
-          height: '65vh',
-        },
+        defaultLeftWidth: 35,
+        minLeftWidth: 20,
+        maxLeftWidth: 60,
       }
     case 'narrow':
       return {
         container: {
-          flexDirection: 'row',
+          width: '100%',
           height: '100vh',
         },
-        editor: {
-          width: '400px',
-          height: '100%',
-        },
-        flow: {
-          flex: 1,
-          height: '100%',
-        },
+        defaultLeftWidth: 40,
+        minLeftWidth: 25,
+        maxLeftWidth: 60,
       }
     case 'wide':
     default:
       return {
         container: {
-          flexDirection: 'row',
+          width: '100%',
           height: '100vh',
         },
-        editor: {
-          width: '25%',
-          height: '100%',
-        },
-        flow: {
-          flex: 1,
-          height: '100%',
-        },
+        defaultLeftWidth: 25,
+        minLeftWidth: 15,
+        maxLeftWidth: 50,
       }
   }
 }
