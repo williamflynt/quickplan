@@ -11,7 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
-        viewer: path.resolve(__dirname, 'reactflow_viewer.html'),
+        viewer: path.resolve(__dirname, 'index-reactflow.html'),
       },
     },
   },

@@ -2,7 +2,6 @@ import React, { FC, memo } from 'react'
 import { Handle, Position, XYPosition } from '@xyflow/react'
 import { Col, Row, Tooltip, Typography } from 'antd'
 import { useStore } from '../../store/store'
-import { FlagFilled } from '@ant-design/icons'
 
 export type CpmData = {
   duration: number
@@ -179,11 +178,6 @@ const NodeTextComponent: FC<{ data: CpmNodeShape; isMilestone?: boolean }> = ({
   data,
   isMilestone,
 }) => {
-  const milestoneIcon = isMilestone ? (
-    <FlagFilled style={{ color: '#1890ff' }} />
-  ) : (
-    <></>
-  )
   const labelComponent = (
     <Typography.Text strong style={{ fontSize: '0.8em' }}>
       {data.data.label || data.id}
@@ -194,7 +188,7 @@ const NodeTextComponent: FC<{ data: CpmNodeShape; isMilestone?: boolean }> = ({
       title={`${data.id}: ${data.data.description || 'No description.'}`}
     >
       <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-        {milestoneIcon} {labelComponent}
+        {labelComponent}
       </div>
     </Tooltip>
   )
@@ -225,6 +219,12 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
   const className = activeNodeId === props.id ? 'cpm-node-active' : 'cpm-node'
 
   const isMilestone = props.data.cpm.duration === 0
+  
+  // Add red glow for zero-duration tasks
+  const nodeStyle = isMilestone ? {
+    boxShadow: '0 0 8px 2px rgba(255, 85, 85, 0.5)',
+  } : {}
+  
   const milestoneBanner = (
     <Typography.Text
       style={{
@@ -250,7 +250,7 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
   return (
     <div>
       {tinyIdTag}
-      <div className={className} onClick={toggleNodeActive}>
+      <div className={className} onClick={toggleNodeActive} style={nodeStyle}>
         <Handle type="target" position={Position.Left} isConnectable />
         <CpmDataRow
           type="earlyNums"
