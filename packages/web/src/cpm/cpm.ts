@@ -53,7 +53,8 @@ class Task {
   }
 
   get isCritical(): boolean {
-    return this.slack === 0
+    // Using a tolerance because floating point math accumulates errors.
+    return Math.abs(this.slack) < 0.001
   }
 }
 

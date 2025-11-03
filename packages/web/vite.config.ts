@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin'
@@ -6,6 +7,9 @@ import * as path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    includeSource: ['**/*.test.ts'],
+  },
   build: {
     outDir: '../../internal/server/web',
     rollupOptions: {
