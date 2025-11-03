@@ -245,6 +245,17 @@ class ClusterItems {
             this.milestones.delete(item)
         }
     }
+
+    public toJSON(): Array<{type: string, name: string}> {
+        const items: Array<{type: string, name: string}> = [];
+        for (const task of this.tasks) {
+            items.push({type: task.type, name: task.name});
+        }
+        for (const milestone of this.milestones) {
+            items.push({type: milestone.type, name: milestone.name});
+        }
+        return items;
+    }
 }
 
 type TypedNamed = { type: string, name: string }

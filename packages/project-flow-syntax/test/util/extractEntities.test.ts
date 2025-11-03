@@ -148,4 +148,15 @@ describe('extractEntities', async () => {
         expect(project.tasks['X']).toBeDefined();
         expect(project.tasks['X'].name).toBe('X');
     })
+
+    test('Cluster serialization', async () => {
+        const ast = await parse('task1\ntask2\ntask3\n@my_cluster: task1, task2, task3');
+        const project = extractEntities(ast.parseResult.value);
+        console.log('Clusters:', JSON.stringify(project.clusters, null, 2));
+        expect(Object.keys(project.clusters).length).toBe(1);
+        expect(project.clusters['my_cluster']).toBeDefined();
+        expect(project.clusters['my_cluster'].name).toBe('my_cluster');
+        const clusterJson = JSON.parse(JSON.stringify(project.clusters['my_cluster']));
+        console.log('Cluster JSON:', clusterJson);
+    })
 })
