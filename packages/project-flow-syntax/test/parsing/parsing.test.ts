@@ -49,7 +49,7 @@ type TestCase = {
  * Test a single test case.
  * @param t
  */
-const f = (t: TestCase) => {
+const doTest = (t: TestCase) => {
     return async () => {
         console.info(JSON.stringify(t.input));
         document = await parse(t.input);
@@ -90,7 +90,7 @@ describe('Task Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -113,7 +113,7 @@ describe('Resource Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -136,7 +136,7 @@ describe('Milestone Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -159,7 +159,7 @@ describe('Cluster Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -194,7 +194,7 @@ describe('Attribute Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -223,7 +223,7 @@ describe('DependencyChain Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -248,7 +248,7 @@ describe('DependencySegment Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -283,7 +283,7 @@ describe('Assignment Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -306,7 +306,7 @@ describe('SplitTask Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -317,6 +317,12 @@ describe('RemoveEntity Rule', () => {
             name: 'remove task',
             input: '~ Task',
             idealizedSyntax: '~Task',
+            expectedAstValues: {$type: 'RemoveEntity'}
+        },
+        {
+            name: 'remove task after dependency',
+            input: 'Task > Task2\n~Task',
+            idealizedSyntax: 'Task > Task2\n~Task',
             expectedAstValues: {$type: 'RemoveEntity'}
         },
         {
@@ -341,7 +347,7 @@ describe('RemoveEntity Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -364,7 +370,7 @@ describe('ExplodeTask Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
@@ -388,7 +394,7 @@ describe('ImplodeTask Rule', () => {
     for (const t of tests) {
         const permutedInput = whitespaced(t.input)
         for (const [idx, input] of permutedInput.entries()) {
-            test(`${t.name}-${idx}`, f({...t, input}));
+            test(`${t.name}-${idx}`, doTest({...t, input}));
         }
     }
 });
