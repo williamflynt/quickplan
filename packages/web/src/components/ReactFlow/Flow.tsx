@@ -14,8 +14,13 @@ import '../../assets/ReactFlowViewer.css'
 import CpmTaskNode from './CpmTaskNode'
 import { useStore } from '../../store/store'
 import MilestoneNode from './MilestoneNode'
+import GroupNode from './GroupNode'
 
-export const NodeTypes = { cpmTask: CpmTaskNode, milestone: MilestoneNode }
+export const NodeTypes = {
+  cpmTask: CpmTaskNode,
+  milestone: MilestoneNode,
+  group: GroupNode,
+}
 
 export const Flow: FC = () => {
   const { nodes, edges, flowInstance } = useStore()

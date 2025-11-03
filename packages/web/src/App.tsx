@@ -16,7 +16,7 @@ import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
 import { runCpm } from './cpm/cpm'
 import { StorageService } from './services/storage'
-import { openFile, saveAsFile, saveFile } from './services/fileSystem'
+import { openFile, saveAsFile } from './services/fileSystem'
 import { useStore } from './store/store'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { message } from 'antd'
@@ -488,7 +488,10 @@ type NodeId = { type: string; name: string }
 type Relationship = { source: NodeId; target: NodeId }
 type SerializedAssignmentIndex = Relationship[]
 type SerializedDependencyIndex = Relationship[]
-type SerializedCluster = unknown // TODO.
+type SerializedCluster = {
+  name: string
+  items: Array<{ type: string; name: string }>
+}
 
 type Project = {
   tasks: Record<string, Task>
@@ -590,6 +593,43 @@ const updateFlowFromDocument = (
     }
   })
 
+  // Create cluster group nodes
+  const clusterNodes = Object.values(data.project.clusters).map((cluster) => ({
+    id: `Cluster:${cluster.name}`,
+    type: 'group',
+    position: { x: 0, y: 0 },
+    data: { label: cluster.name },
+    style: {
+      backgroundColor: 'rgba(200, 220, 255, 0.15)',
+      border: '2px dashed rgba(100, 150, 200, 0.4)',
+      borderRadius: 8,
+      padding: 5,
+    },
+  }))
+
+  // Build cluster membership map (which nodes belong to which clusters)
+  const nodeToCluster = new Map<string, string>()
+  for (const cluster of Object.values(data.project.clusters)) {
+    for (const item of cluster.items) {
+      const nodeId = `${item.type}:${item.name}`
+      nodeToCluster.set(nodeId, `Cluster:${cluster.name}`)
+    }
+  }
+
+  // Set parentId on task and milestone nodes that belong to clusters
+  taskNodes.forEach((node) => {
+    const parentId = nodeToCluster.get(node.id)
+    if (parentId) {
+      (node as any).parentId = parentId
+    }
+  })
+  milestoneNodes.forEach((node) => {
+    const parentId = nodeToCluster.get(node.id)
+    if (parentId) {
+      (node as any).parentId = parentId
+    }
+  })
+
   // TODO: Codify these tasks in to a singular type.
   const allNodes = [...taskNodes, ...milestoneNodes]
 
@@ -632,6 +672,9 @@ const updateFlowFromDocument = (
         }
       })
 
+      // Combine cluster nodes with task/milestone nodes for layout
+      const allNodesWithClusters = [...clusterNodes, ...updatedNodes]
+
       // Update edges with critical path indicators
       const updatedEdges = edges.map((edge) => {
         const cpmArrow = cpmArrowsMap[edge.id]
@@ -651,7 +694,7 @@ const updateFlowFromDocument = (
         return e
       })
 
-      return doLayout<PreCpmNode>(updatedNodes, updatedEdges)
+      return doLayout<any>(allNodesWithClusters, updatedEdges)
     })
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -672,28 +715,91 @@ const LAYOUT_OPTIONS: LayoutOptions = {
   'elk.direction': 'RIGHT',
   'elk.layered.spacing.nodeNodeBetweenLayers': '100',
   'elk.spacing.nodeNode': '80',
+  hierarchyHandling: 'INCLUDE_CHILDREN',
 }
 
 const doLayout = async <T extends { id: string }>(
   nodes: T[],
   edges: Edge[],
 ): Promise<[T[], Edge[]]> => {
+  // Separate nodes by hierarchy
+  const parentNodes = nodes.filter((n: any) => n.type === 'group')
+  const childNodes = nodes.filter((n: any) => n.type !== 'group')
+
+  // Build map of children by parent ID
+  const childrenByParent = new Map<string, any[]>()
+  childNodes.forEach((child: any) => {
+    if (child.parentId) {
+      if (!childrenByParent.has(child.parentId)) {
+        childrenByParent.set(child.parentId, [])
+      }
+      childrenByParent.get(child.parentId)?.push({
+        ...child,
+        width: 150,
+        height: 100,
+      })
+    }
+  })
+
+  // Create ELK graph with hierarchical structure
+  const elkChildren = [
+    // Root-level nodes (no parent)
+    ...childNodes
+      .filter((n: any) => !n.parentId)
+      .map((n) => ({ ...n, width: 150, height: 100 })),
+    // Parent nodes with their children nested
+    ...parentNodes.map((p: any) => ({
+      ...p,
+      children: childrenByParent.get(p.id) || [],
+      layoutOptions: {
+        'elk.padding': '[top=40,left=10,bottom=5,right=10]',
+      },
+    })),
+  ]
+
   const graph: ElkNode = {
     id: 'root',
     layoutOptions: LAYOUT_OPTIONS,
-    children: nodes.map((n) => {
-      return { ...n, width: 150, height: 100 }
-    }),
+    children: elkChildren,
     edges: edges,
   }
-  return elk.layout(graph).then(({ children }) => {
-    if (!children) {
+
+  return elk.layout(graph).then((layouted) => {
+    if (!layouted.children) {
       throw new Error('no nodes returned from Elk')
     }
-    const positionedNodes = children.map((node) => {
-      return { ...node, position: { x: node.x, y: node.y } } as unknown as T
+
+    // Flatten ELK's hierarchical output back to flat array for ReactFlow
+    const flattenedNodes: any[] = []
+    
+    layouted.children.forEach((node) => {
+      if (node.children && node.children.length > 0) {
+        // This is a parent node with children
+        flattenedNodes.push({
+          ...node,
+          position: { x: node.x || 0, y: node.y || 0 },
+          // Preserve style from original node
+          style: (nodes.find((n: any) => n.id === node.id) as any)?.style,
+        })
+        
+        // Add children with relative positions
+        node.children.forEach((child) => {
+          flattenedNodes.push({
+            ...child,
+            position: { x: child.x || 0, y: child.y || 0 }, // Relative to parent
+            parentId: node.id,
+          })
+        })
+      } else {
+        // Root-level node without children
+        flattenedNodes.push({
+          ...node,
+          position: { x: node.x || 0, y: node.y || 0 },
+        })
+      }
     })
-    return [positionedNodes, edges]
+
+    return [flattenedNodes as T[], edges]
   })
 }
 
