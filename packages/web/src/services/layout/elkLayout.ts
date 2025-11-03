@@ -6,7 +6,7 @@ const elk = new ELK()
 const LAYOUT_OPTIONS: LayoutOptions = {
   'elk.algorithm': 'layered',
   'elk.direction': 'RIGHT',
-  'elk.layered.spacing.nodeNodeBetweenLayers': '100',
+  'elk.layered.spacing.nodeNodeBetweenLayers': '35',
   'elk.spacing.nodeNode': '80',
   hierarchyHandling: 'INCLUDE_CHILDREN',
 }
@@ -45,7 +45,7 @@ export async function layoutNodes<T extends { id: string }>(
       ...p,
       children: childrenByParent.get(p.id) || [],
       layoutOptions: {
-        'elk.padding': '[top=24,left=10,bottom=10,right=10]',
+        'elk.padding': '[top=40,left=10,bottom=5,right=10]',
       },
     })),
   ]

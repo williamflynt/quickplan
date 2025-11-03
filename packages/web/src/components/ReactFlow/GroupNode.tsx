@@ -15,12 +15,11 @@ const GroupNode: FC<GroupNodeData> = ({ data }) => {
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          left: 4,
+          top: -15,
+          left: -10,
           fontSize: '12px',
           fontWeight: 600,
           color: '#3a5d99',
-          padding: '2px 6px',
           zIndex: 10,
         }}
       >
