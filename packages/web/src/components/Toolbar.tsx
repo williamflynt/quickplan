@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { Button, Select, Space, Tooltip } from 'antd'
 import {
   FolderOpenOutlined,
@@ -7,8 +7,10 @@ import {
   FileOutlined,
   EditOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons'
 import { StorageIndicator, StorageStatus } from './StorageIndicator'
+import { CheatSheet } from './CheatSheet'
 
 interface Project {
   id: number
@@ -45,6 +47,8 @@ export const Toolbar: FC<ToolbarProps> = ({
   onProjectSwitch,
   onProjectRename,
 }) => {
+  const [cheatSheetVisible, setCheatSheetVisible] = useState(false)
+
   return (
     <div
       style={{
@@ -158,6 +162,21 @@ export const Toolbar: FC<ToolbarProps> = ({
             Reset
           </Button>
         </Tooltip>
+
+        <Tooltip title="Syntax quick reference">
+          <Button
+              icon={<QuestionCircleOutlined />}
+              onClick={() => setCheatSheetVisible(true)}
+              size="small"
+              style={{
+                  background: '#2d2d2d',
+                  border: '1px solid #454545',
+                  color: '#d4d4d4',
+              }}
+          >
+              Cheatsheet
+          </Button>
+        </Tooltip>
       </Space>
 
       <Space size="small">
@@ -172,6 +191,8 @@ export const Toolbar: FC<ToolbarProps> = ({
           lastSaveTime={lastDiskSave || undefined}
         />
       </Space>
+
+      <CheatSheet visible={cheatSheetVisible} onClose={() => setCheatSheetVisible(false)} />
     </div>
   )
 }

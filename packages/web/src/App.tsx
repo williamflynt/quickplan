@@ -305,7 +305,7 @@ export const App: FC = () => {
         languageClientRef.current = null
       }
     }
-  }, [isHydrated, currentEditorContent, updateCurrentProject, saveCurrentProject])
+  }, [isHydrated])
 
   // Handle window resize for responsive layout.
   // This is probably not the way to do it.
