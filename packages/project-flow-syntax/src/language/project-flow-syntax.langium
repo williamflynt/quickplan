@@ -40,13 +40,11 @@ DependencyChain:
     (leftMost+=(Task | Milestone) (',' leftMost+=(Task | Milestone))* segments+=DependencySegment+);
 
 DependencySegment:
-    RemoveFlag? '>' rightSide+=(Task | Milestone) (',' rightSide+=(Task | Milestone))*;
+    (remove?=REMOVE_OP | '>') rightSide+=(Task | Milestone) (',' rightSide+=(Task | Milestone))*;
 
 Assignment:
-    (resources+=Resource (',' resources+=Resource)* RemoveFlag? '>' tasks+=Task (',' tasks+=Task)*) |
-    (tasks+=Task (',' tasks+=Task)* RemoveFlag? '>' resources+=Resource (',' resources+=Resource)*);
-
-fragment RemoveFlag: remove?=NEGATE;
+    (resources+=Resource (',' resources+=Resource)* (remove?=REMOVE_OP | '>') tasks+=Task (',' tasks+=Task)*) |
+    (tasks+=Task (',' tasks+=Task)* (remove?=REMOVE_OP | '>') resources+=Resource (',' resources+=Resource)*);
 
 SplitTask:
     (left?='*' '>' task=Task) | (task=Task '>' right?='*');
@@ -71,6 +69,7 @@ terminal MILESTONE_PREFIX: /%/;
 terminal RESOURCE_PREFIX: /\$/;
 terminal CLUSTER_PREFIX: /@/;
 
+terminal REMOVE_OP: /~>/;
 terminal NEGATE: /~/;
 terminal ID: /[_a-zA-Z][\w_.-]*/;
 terminal NUMBER returns number: /[1-9]+\d*/;

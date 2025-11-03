@@ -323,7 +323,7 @@ describe('RemoveEntity Rule', () => {
             name: 'remove task after dependency',
             input: 'Task > Task2\n~Task',
             idealizedSyntax: 'Task > Task2\n~Task',
-            expectedAstValues: {$type: 'RemoveEntity'}
+            expectedAstValues: {$type: 'DependencyChain'}
         },
         {
             name: 'remove resource',
