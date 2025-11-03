@@ -15,7 +15,6 @@ import {
   getUiLayoutStyles,
 } from './services/layout/uiLayout'
 import { UiLayout } from './types/layout'
-import 'antd/dist/antd.css'
 
 export const App: FC = () => {
   // Refs for DOM elements and Monaco instances

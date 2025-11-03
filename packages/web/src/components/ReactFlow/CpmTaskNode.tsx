@@ -2,6 +2,7 @@ import React, { FC, memo } from 'react'
 import { Handle, Position, XYPosition } from '@xyflow/react'
 import { Col, Row, Tooltip, Typography } from 'antd'
 import { useStore } from '../../store/store'
+import { SerializedAssignmentIndex, SerializedCluster } from '../../types/graph'
 
 export type CpmData = {
   duration: number
@@ -25,6 +26,8 @@ export type CpmNodeShape = {
   id: string
   position: XYPosition
   data: CpmNodeData
+  clusters?: SerializedCluster[]
+  assignments?: SerializedAssignmentIndex
 }
 
 type DataRowProps = {
@@ -119,13 +122,7 @@ type CpmDataRowProps = {
  * CpmDataRow is a row on the top or bottom of the CpmTaskNode with early/late
  * start and finish, plus slack or duration.
  */
-const CpmDataRow: FC<CpmDataRowProps> = ({
-  type,
-  left,
-  center,
-  right,
-  isMilestone,
-}) => {
+const CpmDataRow: FC<CpmDataRowProps> = ({ type, left, center, right }) => {
   const border = type === 'earlyNums' ? 'bottom' : 'top'
   const titlePos = type === 'earlyNums' ? 'top' : 'bottom'
   // Color early times green, and latest times red.
@@ -162,10 +159,6 @@ const CpmDataRow: FC<CpmDataRowProps> = ({
     />
   )
 
-  if (isMilestone) {
-    // For a milestone, don't worry about slack or duration.
-    return <DataRow border={border} components={[leftElem, rightElem]} />
-  }
   return (
     <DataRow border={border} components={[leftElem, centerElem, rightElem]} />
   )
@@ -215,13 +208,14 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
 
   const className = activeNodeId === props.id ? 'cpm-node-active' : 'cpm-node'
 
-  const isMilestone = props.data.cpm.duration === 0
-  
   // Add red glow for zero-duration tasks
-  const nodeStyle = isMilestone ? {
-    boxShadow: '0 0 8px 2px rgba(255, 85, 85, 0.5)',
-  } : {}
-  
+  const nodeStyle =
+    props.data.cpm.duration === 0
+      ? {
+          boxShadow: '0 0 8px 2px rgba(255, 85, 85, 0.5)',
+        }
+      : {}
+
   const tinyIdTag = (
     <Typography.Text
       style={{ fontSize: '0.4em', position: 'absolute', top: 30, left: 5 }}
@@ -241,7 +235,6 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
           left={topRowComponents[0]}
           center={topRowComponents[1]}
           right={topRowComponents[2]}
-          isMilestone={isMilestone}
         />
 
         <Row justify="space-around">
@@ -255,7 +248,6 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
           left={bottomRowComponents[0]}
           center={bottomRowComponents[1]}
           right={bottomRowComponents[2]}
-          isMilestone={isMilestone}
         />
         <Handle type="source" position={Position.Right} isConnectable />
       </div>

@@ -16,13 +16,13 @@ export const CheatSheet: FC<CheatSheetProps> = ({ visible, onClose }) => {
       onCancel={onClose}
       footer={null}
       width={700}
-      bodyStyle={{
-        maxHeight: '70vh',
+      styles={{body: {
+          maxHeight: '70vh',
         overflowY: 'auto',
         background: '#1e1e1e',
         color: '#d4d4d4',
         padding: '20px',
-      }}
+      }}}
       style={{
         top: 40,
       }}

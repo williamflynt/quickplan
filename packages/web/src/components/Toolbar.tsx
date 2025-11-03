@@ -71,10 +71,10 @@ export const Toolbar: FC<ToolbarProps> = ({
           placeholder="Select project..."
           suffixIcon={<FileOutlined />}
           getPopupContainer={(trigger) => trigger.parentElement || document.body}
-          dropdownStyle={{
+          styles={{popup: { root: {
             background: '#252526',
             border: '1px solid #454545',
-          }}
+          }}}}
         >
           {projects.map((project) => (
             <Select.Option key={project.id} value={project.id}>

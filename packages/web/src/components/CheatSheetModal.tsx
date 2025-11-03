@@ -14,13 +14,13 @@ export const CheatSheetModal: FC<CheatSheetModalProps> = ({ visible, onClose }) 
       onCancel={onClose}
       footer={null}
       width={800}
-      bodyStyle={{
+      styles={{body: {
         maxHeight: '70vh',
         overflowY: 'auto',
         background: '#1e1e1e',
         color: '#d4d4d4',
         fontFamily: 'monospace',
-      }}
+      }}}
     >
       <div style={{ padding: '8px' }}>
         <section style={{ marginBottom: '24px' }}>

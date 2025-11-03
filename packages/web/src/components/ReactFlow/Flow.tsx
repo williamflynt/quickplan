@@ -9,7 +9,6 @@ import {
   ReactFlowProvider,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import 'antd/dist/antd.css'
 import '../../assets/ReactFlowViewer.css'
 import CpmTaskNode from './CpmTaskNode'
 import { useStore } from '../../store/store'
