@@ -60,7 +60,6 @@ export const App: FC = () => {
     saveCurrentProject,
     downloadCurrentProject,
     clearAllProjects,
-    clearGraph,
     getCurrentProject,
   } = useStore()
 
@@ -77,7 +76,7 @@ export const App: FC = () => {
     try {
       const projectId = await createProject(result.name, result.content)
       await StorageService.updateLastSynced(projectId)
-      
+
       if (wrapperRef.current) {
         const editor = wrapperRef.current.getEditor?.()
         if (editor && editor.setValue) {
@@ -102,7 +101,7 @@ export const App: FC = () => {
 
     try {
       await clearAllProjects()
-      
+
       // Reset Monaco editor to sample code
       if (wrapperRef.current) {
         const editor = wrapperRef.current.getEditor?.()
@@ -119,29 +118,32 @@ export const App: FC = () => {
   }, [clearAllProjects])
 
   // Handle switching to a different project
-  const handleProjectSwitch = useCallback(async (projectId: number) => {
-    try {
-      await loadProject(projectId)
-      const project = getCurrentProject()
-      if (!project) {
-        message.error('Project not found')
-        return
-      }
-
-      // Update Monaco editor
-      if (wrapperRef.current) {
-        const editor = wrapperRef.current.getEditor?.()
-        if (editor && editor.setValue) {
-          editor.setValue(project.content)
+  const handleProjectSwitch = useCallback(
+    async (projectId: number) => {
+      try {
+        await loadProject(projectId)
+        const project = getCurrentProject()
+        if (!project) {
+          message.error('Project not found')
+          return
         }
-      }
 
-      message.success(`Switched to ${project.name}`)
-    } catch (error) {
-      console.error('Error switching project:', error)
-      message.error('Failed to switch project')
-    }
-  }, [loadProject, getCurrentProject])
+        // Update Monaco editor
+        if (wrapperRef.current) {
+          const editor = wrapperRef.current.getEditor?.()
+          if (editor && editor.setValue) {
+            editor.setValue(project.content)
+          }
+        }
+
+        message.success(`Switched to ${project.name}`)
+      } catch (error) {
+        console.error('Error switching project:', error)
+        message.error('Failed to switch project')
+      }
+    },
+    [loadProject, getCurrentProject],
+  )
 
   // Handle renaming the current project
   const handleProjectRename = useCallback(async () => {
@@ -156,7 +158,10 @@ export const App: FC = () => {
       return
     }
 
-    const newName = window.prompt('Enter new project name:', currentProject.name)
+    const newName = window.prompt(
+      'Enter new project name:',
+      currentProject.name,
+    )
     if (!newName || newName.trim() === '') {
       return
     }
@@ -172,14 +177,17 @@ export const App: FC = () => {
 
   // Handle creating a new project
   const handleNew = useCallback(async () => {
-    const projectName = window.prompt('Enter project name:', `Project ${new Date().toLocaleString()}`)
+    const projectName = window.prompt(
+      'Enter project name:',
+      `Project ${new Date().toLocaleString()}`,
+    )
     if (!projectName || projectName.trim() === '') {
       return
     }
 
     try {
       await createProject(projectName.trim(), SAMPLE_CODE)
-      
+
       // Update Monaco editor
       if (wrapperRef.current) {
         const editor = wrapperRef.current.getEditor?.()
@@ -194,7 +202,7 @@ export const App: FC = () => {
       message.error('Failed to create project')
     }
   }, [createProject])
-  
+
   const handleDownload = useCallback(async () => {
     if (!currentEditorContent) {
       message.warning('No content to download')
@@ -204,13 +212,13 @@ export const App: FC = () => {
     try {
       // Download the file
       const handle = await saveAsFile(currentEditorContent, 'project.pfs')
-      
+
       // Update disk sync status
       if (currentProjectId) {
         await StorageService.updateLastSynced(currentProjectId)
         await downloadCurrentProject()
       }
-      
+
       message.success('File downloaded')
     } catch (error) {
       console.error('Error downloading:', error)

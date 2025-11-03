@@ -49,7 +49,6 @@ type RFState = {
   saveCurrentProject: () => Promise<void>
   downloadCurrentProject: () => Promise<void>
   clearAllProjects: () => Promise<void>
-  clearGraph: () => void
   getCurrentProject: () => ProjectState | null
 }
 
@@ -109,9 +108,12 @@ export const useStore = create<RFState>((set, get) => ({
     } else {
       // No projects exist, create a default one with sample code
       const { SAMPLE_CODE } = await import('../config/editorConfig')
-      const projectId = await StorageService.saveProject(SAMPLE_CODE, 'Untitled Project')
+      const projectId = await StorageService.saveProject(
+        SAMPLE_CODE,
+        'Untitled Project',
+      )
       const newProject = await StorageService.getProject(projectId)
-      
+
       if (newProject) {
         const defaultProject: ProjectState = {
           id: newProject.id!,
@@ -122,7 +124,7 @@ export const useStore = create<RFState>((set, get) => ({
           lastSyncedAt: newProject.lastSyncedAt,
           fileHandle: newProject.fileHandle,
         }
-        
+
         set({
           projects: [defaultProject],
           currentProjectId: projectId,
@@ -191,7 +193,7 @@ export const useStore = create<RFState>((set, get) => ({
               lastSyncedAt: project.lastSyncedAt,
               fileHandle: project.fileHandle,
             }
-          : p
+          : p,
       )
 
       return {
@@ -223,7 +225,7 @@ export const useStore = create<RFState>((set, get) => ({
     await StorageService.renameProject(projectId, name)
     set((state) => ({
       projects: state.projects.map((p) =>
-        p.id === projectId ? { ...p, name, updatedAt: Date.now() } : p
+        p.id === projectId ? { ...p, name, updatedAt: Date.now() } : p,
       ),
     }))
   },
@@ -239,12 +241,15 @@ export const useStore = create<RFState>((set, get) => ({
   saveCurrentProject: async () => {
     const state = get()
     const { currentProjectId, currentEditorContent } = state
-    
+
     // If no current project, create one first
     if (!currentProjectId) {
-      const projectId = await StorageService.saveProject(currentEditorContent, 'Untitled Project')
+      const projectId = await StorageService.saveProject(
+        currentEditorContent,
+        'Untitled Project',
+      )
       const newProject = await StorageService.getProject(projectId)
-      
+
       if (newProject) {
         const project: ProjectState = {
           id: newProject.id!,
@@ -255,7 +260,7 @@ export const useStore = create<RFState>((set, get) => ({
           lastSyncedAt: newProject.lastSyncedAt,
           fileHandle: newProject.fileHandle,
         }
-        
+
         set((state) => ({
           projects: [project, ...state.projects],
           currentProjectId: projectId,
@@ -266,21 +271,21 @@ export const useStore = create<RFState>((set, get) => ({
       }
       return
     }
-    
+
     // Save existing project
     set({ browserStatus: 'saving' })
     await StorageService.saveProject(
       currentEditorContent,
       undefined,
-      currentProjectId
+      currentProjectId,
     )
-    
+
     // Update project in list
     set((state) => ({
       projects: state.projects.map((p) =>
         p.id === currentProjectId
           ? { ...p, content: currentEditorContent, updatedAt: Date.now() }
-          : p
+          : p,
       ),
       browserStatus: 'saved',
       lastBrowserSave: Date.now(),
@@ -293,13 +298,13 @@ export const useStore = create<RFState>((set, get) => ({
 
     set({ diskStatus: 'saving' })
     await StorageService.updateLastSynced(state.currentProjectId)
-    
+
     // Update the project's lastSyncedAt in the list
     set((state) => ({
       projects: state.projects.map((p) =>
         p.id === state.currentProjectId
           ? { ...p, lastSyncedAt: Date.now() }
-          : p
+          : p,
       ),
       diskStatus: 'saved',
       lastDiskSave: Date.now(),
@@ -322,13 +327,6 @@ export const useStore = create<RFState>((set, get) => ({
       diskStatus: 'unsaved',
       lastBrowserSave: null,
       lastDiskSave: null,
-      nodes: [],
-      edges: [],
-    })
-  },
-
-  clearGraph: () => {
-    set({
       nodes: [],
       edges: [],
     })
