@@ -108,7 +108,7 @@ export const useStore = create<RFState>((set, get) => ({
       StorageService.setCurrentProjectId(mostRecent.id)
     } else {
       // No projects exist, create a default one with sample code
-      const { SAMPLE_CODE } = await import('../../../project-flow-syntax/src/setupCommon')
+      const { SAMPLE_CODE } = await import('../config/editorConfig')
       const projectId = await StorageService.saveProject(SAMPLE_CODE, 'Untitled Project')
       const newProject = await StorageService.getProject(projectId)
       

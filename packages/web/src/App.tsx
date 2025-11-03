@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from 'react'
 import { executeExtended } from '@quickplan/project-flow-syntax/src/setupExtended'
-import { configureMonacoWorkers, SAMPLE_CODE } from '@quickplan/project-flow-syntax/src/setupCommon'
+import { configureMonacoWorkers, SAMPLE_CODE } from './config/editorConfig'
 import { Monaco } from './components/Editor/Monaco'
 import { ResizablePanels } from './components/ResizablePanels'
 import { Toolbar } from './components/Toolbar'
