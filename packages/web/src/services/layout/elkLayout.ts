@@ -26,7 +26,7 @@ export async function layoutNodes<T extends { id: string }>(
       if (!childrenByParent.has(child.parentId)) {
         childrenByParent.set(child.parentId, [])
       }
-      childrenByParent.get(child.parentId)!.push({
+      childrenByParent.get(child.parentId)?.push({
         ...child,
         width: 150,
         height: 100,
@@ -45,7 +45,7 @@ export async function layoutNodes<T extends { id: string }>(
       ...p,
       children: childrenByParent.get(p.id) || [],
       layoutOptions: {
-        'elk.padding': '[top=40,left=10,bottom=5,right=10]',
+        'elk.padding': '[top=30,left=10,bottom=-10,right=20]',
       },
     })),
   ]
