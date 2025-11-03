@@ -77,11 +77,32 @@ Deploy > %LaunchDay
 
 This concise syntax creates a complete project plan with tasks, dependencies, resource assignments, and milestones. See the [full DSL documentation](docs/content/reference/dsl.md) for more details.
 
+## Features
+
+- **Text-based project definition** - Use Project Flow Syntax (PFS) to define your projects
+- **Real-time visualization** - See your PERT chart update as you type
+- **Browser storage** - Projects are automatically saved to IndexedDB
+- **File system integration** - Open and save `.pfs` files to disk
+- **Critical path highlighting** - Instantly identify your project's critical path
+- **Monaco editor** - Professional code editing experience with syntax highlighting
+
+## Storage and Project Management
+
+QuickPlan uses browser-based IndexedDB storage to automatically save your work:
+
+- **Auto-save** - Changes are saved to browser storage every 2 seconds after editing
+- **Open files** - Load `.pfs` files from your file system (Ctrl/Cmd+O)
+- **Download files** - Save your project as a `.pfs` file to disk (Ctrl/Cmd+S)
+- **Reset** - Clear all saved projects from browser storage and start fresh
+
+Your most recent project is automatically loaded when you open the application.
+
 ## Limitations
 
-Tons of limitations!
-
-The most obvious limitation is that there isn't a persistent storage backend. Everything is in memory.
+- No multi-project browser UI (only loads most recent project on startup)
+- No backend server or cloud sync
+- No collaborative editing features
+- Limited to browser IndexedDB storage capacity
 
 ## Contributing
 

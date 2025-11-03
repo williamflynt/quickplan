@@ -38,10 +38,13 @@ This creates a complete project plan with tasks, dependencies, resource assignme
 
 ## Key Features
 
-- **Visual Planning** - Graphically design your project structure
-- **Dependency Management** - Easily define and visualize task dependencies
-- **PERT Charts** - Clear visualization of project flow and critical paths
-- **Interactive** - Real-time updates as you modify your project
+- **Text-based Project Definition** - Use Project Flow Syntax (PFS) to define projects
+- **Real-time Visualization** - PERT chart updates as you type
+- **Monaco Editor** - Professional code editing with syntax highlighting and auto-completion
+- **Browser Storage** - Automatic saving to IndexedDB
+- **File System Integration** - Open and save `.pfs` files
+- **Critical Path Analysis** - Automatically identifies and highlights the critical path
+- **CPM Calculations** - Three-point estimation with PERT calculations
 - **No Backend Required** - Everything runs in your browser
 
 ## Why QuickPlan?

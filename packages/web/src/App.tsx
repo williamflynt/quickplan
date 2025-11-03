@@ -5,14 +5,21 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useCallback,
 } from 'react'
 import { executeExtended } from '@quickplan/project-flow-syntax/src/setupExtended'
-import { configureMonacoWorkers } from '@quickplan/project-flow-syntax/src/setupCommon'
+import { configureMonacoWorkers, SAMPLE_CODE } from '@quickplan/project-flow-syntax/src/setupCommon'
 import { Monaco } from './components/Editor/Monaco'
 import { ResizablePanels } from './components/ResizablePanels'
+import { Toolbar } from './components/Toolbar'
 import { MarkerType, Position } from '@xyflow/react'
 import ELK, { ElkNode, LayoutOptions } from 'elkjs/lib/elk.bundled.js'
 import { runCpm } from './cpm/cpm'
+import { StorageService } from './services/storage'
+import { openFile, saveAsFile, saveFile } from './services/fileSystem'
+import { useStore } from './store/store'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { message } from 'antd'
 import 'antd/dist/antd.css'
 
 import { CpmArrow, CpmInput, CpmOutput, CpmNode, CpmError } from './cpm/types'
@@ -35,15 +42,244 @@ export const App: FC = () => {
   // State for layout management
   const [layout, setLayout] = useState<UiLayout>('wide')
 
+  // Get all state and actions from Zustand store
+  const {
+    projects,
+    currentProjectId,
+    currentEditorContent,
+    browserStatus,
+    diskStatus,
+    lastBrowserSave,
+    lastDiskSave,
+    isHydrated,
+    hydrate,
+    createProject,
+    loadProject,
+    renameProject,
+    updateCurrentProject,
+    saveCurrentProject,
+    downloadCurrentProject,
+    clearAllProjects,
+    clearGraph,
+    getCurrentProject,
+  } = useStore()
+
+  // Hydrate store from IndexedDB on mount
+  useEffect(() => {
+    hydrate()
+  }, [])
+
+  // Handle opening a file from disk
+  const handleOpen = useCallback(async () => {
+    const result = await openFile()
+    if (!result) return
+
+    try {
+      const projectId = await createProject(result.name, result.content)
+      await StorageService.updateLastSynced(projectId)
+      
+      if (wrapperRef.current) {
+        const editor = wrapperRef.current.getEditor?.()
+        if (editor && editor.setValue) {
+          editor.setValue(result.content)
+        }
+      }
+
+      message.success(`Opened ${result.name}`)
+    } catch (error) {
+      console.error('Error opening file:', error)
+      message.error('Failed to open file')
+    }
+  }, [createProject])
+
+  // Handle resetting/clearing local storage
+  const handleReset = useCallback(async () => {
+    const confirmed = window.confirm(
+      'This will clear all saved projects from browser storage. This cannot be undone. Continue?',
+    )
+
+    if (!confirmed) return
+
+    try {
+      await clearAllProjects()
+      
+      // Reset Monaco editor to sample code
+      if (wrapperRef.current) {
+        const editor = wrapperRef.current.getEditor?.()
+        if (editor && editor.setValue) {
+          editor.setValue(SAMPLE_CODE)
+        }
+      }
+
+      message.success('Browser storage cleared')
+    } catch (error) {
+      console.error('Error clearing storage:', error)
+      message.error('Failed to clear storage')
+    }
+  }, [clearAllProjects])
+
+  // Handle switching to a different project
+  const handleProjectSwitch = useCallback(async (projectId: number) => {
+    try {
+      await loadProject(projectId)
+      const project = getCurrentProject()
+      if (!project) {
+        message.error('Project not found')
+        return
+      }
+
+      // Update Monaco editor
+      if (wrapperRef.current) {
+        const editor = wrapperRef.current.getEditor?.()
+        if (editor && editor.setValue) {
+          editor.setValue(project.content)
+        }
+      }
+
+      message.success(`Switched to ${project.name}`)
+    } catch (error) {
+      console.error('Error switching project:', error)
+      message.error('Failed to switch project')
+    }
+  }, [loadProject, getCurrentProject])
+
+  // Handle renaming the current project
+  const handleProjectRename = useCallback(async () => {
+    if (!currentProjectId) {
+      message.warning('No project selected')
+      return
+    }
+
+    const currentProject = getCurrentProject()
+    if (!currentProject) {
+      message.error('Project not found')
+      return
+    }
+
+    const newName = window.prompt('Enter new project name:', currentProject.name)
+    if (!newName || newName.trim() === '') {
+      return
+    }
+
+    try {
+      await renameProject(currentProjectId, newName.trim())
+      message.success(`Renamed to "${newName.trim()}"`)
+    } catch (error) {
+      console.error('Error renaming project:', error)
+      message.error('Failed to rename project')
+    }
+  }, [currentProjectId, getCurrentProject, renameProject])
+
+  // Handle creating a new project
+  const handleNew = useCallback(async () => {
+    const projectName = window.prompt('Enter project name:', `Project ${new Date().toLocaleString()}`)
+    if (!projectName || projectName.trim() === '') {
+      return
+    }
+
+    try {
+      await createProject(projectName.trim(), SAMPLE_CODE)
+      
+      // Update Monaco editor
+      if (wrapperRef.current) {
+        const editor = wrapperRef.current.getEditor?.()
+        if (editor && editor.setValue) {
+          editor.setValue(SAMPLE_CODE)
+        }
+      }
+
+      message.success(`Created "${projectName.trim()}"`)
+    } catch (error) {
+      console.error('Error creating project:', error)
+      message.error('Failed to create project')
+    }
+  }, [createProject])
+  
+  const handleDownload = useCallback(async () => {
+    if (!currentEditorContent) {
+      message.warning('No content to download')
+      return
+    }
+
+    try {
+      // Download the file
+      const handle = await saveAsFile(currentEditorContent, 'project.pfs')
+      
+      // Update disk sync status
+      if (currentProjectId) {
+        await StorageService.updateLastSynced(currentProjectId)
+        await downloadCurrentProject()
+      }
+      
+      message.success('File downloaded')
+    } catch (error) {
+      console.error('Error downloading:', error)
+      message.error('Failed to download file')
+    }
+  }, [currentEditorContent, currentProjectId, downloadCurrentProject])
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrlOrCmd: true,
+      shift: false,
+      handler: () => handleNew(),
+      description: 'New project',
+    },
+    {
+      key: 's',
+      ctrlOrCmd: true,
+      shift: false,
+      handler: () => handleDownload(),
+      description: 'Download file',
+    },
+    {
+      key: 'o',
+      ctrlOrCmd: true,
+      shift: false,
+      handler: () => handleOpen(),
+      description: 'Open file',
+    },
+  ])
+
   // Initialize Monaco editor and language client.
   useEffect(() => {
+    // Wait for store to be hydrated
+    if (!isHydrated) return
     if (!editorRef.current) return
+    if (wrapperRef.current) return // Already initialized
+
+    const initialContent = currentEditorContent || SAMPLE_CODE
 
     configureMonacoWorkers()
     void executeExtended(editorRef.current).then(
       ({ wrapper, languageClient }) => {
         wrapperRef.current = wrapper
         languageClientRef.current = languageClient
+
+        // Get the Monaco editor instance
+        const editor = wrapper.getEditor?.()
+
+        // Set the loaded content (overrides SAMPLE_CODE in setupExtended)
+        if (editor && editor.setValue) {
+          editor.setValue(initialContent)
+        }
+
+        // Listen for content changes
+        if (editor && editor.onDidChangeModelContent) {
+          editor.onDidChangeModelContent(() => {
+            const content = editor.getValue?.()
+            if (content !== undefined) {
+              updateCurrentProject(content)
+              // Schedule auto-save to IndexedDB
+              StorageService.scheduleAutoSave(content, () => {
+                saveCurrentProject()
+              })
+            }
+          })
+        }
+
         // Set up notification handler to update ReactFlow every time source code is edited.
         languageClient.onNotification(
           'browser/DocumentChange',
@@ -58,12 +294,18 @@ export const App: FC = () => {
     )
 
     return () => {
-      // TODO: Cleanup logic for Monaco editor if needed.
+      // Cleanup Monaco editor
       if (wrapperRef.current) {
-        // Nothing yet.
+        try {
+          wrapperRef.current.dispose?.()
+        } catch (error) {
+          console.error('Error disposing Monaco wrapper:', error)
+        }
+        wrapperRef.current = null
+        languageClientRef.current = null
       }
     }
-  }, [editorRef.current])
+  }, [isHydrated, currentEditorContent, updateCurrentProject, saveCurrentProject])
 
   // Handle window resize for responsive layout.
   // This is probably not the way to do it.
@@ -101,10 +343,7 @@ export const App: FC = () => {
         boxShadow: '0 0 8px rgba(0,0,0,0.1)',
       }}
     >
-      <Monaco
-        editorRef={editorRef}
-        style={{ width: '100%', height: '100%' }}
-      />
+      <Monaco editorRef={editorRef} style={{ width: '100%', height: '100%' }} />
     </div>
   )
 
@@ -130,17 +369,42 @@ export const App: FC = () => {
   return (
     <div
       style={{
-        ...styles.container,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
         overflow: 'hidden',
       }}
     >
-      <ResizablePanels
-        leftPane={editorPane}
-        rightPane={flowPane}
-        defaultLeftWidth={styles.defaultLeftWidth}
-        minLeftWidth={styles.minLeftWidth}
-        maxLeftWidth={styles.maxLeftWidth}
-        direction={layout === 'vertical' ? 'vertical' : 'horizontal'}
+      <div
+        style={{
+          flex: 1,
+          ...styles.container,
+          overflow: 'hidden',
+        }}
+      >
+        <ResizablePanels
+          leftPane={editorPane}
+          rightPane={flowPane}
+          defaultLeftWidth={styles.defaultLeftWidth}
+          minLeftWidth={styles.minLeftWidth}
+          maxLeftWidth={styles.maxLeftWidth}
+          direction={layout === 'vertical' ? 'vertical' : 'horizontal'}
+        />
+      </div>
+
+      <Toolbar
+        browserStatus={browserStatus}
+        diskStatus={diskStatus}
+        lastBrowserSave={lastBrowserSave}
+        lastDiskSave={lastDiskSave}
+        projects={projects}
+        currentProjectId={currentProjectId}
+        onNew={handleNew}
+        onOpen={handleOpen}
+        onDownload={handleDownload}
+        onReset={handleReset}
+        onProjectSwitch={handleProjectSwitch}
+        onProjectRename={handleProjectRename}
       />
     </div>
   )
@@ -379,10 +643,7 @@ const updateFlowFromDocument = (
         return e
       })
 
-      return doLayout<PreCpmNode>(
-        [...updatedNodes, ...milestoneNodes],
-        updatedEdges,
-      )
+      return doLayout<PreCpmNode>(updatedNodes, updatedEdges)
     })
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

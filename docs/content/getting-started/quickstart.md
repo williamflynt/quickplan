@@ -14,47 +14,118 @@ The application will start and be available at `http://localhost:5173`.
 
 Open your browser and navigate to this address.
 
-## Creating Your First Project
-
-### Understanding the Interface
+## Understanding the Interface
 
 When you first open QuickPlan, you'll see:
 
-- **Canvas Area** - The main area where your PERT chart will be displayed
-- **Task Editor** - Where you define tasks and their properties
-- **Dependency Controls** - Tools to connect tasks and define dependencies
+- **Left Panel** - Monaco editor with Project Flow Syntax (PFS) code
+- **Right Panel** - PERT chart visualization
+- **Bottom Toolbar** - File operations and storage status
 
-### Adding Tasks
+The editor will contain a sample project that demonstrates the syntax.
 
-1. Click the "Add Task" button
-2. Enter a task name
-3. Define the estimated duration
-4. Click "Save" or press Enter
+## Your First Project
 
-### Creating Dependencies
+Let's create a simple software project from scratch.
 
-To show that one task depends on another:
+### Step 1: Reset to Start Fresh
 
-1. Select the first task (the prerequisite)
-2. Click "Add Dependency"
-3. Select the dependent task
-4. The chart will automatically update to show the relationship
+Click the **Reset** button in the toolbar to clear the sample and start with a blank editor.
 
-### Viewing the Critical Path
+### Step 2: Define Tasks
 
-The critical path represents the sequence of tasks that determines the minimum time to complete the project. Tasks on the critical path are typically highlighted in the chart.
+Type the following in the editor:
 
-## Example Project
+```pfs
+# My First Project
+Design 2 3 5 "Design the system architecture"
+Implement 5 8 12 "Build core features"
+Test 2 3 4 "Test and fix issues"
+Deploy 1 "Deploy to production"
+```
 
-Here's a simple example to get started:
+As you type, the PERT chart on the right will update to show your tasks.
 
-1. Create a task "Design" with duration 5 days
-2. Create a task "Development" with duration 10 days
-3. Create a task "Testing" with duration 3 days
-4. Make "Development" depend on "Design"
-5. Make "Testing" depend on "Development"
+### Step 3: Add Dependencies
 
-You should now see a linear PERT chart showing the flow: Design → Development → Testing
+Add dependencies to show the order of work:
+
+```pfs
+Design > Implement > Test > Deploy
+```
+
+The chart will rearrange to show the flow from left to right.
+
+### Step 4: Add Resources
+
+Define who will work on what:
+
+```pfs
+$Alice(role: "Developer")
+$Bob(role: "QA")
+
+$Alice > Design, Implement
+$Bob > Test
+```
+
+### Step 5: Add a Milestone
+
+Mark the completion milestone:
+
+```pfs
+%LaunchDay(date: "2024-12-01")
+Deploy > %LaunchDay
+```
+
+### Complete Example
+
+Your complete project should look like this:
+
+```pfs
+# My First Project
+Design 2 3 5 "Design the system architecture"
+Implement 5 8 12 "Build core features"  
+Test 2 3 4 "Test and fix issues"
+Deploy 1 "Deploy to production"
+
+# Dependencies
+Design > Implement > Test > Deploy
+
+# Resources
+$Alice(role: "Developer")
+$Bob(role: "QA")
+
+$Alice > Design, Implement
+$Bob > Test
+
+# Milestone
+%LaunchDay(date: "2024-12-01")
+Deploy > %LaunchDay
+```
+
+## Understanding the Results
+
+The PERT chart now shows:
+
+- **Task boxes** with duration estimates and CPM calculations
+- **Arrows** showing dependencies between tasks
+- **Critical path** highlighted in red (the longest path through the project)
+- **Milestones** marked as diamond shapes
+
+## Saving Your Work
+
+Your project is automatically saved to browser storage every 2 seconds.
+
+To save to a file:
+
+1. Press **Ctrl/Cmd+S** (or click **Download**)
+2. Choose where to save your `.pfs` file
+3. The file can be opened later using **Ctrl/Cmd+O**
+
+## Keyboard Shortcuts
+
+- **Ctrl/Cmd+S** - Download project as `.pfs` file
+- **Ctrl/Cmd+O** - Open a `.pfs` file from disk
 
 ## Next Steps
 

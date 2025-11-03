@@ -1,82 +1,111 @@
 # Creating Projects
 
-Learn how to create and manage projects in QuickPlan.
+Learn how to create and manage projects in QuickPlan using Project Flow Syntax (PFS).
+
+## Understanding the Interface
+
+QuickPlan's interface consists of two main panels:
+
+- **Left Panel: Monaco Editor** - Where you write your PFS code
+- **Right Panel: PERT Chart** - Visual representation of your project
+- **Bottom Toolbar** - File operations and storage indicators
 
 ## Starting a New Project
 
-QuickPlan currently works with in-memory projects. When you open the application, you start with a blank canvas ready for your project.
+When you open QuickPlan, it automatically loads your most recent project from browser storage. If this is your first time, you'll see a sample project demonstrating the syntax.
 
-!!! note
-    Currently, QuickPlan does not have persistent storage. Your project data is stored in browser memory and will be lost when you close the application. Make sure to export or save your work if needed.
+### Creating a Fresh Project
 
-## Defining Tasks
+To start with a blank project:
 
-### Basic Task Properties
+1. Click the **Reset** button in the toolbar
+2. Confirm the action (this clears all saved projects)
+3. Begin typing your project definition in the editor
 
-Each task in QuickPlan has the following properties:
+The sample project demonstrates key syntax features and provides a template you can modify.
 
-- **Name** - A unique identifier for the task
-- **Duration** - Estimated time to complete the task
-- **Description** (optional) - Additional details about the task
+## Storage and Auto-Save
 
-### Adding a Task
+QuickPlan automatically saves your work to browser storage (IndexedDB):
 
-1. Click the "Add Task" button in the interface
-2. Fill in the task details:
-   - Enter a descriptive name
-   - Set the estimated duration
-   - Add any notes or description
-3. Save the task
+- **Auto-save**: Changes are saved every 2 seconds after you stop typing
+- **Browser indicator**: Shows green when saved, yellow while saving, gray when unsaved
+- **Disk indicator**: Shows whether you've downloaded/synced to a file
 
-### Editing Tasks
+### Storage Indicators
 
-To modify an existing task:
+The toolbar shows two storage status indicators:
 
-1. Click on the task in the chart or task list
-2. Update the desired properties
-3. Save your changes
+- **Browser**: Shows IndexedDB save status and last save time
+- **Disk**: Shows file system sync status and last download time
 
-The PERT chart will automatically update to reflect your changes.
+## Working with Files
 
-### Deleting Tasks
+### Opening a File
 
-To remove a task:
+Press **Ctrl/Cmd+O** or click the **Open** button to:
 
-1. Select the task you want to delete
-2. Click the "Delete" button
-3. Confirm the deletion
+1. Select a `.pfs` file from your computer
+2. The file content loads into the editor
+3. The project is saved to browser storage
+4. The PERT chart updates automatically
+
+### Downloading/Saving a File
+
+Press **Ctrl/Cmd+S** or click the **Download** button to:
+
+1. Save your project as a `.pfs` file
+2. Choose where to save (or browser will auto-download)
+3. Both disk and browser indicators update
+
+### Resetting Storage
+
+Click the **Reset** button to:
+
+1. Clear all projects from browser storage
+2. Reset to the default sample project
+3. Clear the PERT chart
 
 !!! warning
-    Deleting a task will also remove all dependencies associated with that task.
+    Resetting clears all saved projects from browser storage. This cannot be undone. Make sure to download any projects you want to keep first.
 
-## Organizing Your Project
+## Writing Your Project
 
-### Task Naming
+### Basic Structure
 
-Use clear, descriptive names for your tasks. Good task names help you and your team quickly understand the project structure.
+A project consists of tasks, dependencies, resources, and milestones defined using PFS:
 
-**Examples:**
-- ✓ "Design Database Schema"
-- ✓ "Implement User Authentication"
-- ✗ "Task 1"
-- ✗ "Do stuff"
+```pfs
+# Define tasks
+task_name 2 3 5 "Description of the task"
 
-### Estimating Duration
+# Define dependencies  
+task1 > task2 > task3
 
-Be realistic with your duration estimates. Consider:
+# Add resources
+$ResourceName > task1, task2
 
-- The complexity of the work
-- Available resources
-- Potential risks or blockers
-- Historical data from similar tasks
+# Mark milestones
+task3 > %ProjectComplete
+```
 
-### Breaking Down Work
+### Real-time Updates
 
-Large tasks should be broken down into smaller, manageable pieces. This provides:
+As you type in the Monaco editor:
 
-- Better estimation accuracy
-- Clearer progress tracking
-- More flexibility in planning
+1. Syntax is validated in real-time
+2. Errors are highlighted with red squiggles
+3. The PERT chart updates automatically
+4. Changes are auto-saved to browser storage
+
+### Getting Help While Coding
+
+The Monaco editor provides:
+
+- **Syntax highlighting** - Different colors for tasks, resources, milestones
+- **Auto-completion** - Suggestions as you type
+- **Error detection** - Red squiggles show syntax errors
+- **Hover information** - Hover over elements for details
 
 ## Next Steps
 
