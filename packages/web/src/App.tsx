@@ -1,4 +1,11 @@
-import React, { FC, useEffect, useRef, useState, useCallback } from 'react'
+import React, {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useLayoutEffect,
+} from 'react'
 import { executeExtended } from '@quickplan/project-flow-syntax/src/setupExtended'
 import { configureMonacoWorkers, SAMPLE_CODE } from './config/editorConfig'
 import { Monaco } from './components/Editor/Monaco'
@@ -48,8 +55,8 @@ export const App: FC = () => {
     getCurrentProject,
   } = useStore()
 
-  // Hydrate store from IndexedDB on mount
-  useEffect(() => {
+  // Hydrate store from IndexedDB on mount.
+  useLayoutEffect(() => {
     hydrate()
   }, [])
 
