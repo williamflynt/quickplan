@@ -10,6 +10,9 @@
   "files": [],
   "references": [
     { "path": "./packages/web" },
-    { "path": "./packages/project-flow-syntax" }
+    { "path": "./packages/project-flow-syntax" },
+    { "path": "./packages/devtools" },
+    { "path": "./packages/scheduler" },
+    { "path": "./packages/cpm" }
   ]
 }

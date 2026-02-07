@@ -1,7 +1,9 @@
 import { MarkerType } from '@xyflow/react'
 import { SerializedDependencyIndex, Edge } from '../../types/graph'
 
-export function buildDependencyEdges(dependencies: SerializedDependencyIndex): Edge[] {
+export function buildDependencyEdges(
+  dependencies: SerializedDependencyIndex,
+): Edge[] {
   return dependencies.map((e) => {
     const srcId = `${e.source.type}:${e.source.name}`
     const tgtId = `${e.target.type}:${e.target.name}`

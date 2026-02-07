@@ -1,6 +1,7 @@
 import React, {
   FC,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useCallback,
@@ -11,6 +12,8 @@ import { configureMonacoWorkers, SAMPLE_CODE } from './config/editorConfig'
 import { Monaco } from './components/Editor/Monaco'
 import { ResizablePanels } from './components/ResizablePanels'
 import { Toolbar } from './components/Toolbar'
+import { ResourcePanel } from './components/ResourcePanel/ResourcePanel'
+import { buildSchedule } from './services/resource/scheduleBuilder'
 import { StorageService } from './services/storage'
 import { openFile, saveAsFile } from './services/fileSystem'
 import { useStore } from './store/store'
@@ -53,6 +56,14 @@ export const App: FC = () => {
     downloadCurrentProject,
     clearAllProjects,
     getCurrentProject,
+    resourceInfoMap,
+    projectAssignments,
+    cpmResults,
+    resourcePanelOpen,
+    toggleResourcePanel,
+    calendarConfig,
+    dateAxis,
+    scheduledRows: calendarScheduledRows,
   } = useStore()
 
   // Hydrate store from IndexedDB on mount.
@@ -258,8 +269,9 @@ export const App: FC = () => {
         wrapperRef.current = wrapper
         languageClientRef.current = languageClient
 
-        // Get the Monaco editor instance
+        // Get the Monaco editor instance and expose it for devtools CDP access
         const editor = wrapper.getEditor?.()
+        ;(window as any).__qpd_editor = editor
 
         // Set the loaded content (overrides SAMPLE_CODE in setupExtended)
         if (editor && editor.setValue) {
@@ -320,6 +332,62 @@ export const App: FC = () => {
       window.removeEventListener('resize', handleResize)
     }
   }, [])
+
+  const scheduleRows = useMemo(
+    () => buildSchedule(resourceInfoMap, projectAssignments, cpmResults),
+    [resourceInfoMap, projectAssignments, cpmResults],
+  )
+
+  const maxTime = useMemo(() => {
+    let max = 0
+    for (const r of Object.values(cpmResults)) {
+      if (r.earliestFinish > max) max = r.earliestFinish
+    }
+    // Resource-leveled tasks may extend beyond CPM max
+    for (const row of scheduleRows) {
+      for (const t of row.tasks) {
+        if (t.finish > max) max = t.finish
+      }
+    }
+    return max
+  }, [cpmResults, scheduleRows])
+
+  // When calendar config is present, compute calendar-aware maxTime from date axis
+  const calendarMaxTime = useMemo(() => {
+    if (!dateAxis || dateAxis.length === 0) return 0
+    return dateAxis.length
+  }, [dateAxis])
+
+  const handleScheduleTaskClick = useCallback((taskId: string) => {
+    if (!iframeRef.current?.contentWindow) return
+    iframeRef.current.contentWindow.postMessage(
+      { highlightNodeId: taskId },
+      '*',
+    )
+  }, [])
+
+  const handleScheduleTaskHover = useCallback((taskId: string | null) => {
+    if (!iframeRef.current?.contentWindow) return
+    iframeRef.current.contentWindow.postMessage({ hoverNodeId: taskId }, '*')
+  }, [])
+
+  const [activeResourceFilter, setActiveResourceFilter] = useState<
+    string | null
+  >(null)
+
+  const handleResourceFilter = useCallback(
+    (resourceName: string) => {
+      const newFilter =
+        activeResourceFilter === resourceName ? null : resourceName
+      setActiveResourceFilter(newFilter)
+      if (!iframeRef.current?.contentWindow) return
+      iframeRef.current.contentWindow.postMessage(
+        { filterResource: newFilter },
+        '*',
+      )
+    },
+    [activeResourceFilter],
+  )
 
   const styles = getUiLayoutStyles(layout)
 
@@ -382,6 +450,22 @@ export const App: FC = () => {
         />
       </div>
 
+      <ResourcePanel
+        open={resourcePanelOpen}
+        scheduleRows={scheduleRows}
+        maxTime={maxTime}
+        onTaskClick={handleScheduleTaskClick}
+        onTaskHover={handleScheduleTaskHover}
+        onResourceClick={handleResourceFilter}
+        activeResourceFilter={activeResourceFilter}
+        onClose={toggleResourcePanel}
+        calendarConfig={calendarConfig}
+        dateAxis={dateAxis}
+        scheduledRows={calendarScheduledRows}
+        calendarMaxTime={calendarMaxTime}
+        resourceInfoMap={resourceInfoMap}
+      />
+
       <Toolbar
         browserStatus={browserStatus}
         diskStatus={diskStatus}
@@ -395,6 +479,8 @@ export const App: FC = () => {
         onReset={handleReset}
         onProjectSwitch={handleProjectSwitch}
         onProjectRename={handleProjectRename}
+        onToggleResourcePanel={toggleResourcePanel}
+        resourcePanelOpen={resourcePanelOpen}
       />
     </div>
   )

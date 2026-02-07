@@ -1,0 +1,25 @@
+{
+  "name": "@quickplan/scheduler",
+  "description": "Calendar-aware scheduling for QuickPlan — working-day arithmetic, per-resource calendars, and offset-to-date mapping.",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./out/index.d.ts",
+      "default": "./out/index.js"
+    }
+  },
+  "files": [
+    "out",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "~4.0.6"
+  }
+}

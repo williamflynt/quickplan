@@ -1,6 +1,17 @@
 import create from 'zustand'
 import { Edge, Node, ReactFlowInstance } from '@xyflow/react'
 import { StorageService, ProjectDocument } from '../services/storage'
+import {
+  ResourceInfo,
+  SerializedAssignmentIndex,
+  CpmTaskResult,
+  CalendarConfigRaw,
+} from '../types/graph'
+import type {
+  CalendarConfig,
+  DateAxisEntry,
+  ResourceScheduleRow,
+} from '@quickplan/scheduler'
 
 export type ProjectState = {
   id: number
@@ -20,12 +31,28 @@ type RFState = {
   activeChartId: string | null
   activeEdgeId: string | null
   activeNodeId: string | null
+  hoveredNodeId: string | null
   nodeToolsVisible: boolean
 
   positionHold: boolean
   positionHoldCanReflow: boolean
   positionScaleX: number
   positionScaleY: number
+
+  // Resource state
+  resourceInfoMap: Map<string, ResourceInfo>
+  projectAssignments: SerializedAssignmentIndex
+  cpmResults: Record<string, CpmTaskResult>
+  resourcePanelOpen: boolean
+  toggleResourcePanel: () => void
+
+  // Calendar state
+  calendarConfig: CalendarConfig | null
+  dateAxis: DateAxisEntry[] | null
+  scheduledRows: ResourceScheduleRow[] | null
+
+  // Resource filter
+  activeResourceFilter: string | null
 
   // Project management state
   projects: ProjectState[]
@@ -60,11 +87,29 @@ export const useStore = create<RFState>((set, get) => ({
   activeChartId: null,
   activeEdgeId: null,
   activeNodeId: null,
+  hoveredNodeId: null,
   nodeToolsVisible: false,
   positionHold: true,
   positionHoldCanReflow: false,
   positionScaleX: 3.5,
   positionScaleY: 1.5,
+
+  // Resource state
+  resourceInfoMap: new Map(),
+  projectAssignments: [],
+  cpmResults: {},
+  resourcePanelOpen: false,
+  toggleResourcePanel: () => {
+    set((state) => ({ resourcePanelOpen: !state.resourcePanelOpen }))
+  },
+
+  // Calendar state
+  calendarConfig: null,
+  dateAxis: null,
+  scheduledRows: null,
+
+  // Resource filter
+  activeResourceFilter: null,
 
   // Project management state
   projects: [],

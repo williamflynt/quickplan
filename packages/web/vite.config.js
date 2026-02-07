@@ -1,0 +1,46 @@
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin';
+import * as path from 'path';
+export default defineConfig({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    plugins: [react()],
+    test: {
+        includeSource: ['**/*.test.ts'],
+    },
+    build: {
+        outDir: '../../internal/server/web',
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, 'index.html'),
+                viewer: path.resolve(__dirname, 'index-reactflow.html'),
+            },
+        },
+    },
+    optimizeDeps: {
+        esbuildOptions: {
+            plugins: [importMetaUrlPlugin],
+        },
+    },
+    server: {
+        cors: true,
+        fs: {
+            allow: [
+                // Allow access to the entire workspace.
+                path.resolve(__dirname, '../..'),
+                // Explicitly allow node_modules at root.
+                path.resolve(__dirname, '../../node_modules'),
+                // Allow local node_modules.
+                path.resolve(__dirname, './node_modules'),
+            ],
+        },
+    },
+    resolve: {
+        alias: {
+            '@quickplan/web': path.resolve(__dirname, './src'),
+            '@quickplan': path.resolve(__dirname, '../'),
+        },
+    },
+});

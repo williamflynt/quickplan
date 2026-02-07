@@ -1,0 +1,230 @@
+.gantt {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Left: resource labels — vertical scroll hidden, synced from chart */
+.gantt-labels {
+  width: 140px;
+  flex-shrink: 0;
+  border-right: 1px solid #444;
+  overflow: hidden;
+}
+
+/* Right: chart area — always scrolls horizontally, vertical only when panel is height-capped.
+   Without this split, the horizontal scrollbar's height triggers an unnecessary vertical scrollbar. */
+.gantt-chart {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.gantt-chart--scroll-y {
+  overflow-y: auto;
+}
+
+.gantt-chart-inner {
+  position: relative;
+}
+
+.gantt-chart-inner--cal {
+  padding-top: 30px;
+}
+
+/* Resource label rows */
+.gantt-label-row {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-bottom: 1px solid #333;
+}
+
+.gantt-label-row--active {
+  background-color: rgba(24, 144, 255, 0.15);
+  cursor: pointer;
+}
+
+.gantt-label-row {
+  cursor: pointer;
+}
+
+.gantt-label-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gantt-label-row--active:hover {
+  background-color: rgba(24, 144, 255, 0.2);
+}
+
+.gantt-label-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gantt-label-info {
+  overflow: hidden;
+  flex: 1;
+}
+
+.gantt-label-name {
+  color: #d4d4d4;
+  font-size: 11px;
+  display: block;
+}
+
+.gantt-label-role {
+  color: #858585;
+  font-size: 9px;
+  display: block;
+}
+
+.gantt-utilization {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #000;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Day/date axis markers */
+.gantt-axis-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.gantt-axis-label {
+  position: absolute;
+  top: -14px;
+  left: 2px;
+  font-size: 8px;
+  color: #666;
+}
+
+/* Month group header row above day labels */
+.gantt-month-header {
+  position: absolute;
+  top: 0;
+  height: 14px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #999;
+  text-align: center;
+  border-bottom: 1px solid #333;
+  line-height: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Spacer in labels column to match the calendar header area */
+.gantt-label-header-spacer {
+  height: 30px;
+  flex-shrink: 0;
+}
+
+/* Today marker */
+.gantt-today-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e15759;
+  opacity: 0.7;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Calendar-mode axis */
+.gantt-cal-day {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid #2a2a2a;
+}
+
+.gantt-cal-day--weekend {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.gantt-cal-day--holiday {
+  background-color: rgba(255, 100, 80, 0.06);
+}
+
+.gantt-cal-label {
+  position: absolute;
+  top: -16px;
+  left: 1px;
+  font-size: 9px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.gantt-cal-label--nonworking {
+  color: #555;
+}
+
+.gantt-cal-label--holiday {
+  font-style: italic;
+}
+
+/* Offset-mode axis */
+.gantt-offset-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #333;
+}
+
+/* Task rows */
+.gantt-task-row {
+  position: relative;
+  height: 32px;
+  border-bottom: 1px solid #333;
+}
+
+/* Task bars */
+.gantt-task-bar {
+  position: absolute;
+  top: 7px; /* (32 - 18) / 2 */
+  height: 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  overflow: hidden;
+}
+
+.gantt-task-bar--critical {
+  border-left: 3px solid #e15759;
+}
+
+/* Calendar-mode task bar colors */
+.gantt-task-bar--cal {
+  background-color: #6b8e9bcc;
+}
+
+.gantt-task-bar--cal.gantt-task-bar--done {
+  background-color: #6b8e9b55;
+}
+
+.gantt-task-label {
+  font-size: 9px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gantt-task-label--done {
+  text-decoration: line-through;
+  opacity: 0.7;
+}

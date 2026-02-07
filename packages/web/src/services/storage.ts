@@ -128,7 +128,11 @@ export class StorageService {
    * Load the most recently updated project
    */
   static async loadMostRecent(): Promise<ProjectDocument | undefined> {
-    const projects = await db.projects.orderBy('updatedAt').reverse().limit(1).toArray()
+    const projects = await db.projects
+      .orderBy('updatedAt')
+      .reverse()
+      .limit(1)
+      .toArray()
     if (projects.length > 0) {
       this.currentProjectId = projects[0].id!
       return projects[0]

@@ -1,0 +1,33 @@
+{
+  "name": "@quickplan/devtools",
+  "description": "Development tooling for QuickPlan, for humans and their AI agents.",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "qpd": "./bin/qpd.js",
+    "qpd-mcp": "./bin/qpd-mcp.js"
+  },
+  "exports": {
+    ".": "./out/index.js"
+  },
+  "files": [
+    "bin",
+    "out",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "build-install": "node bin/build-install.js",
+    "test": "vitest run",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "chalk": "~5.3.0",
+    "chrome-remote-interface": "^0.33.3",
+    "commander": "~11.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome-remote-interface": "^0.33.0",
+    "vitest": "~4.0.6"
+  }
+}

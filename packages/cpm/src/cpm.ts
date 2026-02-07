@@ -1,4 +1,4 @@
-import { CpmError, CpmInput, CpmOutput } from './types'
+import { CpmError, CpmInput, CpmOutput } from './types.js'
 
 class Duration {
   low: number
@@ -41,6 +41,7 @@ class Task {
   earliestFinish = 0
   latestStart = Infinity
   latestFinish = Infinity
+  pathVariance = 0
 
   constructor(id: string, duration: Duration, successors: string[]) {
     this.id = id
@@ -119,14 +120,24 @@ export const runCpm = async (
   }
   if (order.length !== tasks.size) return { error: 'Graph contains a cycle' }
 
-  // Forward pass (earliest times).
+  // Forward pass (earliest times + path variance propagation).
   for (const id of order) {
     const task = tasks.get(id)!
     task.earliestStart = 0
+    task.pathVariance = 0
     for (const predId of task.predecessors) {
       const pred = tasks.get(predId)!
-      task.earliestStart = Math.max(task.earliestStart, pred.earliestFinish)
+      if (pred.earliestFinish > task.earliestStart) {
+        task.earliestStart = pred.earliestFinish
+        task.pathVariance = pred.pathVariance
+      } else if (
+        pred.earliestFinish === task.earliestStart &&
+        pred.pathVariance > task.pathVariance
+      ) {
+        task.pathVariance = pred.pathVariance
+      }
     }
+    task.pathVariance += task.duration.variance
     task.earliestFinish = task.earliestStart + task.duration.expected
   }
 
@@ -195,6 +206,7 @@ export const runCpm = async (
     id: string
     expectedDuration: number
     variance: number
+    pathVariance: number
     earliestStart: number
     earliestFinish: number
     latestStart: number
@@ -207,6 +219,7 @@ export const runCpm = async (
       id: task.id,
       expectedDuration: task.duration.expected,
       variance: task.duration.variance,
+      pathVariance: task.pathVariance,
       earliestStart: task.earliestStart,
       earliestFinish: task.earliestFinish,
       latestStart: task.latestStart,

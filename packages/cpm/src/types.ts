@@ -10,6 +10,7 @@ export type CpmNode = {
   id: string
   expectedDuration: number
   variance: number
+  pathVariance: number
   earliestStart: number
   earliestFinish: number
   latestStart: number

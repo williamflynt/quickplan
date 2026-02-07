@@ -1,5 +1,9 @@
 import React, { FC, useEffect, useState } from 'react'
-import { SaveOutlined, CloudSyncOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import {
+  SaveOutlined,
+  CloudSyncOutlined,
+  CheckCircleOutlined,
+} from '@ant-design/icons'
 import { Tooltip, Typography } from 'antd'
 
 export type SyncStatus = 'saved' | 'unsaved' | 'synced' | 'syncing'

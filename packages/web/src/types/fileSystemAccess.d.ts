@@ -10,7 +10,9 @@ interface FileSystemHandle {
 interface FileSystemFileHandle extends FileSystemHandle {
   readonly kind: 'file'
   getFile(): Promise<File>
-  createWritable(options?: FileSystemCreateWritableOptions): Promise<FileSystemWritableFileStream>
+  createWritable(
+    options?: FileSystemCreateWritableOptions,
+  ): Promise<FileSystemWritableFileStream>
 }
 
 interface FileSystemDirectoryHandle extends FileSystemHandle {
@@ -49,7 +51,13 @@ interface DirectoryPickerOptions {
 }
 
 interface Window {
-  showOpenFilePicker(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>
-  showSaveFilePicker(options?: SaveFilePickerOptions): Promise<FileSystemFileHandle>
-  showDirectoryPicker(options?: DirectoryPickerOptions): Promise<FileSystemDirectoryHandle>
+  showOpenFilePicker(
+    options?: OpenFilePickerOptions,
+  ): Promise<FileSystemFileHandle[]>
+  showSaveFilePicker(
+    options?: SaveFilePickerOptions,
+  ): Promise<FileSystemFileHandle>
+  showDirectoryPicker(
+    options?: DirectoryPickerOptions,
+  ): Promise<FileSystemDirectoryHandle>
 }

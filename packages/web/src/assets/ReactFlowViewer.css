@@ -43,31 +43,132 @@ div .cpm-node-active:hover {
 }
 
 div .milestone-node {
-  border: 1px solid #bbb;
-  padding: 5px;
-  border-radius: 5px;
-  background: #f9f9f9;
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border: 2px solid #1890ff;
+  border-radius: 50%;
+  background: #f0f5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
 
 div .milestone-node:hover {
-  border: 1px solid #bbb;
-  box-shadow: 2px 4px 4px lightblue;
-  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.4);
+  transform: scale(1.08);
 }
 
 div .milestone-node-active {
-  border: 2px solid #1890ff;
-  padding: 5px;
-  border-radius: 5px;
-  background: #ffffff;
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border: 3px solid #1890ff;
+  border-radius: 50%;
+  background: #e6f4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  box-shadow: 0 0 12px rgba(24, 144, 255, 0.5);
 }
 
 div .milestone-node-active:hover {
-  border: 2px solid #1890ff;
+  box-shadow: 0 0 14px rgba(24, 144, 255, 0.6);
+  transform: scale(1.08);
+}
+
+.milestone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  overflow: hidden;
+  max-width: 70px;
+}
+
+.milestone-content .ant-typography {
+  line-height: 1.2;
+}
+
+div .cpm-node-hovered {
   box-shadow: 2px 4px 4px lightblue;
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+div .cpm-node-done {
+  opacity: 0.55;
+  background: #f0f7f0 !important;
+  border-color: #7cb87c !important;
+}
+
+div .cpm-node-done::after {
+  content: '\2713';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background: #5a9a5a;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 2;
+}
+
+/* Resource filter dimming */
+div .cpm-node-filtered-out {
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+div .cpm-node-filtered-out ~ .resource-pills {
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+div .milestone-node-filtered-out {
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.resource-filter-active .react-flow__node-group {
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.resource-pills {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.resource-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 7px;
+  font-size: 0.55em;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  cursor: default;
+  pointer-events: auto;
 }

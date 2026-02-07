@@ -1,5 +1,9 @@
 import React, { FC, useEffect, useState } from 'react'
-import { SaveOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import {
+  SaveOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons'
 import { Tooltip, Typography } from 'antd'
 
 export type StorageStatus = 'saved' | 'unsaved' | 'saving'

@@ -1,0 +1,25 @@
+{
+  "name": "@quickplan/cpm",
+  "description": "Critical Path Method solver for QuickPlan — PERT-weighted durations, forward/backward pass, and critical path identification.",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./out/index.d.ts",
+      "default": "./out/index.js"
+    }
+  },
+  "files": [
+    "out",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "~4.0.6"
+  }
+}

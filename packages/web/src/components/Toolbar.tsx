@@ -8,6 +8,7 @@ import {
   EditOutlined,
   PlusOutlined,
   QuestionCircleOutlined,
+  TeamOutlined,
 } from '@ant-design/icons'
 import { StorageIndicator, StorageStatus } from './StorageIndicator'
 import { CheatSheet } from './CheatSheet'
@@ -31,6 +32,8 @@ interface ToolbarProps {
   onReset: () => void
   onProjectSwitch: (projectId: number) => void
   onProjectRename: () => void
+  onToggleResourcePanel: () => void
+  resourcePanelOpen: boolean
 }
 
 export const Toolbar: FC<ToolbarProps> = ({
@@ -46,6 +49,8 @@ export const Toolbar: FC<ToolbarProps> = ({
   onReset,
   onProjectSwitch,
   onProjectRename,
+  onToggleResourcePanel,
+  resourcePanelOpen,
 }) => {
   const [cheatSheetVisible, setCheatSheetVisible] = useState(false)
 
@@ -70,17 +75,29 @@ export const Toolbar: FC<ToolbarProps> = ({
           style={{ minWidth: 200 }}
           placeholder="Select project..."
           suffixIcon={<FileOutlined />}
-          getPopupContainer={(trigger) => trigger.parentElement || document.body}
-          styles={{popup: { root: {
-            background: '#252526',
-            border: '1px solid #454545',
-          }}}}
+          getPopupContainer={(trigger) =>
+            trigger.parentElement || document.body
+          }
+          styles={{
+            popup: {
+              root: {
+                background: '#252526',
+                border: '1px solid #454545',
+              },
+            },
+          }}
         >
           {projects.map((project) => (
             <Select.Option key={project.id} value={project.id}>
               <span style={{ color: '#d4d4d4' }}>
                 {project.name}
-                <span style={{ color: '#858585', fontSize: '0.85em', marginLeft: 8 }}>
+                <span
+                  style={{
+                    color: '#858585',
+                    fontSize: '0.85em',
+                    marginLeft: 8,
+                  }}
+                >
                   {new Date(project.updatedAt).toLocaleString()}
                 </span>
               </span>
@@ -116,7 +133,7 @@ export const Toolbar: FC<ToolbarProps> = ({
             New
           </Button>
         </Tooltip>
-        
+
         <Tooltip title="Open Project (Ctrl/Cmd+O)">
           <Button
             icon={<FolderOpenOutlined />}
@@ -163,18 +180,35 @@ export const Toolbar: FC<ToolbarProps> = ({
           </Button>
         </Tooltip>
 
+        <Tooltip title="Toggle resource schedule panel">
+          <Button
+            icon={<TeamOutlined />}
+            onClick={onToggleResourcePanel}
+            size="small"
+            style={{
+              background: resourcePanelOpen ? '#0e639c' : '#2d2d2d',
+              border: resourcePanelOpen
+                ? '1px solid #007acc'
+                : '1px solid #454545',
+              color: '#d4d4d4',
+            }}
+          >
+            Resources
+          </Button>
+        </Tooltip>
+
         <Tooltip title="Syntax quick reference">
           <Button
-              icon={<QuestionCircleOutlined />}
-              onClick={() => setCheatSheetVisible(true)}
-              size="small"
-              style={{
-                  background: '#2d2d2d',
-                  border: '1px solid #454545',
-                  color: '#d4d4d4',
-              }}
+            icon={<QuestionCircleOutlined />}
+            onClick={() => setCheatSheetVisible(true)}
+            size="small"
+            style={{
+              background: '#2d2d2d',
+              border: '1px solid #454545',
+              color: '#d4d4d4',
+            }}
           >
-              Cheatsheet
+            Cheatsheet
           </Button>
         </Tooltip>
       </Space>
@@ -192,7 +226,10 @@ export const Toolbar: FC<ToolbarProps> = ({
         />
       </Space>
 
-      <CheatSheet visible={cheatSheetVisible} onClose={() => setCheatSheetVisible(false)} />
+      <CheatSheet
+        visible={cheatSheetVisible}
+        onClose={() => setCheatSheetVisible(false)}
+      />
     </div>
   )
 }

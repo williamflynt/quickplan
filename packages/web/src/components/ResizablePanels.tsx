@@ -66,7 +66,8 @@ export const ResizablePanels: FC<ResizablePanelsProps> = ({
       document.addEventListener('mouseup', handleMouseUp)
       // Prevent text selection while dragging
       document.body.style.userSelect = 'none'
-      document.body.style.cursor = direction === 'horizontal' ? 'ew-resize' : 'ns-resize'
+      document.body.style.cursor =
+        direction === 'horizontal' ? 'ew-resize' : 'ns-resize'
       // Prevent pointer events on iframe to ensure smooth dragging
       document.body.style.pointerEvents = 'none'
     } else {

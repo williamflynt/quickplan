@@ -33,6 +33,12 @@ export type SerializedCluster = {
   items: Array<{ type: string; name: string }>
 }
 
+export type CalendarConfigRaw = {
+  startDate: string
+  workdays?: string // e.g. "m,t,w,th,f"
+  holidays?: string // comma-separated ISO dates
+}
+
 export type Project = {
   tasks: Record<string, Task>
   milestones: Record<string, Milestone>
@@ -40,6 +46,7 @@ export type Project = {
   assignments: SerializedAssignmentIndex
   clusters: Record<string, SerializedCluster>
   dependencies: SerializedDependencyIndex
+  calendarConfig?: CalendarConfigRaw
 }
 
 export type ProjectParseResults = {
@@ -62,6 +69,10 @@ export type PreCpmNode = {
       durationLikely: number
       durationHigh: number
     }
+    assignments?: TaskAssignment[]
+    done?: boolean
+    doneDate?: string
+    startDate?: string
     successors: string[]
     sourcePosition: Position
     targetPosition: Position
@@ -79,6 +90,33 @@ export type GroupNode = {
     borderRadius: number
     padding: number
   }
+}
+
+export type ResourceInfo = {
+  name: string
+  role: string
+  maxHours: number
+  rate: number
+  color: string
+}
+
+export type TaskAssignment = {
+  resourceName: string
+  resourceColor: string
+}
+
+export type CpmTaskResult = {
+  earliestStart: number
+  earliestFinish: number
+  latestStart: number
+  latestFinish: number
+  duration: number
+  plannedDuration: number
+  slack: number
+  isCritical: boolean
+  done?: boolean
+  doneDate?: string
+  startDate?: string
 }
 
 export type Edge = {

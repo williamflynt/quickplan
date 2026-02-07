@@ -1,8 +1,15 @@
-import React, { FC, memo } from 'react'
+import React, { FC, memo, useMemo } from 'react'
 import { Handle, Position, XYPosition } from '@xyflow/react'
 import { Col, Row, Tooltip, Typography } from 'antd'
 import { useStore } from '../../store/store'
-import { SerializedAssignmentIndex, SerializedCluster } from '../../types/graph'
+import {
+  SerializedAssignmentIndex,
+  SerializedCluster,
+  TaskAssignment,
+} from '../../types/graph'
+import { ResourcePills } from './ResourcePills'
+import { offsetToDate } from '@quickplan/scheduler'
+import { formatDateFull } from '../../utils/dateFormat'
 
 export type CpmData = {
   duration: number
@@ -14,12 +21,16 @@ export type CpmData = {
   latestStart: number
   latestFinish: number
   slack: number
+  pathVariance: number
+  isCritical?: boolean
 }
 
 export type CpmNodeData = {
   label: string
   description?: string
   cpm: CpmData
+  assignments?: TaskAssignment[]
+  done?: boolean
 }
 
 export type CpmNodeShape = {
@@ -164,28 +175,140 @@ const CpmDataRow: FC<CpmDataRowProps> = ({ type, left, center, right }) => {
   )
 }
 
+type TaskSummaryCardProps = {
+  nodeId: string
+  label: string
+  description?: string
+  cpm: CpmData
+  assignments?: TaskAssignment[]
+}
+
 /**
- * NodeTextComponent is the center, bolded display label of the Node in React Flow.
+ * TaskSummaryCard displays a formatted tooltip with task information and dependencies.
  */
-const NodeTextComponent: FC<{ data: CpmNodeShape }> = ({ data }) => {
-  const labelComponent = (
-    <Typography.Text strong style={{ fontSize: '0.8em' }}>
-      {data.data.label || data.id}
-    </Typography.Text>
-  )
+const TaskSummaryCard: FC<TaskSummaryCardProps> = ({
+  nodeId,
+  label,
+  description,
+  cpm,
+  assignments,
+}) => {
+  const { edges, nodes, calendarConfig } = useStore()
+
+  const { incomingDeps, outgoingDeps } = useMemo(() => {
+    const incoming = edges
+      .filter((e) => e.target === nodeId)
+      .map((e) => nodes.find((n) => n.id === e.source)?.data?.label || e.source)
+      .filter(Boolean)
+    const outgoing = edges
+      .filter((e) => e.source === nodeId)
+      .map((e) => nodes.find((n) => n.id === e.target)?.data?.label || e.target)
+      .filter(Boolean)
+    return { incomingDeps: incoming, outgoingDeps: outgoing }
+  }, [nodeId, edges, nodes])
+
+  const isOnCriticalPath = cpm.isCritical === true
+  const durationRangeStr =
+    cpm.durationLow !== cpm.duration || cpm.durationHigh !== cpm.duration
+      ? `${cpm.durationLow}–${cpm.durationLikely}–${cpm.durationHigh}`
+      : `${cpm.duration}`
+
+  const rows: [string, string][] = [
+    [
+      'Duration',
+      durationRangeStr +
+        (cpm.pathVariance > 0 ? ` (var ${cpm.pathVariance.toFixed(2)})` : ''),
+    ],
+    ['Slack', String(cpm.slack)],
+  ]
+
+  // Show calendar dates when config is present
+  if (calendarConfig) {
+    const startDate = formatDateFull(
+      offsetToDate(cpm.earliestStart, calendarConfig),
+    )
+    const finishDate = formatDateFull(
+      offsetToDate(cpm.earliestFinish, calendarConfig),
+    )
+    rows.push(['Start', startDate], ['Finish', finishDate])
+  }
+
+  if (assignments && assignments.length > 0) {
+    rows.push(['Resources', assignments.map((a) => a.resourceName).join(', ')])
+  }
+  if (incomingDeps.length > 0) {
+    rows.push(['Depends on', incomingDeps.join(', ')])
+  }
+  if (outgoingDeps.length > 0) {
+    rows.push(['Unlocks', outgoingDeps.join(', ')])
+  }
+
   return (
-    <Tooltip
-      title={`${data.id}: ${data.data.description || 'No description.'}`}
-    >
-      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-        {labelComponent}
+    <div style={{ maxWidth: 320 }}>
+      <div
+        style={{
+          fontWeight: 600,
+          marginBottom: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        {label || nodeId}
+        {isOnCriticalPath && (
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              padding: '1px 5px',
+              borderRadius: 3,
+              background: 'rgba(255,80,60,0.85)',
+              color: '#fff',
+              lineHeight: '14px',
+            }}
+          >
+            critical
+          </span>
+        )}
       </div>
-    </Tooltip>
+      {description && (
+        <div style={{ opacity: 0.75, marginBottom: 4 }}>{description}</div>
+      )}
+      <table
+        style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          marginTop: 6,
+          borderTop: '1px solid rgba(255,255,255,0.15)',
+          paddingTop: 4,
+        }}
+      >
+        <tbody>
+          {rows.map(([key, value]) => (
+            <tr key={key}>
+              <td
+                style={{
+                  opacity: 0.6,
+                  paddingRight: 12,
+                  whiteSpace: 'nowrap',
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                  verticalAlign: 'top',
+                }}
+              >
+                {key}
+              </td>
+              <td style={{ paddingTop: 2, paddingBottom: 2 }}>{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
 const CpmTaskNode: FC<CpmNodeShape> = (props) => {
-  const { activeNodeId } = useStore()
+  const { activeNodeId, hoveredNodeId, activeResourceFilter } = useStore()
 
   const toggleNodeActive = () => {
     if (activeNodeId === props.id) {
@@ -206,11 +329,22 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
     props.data.cpm.earliestFinish,
   ]
 
-  const className = activeNodeId === props.id ? 'cpm-node-active' : 'cpm-node'
+  const isDone = props.data.done === true
+  const isFilteredOut =
+    activeResourceFilter != null &&
+    !props.data.assignments?.some(
+      (a) => a.resourceName === activeResourceFilter,
+    )
+  const isHovered = hoveredNodeId === props.id
+  const baseClass = activeNodeId === props.id ? 'cpm-node-active' : 'cpm-node'
+  const className =
+    (isDone ? `${baseClass} cpm-node-done` : baseClass) +
+    (isFilteredOut ? ' cpm-node-filtered-out' : '') +
+    (isHovered ? ' cpm-node-hovered' : '')
 
   // Add red glow for zero-duration tasks
   const nodeStyle =
-    props.data.cpm.duration === 0
+    props.data.cpm.duration === 0 && !isDone
       ? {
           boxShadow: '0 0 8px 2px rgba(255, 85, 85, 0.5)',
         }
@@ -226,32 +360,51 @@ const CpmTaskNode: FC<CpmNodeShape> = (props) => {
   )
 
   return (
-    <div>
-      {tinyIdTag}
-      <div className={className} onClick={toggleNodeActive} style={nodeStyle}>
-        <Handle type="target" position={Position.Left} isConnectable />
-        <CpmDataRow
-          type="earlyNums"
-          left={topRowComponents[0]}
-          center={topRowComponents[1]}
-          right={topRowComponents[2]}
+    <Tooltip
+      title={
+        <TaskSummaryCard
+          nodeId={props.id}
+          label={props.data.label}
+          description={props.data.description}
+          cpm={props.data.cpm}
+          assignments={props.data.assignments}
         />
+      }
+      placement="top"
+      mouseEnterDelay={0.4}
+    >
+      <div style={{ position: 'relative' }}>
+        {tinyIdTag}
+        <div className={className} onClick={toggleNodeActive} style={nodeStyle}>
+          <Handle type="target" position={Position.Left} isConnectable />
+          <CpmDataRow
+            type="earlyNums"
+            left={topRowComponents[0]}
+            center={topRowComponents[1]}
+            right={topRowComponents[2]}
+          />
 
-        <Row justify="space-around">
-          <Col>
-            <NodeTextComponent data={props} />
-          </Col>
-        </Row>
+          <Row justify="space-around">
+            <Col>
+              <Typography.Text strong style={{ fontSize: '0.8em' }}>
+                {props.data.label || props.id}
+              </Typography.Text>
+            </Col>
+          </Row>
 
-        <CpmDataRow
-          type="lateNums"
-          left={bottomRowComponents[0]}
-          center={bottomRowComponents[1]}
-          right={bottomRowComponents[2]}
-        />
-        <Handle type="source" position={Position.Right} isConnectable />
+          <CpmDataRow
+            type="lateNums"
+            left={bottomRowComponents[0]}
+            center={bottomRowComponents[1]}
+            right={bottomRowComponents[2]}
+          />
+          <Handle type="source" position={Position.Right} isConnectable />
+        </div>
+        {props.data.assignments && props.data.assignments.length > 0 && (
+          <ResourcePills assignments={props.data.assignments} />
+        )}
       </div>
-    </div>
+    </Tooltip>
   )
 }
 

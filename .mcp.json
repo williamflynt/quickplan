@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "qpd": {
+      "command": "node",
+      "args": [
+        "packages/devtools/bin/qpd-mcp.js"
+      ]
+    }
+  }
+}

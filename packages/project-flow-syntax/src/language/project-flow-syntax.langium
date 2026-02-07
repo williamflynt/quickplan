@@ -4,10 +4,13 @@ entry Project:
     lines+=Line*;
 
 Line:
-    EntityDefinition | Operation;
+    EntityDefinition | Operation | ProjectConfig;
 
 EntityDefinition:
     Task | Resource | Milestone | Cluster;
+
+ProjectConfig:
+    'project' Attributes;
 
 Task:
     name=ID

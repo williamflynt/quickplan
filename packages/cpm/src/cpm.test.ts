@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
-import { runCpm } from './cpm'
-import { CpmInput } from './types'
+import { runCpm } from './cpm.js'
+import { CpmInput } from './types.js'
 
 describe('CPM Critical Path Calculation', () => {
   test('should identify critical path edges correctly', async () => {

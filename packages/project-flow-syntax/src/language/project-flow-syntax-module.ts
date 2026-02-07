@@ -1,6 +1,7 @@
 import { type Module, inject } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
 import { ProjectFlowSyntaxGeneratedModule, ProjectFlowSyntaxGeneratedSharedModule } from './generated/module.js';
+import { ProjectFlowSyntaxSemanticTokenProvider } from './project-flow-syntax-semantic-tokens.js';
 import { ProjectFlowSyntaxValidator, registerValidationChecks } from './project-flow-syntax-validator.js';
 
 /**
@@ -24,6 +25,9 @@ export type ProjectFlowSyntaxServices = LangiumServices & ProjectFlowSyntaxAdded
  * selected services, while the custom services must be fully specified.
  */
 export const ProjectFlowSyntaxModule: Module<ProjectFlowSyntaxServices, PartialLangiumServices & ProjectFlowSyntaxAddedServices> = {
+    lsp: {
+        SemanticTokenProvider: (services) => new ProjectFlowSyntaxSemanticTokenProvider(services)
+    },
     validation: {
         ProjectFlowSyntaxValidator: () => new ProjectFlowSyntaxValidator()
     }

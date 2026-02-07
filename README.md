@@ -13,9 +13,48 @@ Faster PERT charts.
 
 ---
 
-## Quickstart
+## Quickstart and DevTools
 
-This gets you up and running as quickly as possible.
+This gets you up and running as quickly as possible, using the builtin `qpd` tool and MCP server.
+
+### qpd Priority
+
+This project has a custom CLI tool **`qpd`** exposed as both MCP tools and a Bash command.
+Always prefer MCP tools (`mcp__qpd__*`) first, `qpd` via Bash second.
+
+**Never use these raw commands directly:**
+`npm run build`, `npx tsc`, `npx vitest`, `npx eslint`, `npx prettier`
+
+### Dev Workflow Commands
+
+| Task | MCP tool | Bash fallback |
+|------|----------|---------------|
+| Build a package | `qpd_dev_build` | `qpd dev build <pkg>` |
+| Run tests | `qpd_dev_test` | `qpd dev test <pkg>` |
+| Lint (+ auto-fix) | `qpd_dev_lint` | `qpd dev lint <pkg>` |
+| Format | `qpd_dev_format` | `qpd dev format <pkg>` |
+| Start dev server + Chromium | `qpd_dev_start` | `qpd dev start` |
+| Stop dev server | `qpd_dev_stop` | `qpd dev stop` |
+| Dev server status | `qpd_dev_status` | `qpd dev status` |
+| Dev server logs | `qpd_dev_logs` | `qpd dev logs` |
+| Build devtools + npm-link + configure MCP | `qpd_dev_build-install` | `qpd dev build-install` |
+
+Use `--background` with `qpd_dev_start` when running non-interactively.
+
+### Browser Automation / UI Iteration
+
+Use the screenshot-driven feedback loop for UI work:
+
+1. **`qpd_dev_start`** — start Vite dev server + Chromium with CDP
+2. **`qpd_browser_screenshot`** — capture current state, then read the image to see it
+3. **`qpd_browser_navigate`** — go to a specific URL
+4. **`qpd_browser_eval`** — run JS in the page (inspect state, trigger actions)
+5. **`qpd_browser_click`** / **`qpd_browser_type`** / **`qpd_browser_wait`** — interact with UI elements
+6. **`qpd_browser_set-editor`** — set Monaco editor content for DSL testing
+7. **`qpd_browser_content`** — get rendered page text/HTML
+8. **`qpd_browser_logs`** — check console errors
+
+**Workflow:** make code change → build → screenshot → evaluate → iterate
 
 ### Prerequisites
 

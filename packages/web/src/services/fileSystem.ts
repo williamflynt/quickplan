@@ -4,10 +4,7 @@
 
 // Check if File System Access API is supported
 export const isFileSystemAccessSupported = (): boolean => {
-  return (
-    'showOpenFilePicker' in window &&
-    'showSaveFilePicker' in window
-  )
+  return 'showOpenFilePicker' in window && 'showSaveFilePicker' in window
 }
 
 /**

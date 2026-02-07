@@ -6,7 +6,10 @@ interface CheatSheetModalProps {
   onClose: () => void
 }
 
-export const CheatSheetModal: FC<CheatSheetModalProps> = ({ visible, onClose }) => {
+export const CheatSheetModal: FC<CheatSheetModalProps> = ({
+  visible,
+  onClose,
+}) => {
   return (
     <Modal
       title="Project Flow Syntax (PFS) Quick Reference"
@@ -14,17 +17,21 @@ export const CheatSheetModal: FC<CheatSheetModalProps> = ({ visible, onClose }) 
       onCancel={onClose}
       footer={null}
       width={800}
-      styles={{body: {
-        maxHeight: '70vh',
-        overflowY: 'auto',
-        background: '#1e1e1e',
-        color: '#d4d4d4',
-        fontFamily: 'monospace',
-      }}}
+      styles={{
+        body: {
+          maxHeight: '70vh',
+          overflowY: 'auto',
+          background: '#1e1e1e',
+          color: '#d4d4d4',
+          fontFamily: 'monospace',
+        },
+      }}
     >
       <div style={{ padding: '8px' }}>
         <section style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Sigils & Prefixes</h3>
+          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>
+            Sigils & Prefixes
+          </h3>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               <tr style={{ borderBottom: '1px solid #333' }}>
@@ -90,16 +97,20 @@ export const CheatSheetModal: FC<CheatSheetModalProps> = ({ visible, onClose }) 
         </section>
 
         <section style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Task Syntax</h3>
-          <pre style={{ 
-            background: '#252526', 
-            padding: '12px', 
-            borderRadius: '4px',
-            fontSize: '12px',
-            lineHeight: '1.6',
-            border: '1px solid #333',
-          }}>
-{`# Simple task
+          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>
+            Task Syntax
+          </h3>
+          <pre
+            style={{
+              background: '#252526',
+              padding: '12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: '1.6',
+              border: '1px solid #333',
+            }}
+          >
+            {`# Simple task
 TaskName
 
 # With attributes
@@ -114,16 +125,20 @@ TaskName 2 5 8 "Description"`}
         </section>
 
         <section style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Dependencies</h3>
-          <pre style={{ 
-            background: '#252526', 
-            padding: '12px', 
-            borderRadius: '4px',
-            fontSize: '12px',
-            lineHeight: '1.6',
-            border: '1px solid #333',
-          }}>
-{`# Sequential
+          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>
+            Dependencies
+          </h3>
+          <pre
+            style={{
+              background: '#252526',
+              padding: '12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: '1.6',
+              border: '1px solid #333',
+            }}
+          >
+            {`# Sequential
 A > B > C > D
 
 # Multiple predecessors
@@ -138,16 +153,20 @@ A, B > C, D                 # Creates all combinations`}
         </section>
 
         <section style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Resource Assignment</h3>
-          <pre style={{ 
-            background: '#252526', 
-            padding: '12px', 
-            borderRadius: '4px',
-            fontSize: '12px',
-            lineHeight: '1.6',
-            border: '1px solid #333',
-          }}>
-{`# Define resource
+          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>
+            Resource Assignment
+          </h3>
+          <pre
+            style={{
+              background: '#252526',
+              padding: '12px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              lineHeight: '1.6',
+              border: '1px solid #333',
+            }}
+          >
+            {`# Define resource
 $Alice(role: "Developer")
 
 # Assign to tasks (either direction)
@@ -160,16 +179,20 @@ $Alice ~> TaskA`}
         </section>
 
         <section style={{ marginBottom: '24px' }}>
-          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Complete Example</h3>
-          <pre style={{ 
-            background: '#252526', 
-            padding: '12px', 
-            borderRadius: '4px',
-            fontSize: '11px',
-            lineHeight: '1.6',
-            border: '1px solid #333',
-          }}>
-{`# Software Development Project
+          <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>
+            Complete Example
+          </h3>
+          <pre
+            style={{
+              background: '#252526',
+              padding: '12px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              lineHeight: '1.6',
+              border: '1px solid #333',
+            }}
+          >
+            {`# Software Development Project
 $Alice(role: "Developer")
 $Bob(role: "QA")
 
@@ -204,7 +227,9 @@ Deploy > %LaunchDay`}
         <section>
           <h3 style={{ color: '#4ec9b0', marginBottom: '12px' }}>Tips</h3>
           <ul style={{ lineHeight: '1.8', paddingLeft: '20px' }}>
-            <li>Names can contain letters, numbers, underscores, dots, and hyphens</li>
+            <li>
+              Names can contain letters, numbers, underscores, dots, and hyphens
+            </li>
             <li>Use PascalCase for tasks: DesignAPI, ImplementAuth</li>
             <li>Durations use three-point estimation (PERT)</li>
             <li>Comments start with # and run to end of line</li>

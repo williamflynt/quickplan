@@ -5,8 +5,11 @@
     <scripts>
       <script value="dev" />
     </scripts>
-    <node-interpreter value="project" />
+    <node-interpreter value="$APPLICATION_CONFIG_DIR$/node/versions/24.13.0/bin/node" />
     <envs />
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>

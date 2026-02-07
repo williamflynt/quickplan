@@ -8,6 +8,7 @@ import {
     isImplodeTask,
     isMilestone,
     isProject,
+    isProjectConfig,
     isRemoveEntity,
     isResource,
     isSplitTask,
@@ -22,6 +23,12 @@ import {AstNode} from "langium";
 /**
  * A snapshot of a Project, reflecting the existence and state of all entities after rolling up the PFS commands.
  */
+export type CalendarConfigRaw = {
+    startDate: string
+    workdays?: string      // e.g. "m,t,w,th,f"
+    holidays?: string      // comma-separated ISO dates
+}
+
 export type ProjectEntities = {
     tasks: Record<string, Task>,
     milestones: Record<string, Milestone>,
@@ -29,6 +36,7 @@ export type ProjectEntities = {
     assignments: AssignmentIndex,
     clusters: Record<string, Cluster>,
     dependencies: DependencyIndex,
+    calendarConfig?: CalendarConfigRaw,
 }
 
 /**
@@ -44,6 +52,17 @@ export const extractEntities = (node: AstNode, p?: ProjectEntities, clock: numbe
         for (const line of node.lines) {
             p = extractEntities(line, p, clock);
             clock++;
+        }
+        return p
+    }
+    if (isProjectConfig(node)) {
+        const attrs = mapAttrs(node.attributes);
+        if (typeof attrs.startDate === 'string') {
+            p.calendarConfig = {
+                startDate: attrs.startDate,
+                workdays: typeof attrs.workdays === 'string' ? attrs.workdays : undefined,
+                holidays: typeof attrs.holidays === 'string' ? attrs.holidays : undefined,
+            }
         }
         return p
     }
@@ -210,6 +229,7 @@ const newProjectEntities = (): ProjectEntities => {
         dependencies: new DependencyIndex(),
     };
 }
+
 
 interface BaseEntity {
     type: string,
@@ -416,7 +436,11 @@ const mapAttrs = (attrs: Attribute[]): Record<string, string | number> => {
             delete theMap[attr.name];
             continue;
         }
-        theMap[attr.name] = attr.value;
+        // STRING_VALUE terminal includes surrounding quotes — strip them
+        const v = attr.value;
+        theMap[attr.name] = typeof v === 'string' && v.length >= 2 && v.startsWith('"') && v.endsWith('"')
+            ? v.slice(1, -1)
+            : v;
     }
     return theMap
 }

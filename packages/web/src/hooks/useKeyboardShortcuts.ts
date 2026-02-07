@@ -19,7 +19,7 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {
         const ctrlOrCmdPressed = e.ctrlKey || e.metaKey
         const shiftPressed = e.shiftKey
         const altPressed = e.altKey
-        
+
         // Check if key matches
         const keyMatches = e.key.toLowerCase() === shortcut.key.toLowerCase()
 
@@ -27,7 +27,7 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {
         const requiredCtrl = shortcut.ctrlOrCmd || false
         const requiredShift = shortcut.shift || false
         const requiredAlt = shortcut.alt || false
-        
+
         if (
           keyMatches &&
           requiredCtrl === ctrlOrCmdPressed &&
