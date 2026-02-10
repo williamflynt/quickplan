@@ -16,7 +16,7 @@ Faster PERT charts.
 ## Quickstart and DevTools
 
 ```shell
-node package/devtools/bin/build-install.js
+node packages/devtools/bin/build-install.js
 qpd dev start
 ```
 
@@ -67,16 +67,17 @@ You need Node/NPM installed on your machine to run the application.
 
 ### Build and Run
 
+The bootstrap script handles everything — installs dependencies, builds all packages
+(cpm, scheduler, project-flow-syntax, devtools), links the `qpd` CLI, and writes the MCP config:
+
 ```shell
-npm install
-# Generate the language files.
-cd packages/project-flow-syntax
-npm run langium:generate
-npm run build
-npm run build:web
-cd ../..
-# Run the web app.
-npm run dev
+node packages/devtools/bin/build-install.js
+```
+
+Then start the dev server:
+
+```shell
+qpd dev start
 ```
 
 You should be able to visit `http://localhost:5173` in your browser.
