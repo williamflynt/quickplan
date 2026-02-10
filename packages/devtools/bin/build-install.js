@@ -36,7 +36,7 @@ const monorepoRoot = path.resolve(packageDir, '../..');
 const mcpConfig = {
   mcpServers: {
     qpd: {
-      command: process.execPath,
+      command: "node",
       args: ['packages/devtools/bin/qpd-mcp.js'],
     },
   },

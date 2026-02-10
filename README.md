@@ -15,6 +15,11 @@ Faster PERT charts.
 
 ## Quickstart and DevTools
 
+```shell
+node package/devtools/bin/build-install.js
+qpd dev start
+```
+
 This gets you up and running as quickly as possible, using the builtin `qpd` tool and MCP server.
 
 ### qpd Priority
@@ -27,16 +32,16 @@ Always prefer MCP tools (`mcp__qpd__*`) first, `qpd` via Bash second.
 
 ### Dev Workflow Commands
 
-| Task | MCP tool | Bash fallback |
-|------|----------|---------------|
-| Build a package | `qpd_dev_build` | `qpd dev build <pkg>` |
-| Run tests | `qpd_dev_test` | `qpd dev test <pkg>` |
-| Lint (+ auto-fix) | `qpd_dev_lint` | `qpd dev lint <pkg>` |
-| Format | `qpd_dev_format` | `qpd dev format <pkg>` |
-| Start dev server + Chromium | `qpd_dev_start` | `qpd dev start` |
-| Stop dev server | `qpd_dev_stop` | `qpd dev stop` |
-| Dev server status | `qpd_dev_status` | `qpd dev status` |
-| Dev server logs | `qpd_dev_logs` | `qpd dev logs` |
+| Task                                      | MCP tool                | Bash fallback           |
+|-------------------------------------------|-------------------------|-------------------------|
+| Build a package                           | `qpd_dev_build`         | `qpd dev build <pkg>`   |
+| Run tests                                 | `qpd_dev_test`          | `qpd dev test <pkg>`    |
+| Lint (+ auto-fix)                         | `qpd_dev_lint`          | `qpd dev lint <pkg>`    |
+| Format                                    | `qpd_dev_format`        | `qpd dev format <pkg>`  |
+| Start dev server + Chromium               | `qpd_dev_start`         | `qpd dev start`         |
+| Stop dev server                           | `qpd_dev_stop`          | `qpd dev stop`          |
+| Dev server status                         | `qpd_dev_status`        | `qpd dev status`        |
+| Dev server logs                           | `qpd_dev_logs`          | `qpd dev logs`          |
 | Build devtools + npm-link + configure MCP | `qpd_dev_build-install` | `qpd dev build-install` |
 
 Use `--background` with `qpd_dev_start` when running non-interactively.
