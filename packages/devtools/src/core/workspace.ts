@@ -58,9 +58,7 @@ export function resolveWorkspace(
   )
   if (!match) {
     const available = all.map((ws) => ws.shortName).join(', ')
-    throw new Error(
-      `Unknown workspace "${nameOrAll}". Available: ${available}`,
-    )
+    throw new Error(`Unknown workspace "${nameOrAll}". Available: ${available}`)
   }
   return [match]
 }

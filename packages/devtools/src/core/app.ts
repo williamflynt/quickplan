@@ -1,7 +1,7 @@
-import { EventEmitter } from 'node:events';
-import os from 'node:os';
-import path from 'node:path';
-import { CommandRegistry } from './registry.js';
+import { EventEmitter } from 'node:events'
+import os from 'node:os'
+import path from 'node:path'
+import { CommandRegistry } from './registry.js'
 import type {
   CommandGroup,
   CommandRegistryInterface,
@@ -10,17 +10,17 @@ import type {
   DevToolsEventMap,
   GlobalOptions,
   LogLevel,
-} from './types.js';
+} from './types.js'
 
 export class DevToolsApp implements DevToolsAppInterface {
-  private emitter = new EventEmitter();
-  private registry = new CommandRegistry();
-  readonly rootDir: string;
-  readonly dataDir: string;
+  private emitter = new EventEmitter()
+  private registry = new CommandRegistry()
+  readonly rootDir: string
+  readonly dataDir: string
 
   constructor(rootDir: string, dataDir?: string) {
-    this.rootDir = rootDir;
-    this.dataDir = dataDir ?? path.join(os.homedir(), '.qpd');
+    this.rootDir = rootDir
+    this.dataDir = dataDir ?? path.join(os.homedir(), '.qpd')
   }
 
   // ── Event methods ──────────────────────────────────────────────
@@ -29,27 +29,27 @@ export class DevToolsApp implements DevToolsAppInterface {
     type: K,
     event: DevToolsEventMap[K],
   ): void {
-    this.emitter.emit(type, event);
+    this.emitter.emit(type, event)
   }
 
   on<K extends keyof DevToolsEventMap>(
     type: K,
     listener: (event: DevToolsEventMap[K]) => void,
   ): void {
-    this.emitter.on(type, listener);
+    this.emitter.on(type, listener)
   }
 
   off<K extends keyof DevToolsEventMap>(
     type: K,
     listener: (event: DevToolsEventMap[K]) => void,
   ): void {
-    this.emitter.off(type, listener);
+    this.emitter.off(type, listener)
   }
 
   // ── Convenience helpers ────────────────────────────────────────
 
   log(level: LogLevel, message: string, data?: unknown): void {
-    this.emit('log', { timestamp: Date.now(), level, message, data });
+    this.emit('log', { timestamp: Date.now(), level, message, data })
   }
 
   progress(
@@ -66,17 +66,17 @@ export class DevToolsApp implements DevToolsAppInterface {
       message,
       current,
       total,
-    });
+    })
   }
 
   // ── Registry ───────────────────────────────────────────────────
 
   register(group: CommandGroup): void {
-    this.registry.register(group);
+    this.registry.register(group)
   }
 
   getRegistry(): CommandRegistryInterface {
-    return this.registry;
+    return this.registry
   }
 
   // ── Execute ────────────────────────────────────────────────────
@@ -88,12 +88,12 @@ export class DevToolsApp implements DevToolsAppInterface {
     options: GlobalOptions,
     stdin?: string,
   ): Promise<CommandResult> {
-    const command = this.registry.getCommand(groupName, commandName);
+    const command = this.registry.getCommand(groupName, commandName)
     if (!command) {
       return {
         ok: false,
         error: `Unknown command: ${groupName} ${commandName}`,
-      };
+      }
     }
 
     const ctx = {
@@ -102,61 +102,61 @@ export class DevToolsApp implements DevToolsAppInterface {
       dataDir: this.dataDir,
       options,
       stdin,
-    };
+    }
 
     // Dry-run: call plan() if available
     if (options.dryRun && command.plan) {
       try {
-        const plan = await command.plan(ctx, args);
+        const plan = await command.plan(ctx, args)
         this.emit('command:plan', {
           timestamp: Date.now(),
           group: groupName,
           command: commandName,
           plan,
-        });
-        return { ok: true, data: plan };
+        })
+        return { ok: true, data: plan }
       } catch (err) {
         const error =
-          err instanceof Error ? err.message : 'Plan generation failed';
+          err instanceof Error ? err.message : 'Plan generation failed'
         this.emit('command:error', {
           timestamp: Date.now(),
           group: groupName,
           command: commandName,
           error,
-        });
-        return { ok: false, error };
+        })
+        return { ok: false, error }
       }
     }
 
     // Normal execution
-    const startTime = Date.now();
+    const startTime = Date.now()
     this.emit('command:start', {
       timestamp: startTime,
       group: groupName,
       command: commandName,
       args,
       dryRun: false,
-    });
+    })
 
     try {
-      const result = await command.execute(ctx, args);
+      const result = await command.execute(ctx, args)
       this.emit('command:end', {
         timestamp: Date.now(),
         group: groupName,
         command: commandName,
         result,
         durationMs: Date.now() - startTime,
-      });
-      return result;
+      })
+      return result
     } catch (err) {
-      const error = err instanceof Error ? err.message : 'Command failed';
+      const error = err instanceof Error ? err.message : 'Command failed'
       this.emit('command:error', {
         timestamp: Date.now(),
         group: groupName,
         command: commandName,
         error,
-      });
-      return { ok: false, error };
+      })
+      return { ok: false, error }
     }
   }
 }

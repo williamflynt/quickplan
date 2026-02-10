@@ -50,7 +50,13 @@ interface EslintJsonEntry {
 function parseEslintJson(
   json: string,
   rootDir: string,
-): { files: number; errors: number; warnings: number; fixable: number; issues: LintIssue[] } {
+): {
+  files: number
+  errors: number
+  warnings: number
+  fixable: number
+  issues: LintIssue[]
+} {
   let entries: EslintJsonEntry[]
   try {
     entries = JSON.parse(json)
@@ -149,7 +155,10 @@ export async function executeLint(
   try {
     workspaces = resolveWorkspace(ctx.rootDir, args.package)
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) }
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    }
   }
 
   const results: LintResult[] = []

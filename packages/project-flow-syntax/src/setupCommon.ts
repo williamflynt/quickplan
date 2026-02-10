@@ -1,8 +1,8 @@
-import getEditorServiceOverride from '@codingame/monaco-vscode-editor-service-override';
-import getKeybindingsServiceOverride from '@codingame/monaco-vscode-keybindings-service-override';
-import { LanguageClientConfig } from 'monaco-editor-wrapper';
-import { useOpenEditorStub } from 'monaco-editor-wrapper/vscode/services';
-import { useWorkerFactory } from 'monaco-editor-wrapper/workerFactory';
+import getEditorServiceOverride from '@codingame/monaco-vscode-editor-service-override'
+import getKeybindingsServiceOverride from '@codingame/monaco-vscode-keybindings-service-override'
+import { LanguageClientConfig } from 'monaco-editor-wrapper'
+import { useOpenEditorStub } from 'monaco-editor-wrapper/vscode/services'
+import { useWorkerFactory } from 'monaco-editor-wrapper/workerFactory'
 
 export const SAMPLE_CODE = `# Calendar configuration
 project(startDate: "2026-03-02", workdays: "m,t,w,th,f", holidays: "2026-03-17")
@@ -44,36 +44,46 @@ Deploy(after: "2026-04-15")
 `
 
 export const defineUserServices = () => {
-    return {
-        userServices: {
-            ...getEditorServiceOverride(useOpenEditorStub),
-            ...getKeybindingsServiceOverride()
-        },
-        debugLogging: true
-    }
-};
+  return {
+    userServices: {
+      ...getEditorServiceOverride(useOpenEditorStub),
+      ...getKeybindingsServiceOverride(),
+    },
+    debugLogging: true,
+  }
+}
 
 export const configureMonacoWorkers = () => {
-    // override the worker factory with your own direct definition
-    useWorkerFactory({
-        ignoreMapping: true,
-        workerLoaders: {
-            editorWorkerService: () => new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker.js', import.meta.url), { type: 'module' })
-        }
-    });
-};
+  // override the worker factory with your own direct definition
+  useWorkerFactory({
+    ignoreMapping: true,
+    workerLoaders: {
+      editorWorkerService: () =>
+        new Worker(
+          new URL(
+            'monaco-editor/esm/vs/editor/editor.worker.js',
+            import.meta.url,
+          ),
+          { type: 'module' },
+        ),
+    },
+  })
+}
 
 export const configureWorker = (): LanguageClientConfig => {
-    // vite does not extract the worker properly if it is URL is a variable
-    const lsWorker = new Worker(new URL('./language/main-browser', import.meta.url), {
-        type: 'module',
-        name: 'ProjectFlowSyntax Language Server'
-    });
+  // vite does not extract the worker properly if it is URL is a variable
+  const lsWorker = new Worker(
+    new URL('./language/main-browser', import.meta.url),
+    {
+      type: 'module',
+      name: 'ProjectFlowSyntax Language Server',
+    },
+  )
 
-    return {
-        options: {
-            $type: 'WorkerDirect',
-            worker: lsWorker
-        }
-    }
-};
+  return {
+    options: {
+      $type: 'WorkerDirect',
+      worker: lsWorker,
+    },
+  }
+}

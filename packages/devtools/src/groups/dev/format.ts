@@ -52,7 +52,10 @@ async function formatWorkspace(
 
       // prettier --check exits 1 if files need formatting, that's not a crash
       if (code !== 0 && code !== 1) {
-        resolve({ ok: false, error: `prettier failed (exit ${code}): ${stderr}` })
+        resolve({
+          ok: false,
+          error: `prettier failed (exit ${code}): ${stderr}`,
+        })
         return
       }
 
@@ -81,7 +84,10 @@ export async function executeFormat(
   try {
     workspaces = resolveWorkspace(ctx.rootDir, args.package)
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) }
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : String(err),
+    }
   }
 
   const results: FormatResult[] = []
