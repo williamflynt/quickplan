@@ -141,6 +141,51 @@ describe('extractEntities', async () => {
         }
     })
 
+    test('MyTask 3 5 8 "desc" ! 3 → 3 tasks with durations and description', async () => {
+        const ast = await parse('MyTask 3 5 8 "desc" ! 3');
+        const project = extractEntities(ast.parseResult.value);
+        expect(Object.keys(project.tasks).length).toBe(3);
+        expect(project.tasks['MyTask']).toBeUndefined();
+        for (const task of Object.values(project.tasks)) {
+            expect(task.name.startsWith('MyTask-')).toBe(true);
+            expect(task.attributes.durationLow).toBe(3);
+            expect(task.attributes.durationLikely).toBe(5);
+            expect(task.attributes.durationHigh).toBe(8);
+            expect(task.attributes.description).toBe('"desc"');
+        }
+    })
+
+    test('A > B\\nB 2 3 4 ! 3 → all 3 copies inherit A→B dependency', async () => {
+        const ast = await parse('A > B\nB 2 3 4 ! 3');
+        const project = extractEntities(ast.parseResult.value);
+        expect(Object.keys(project.tasks).length).toBe(4); // A + 3 copies of B
+        expect(project.tasks['B']).toBeUndefined();
+        const a = project.tasks['A'];
+        expect(project.dependencies.from(a).size).toBe(3);
+        for (const task of Object.values(project.tasks)) {
+            if (task.name === 'A') continue;
+            expect(task.name.startsWith('B-')).toBe(true);
+            expect(task.attributes.durationLow).toBe(2);
+            expect(task.attributes.durationLikely).toBe(3);
+            expect(task.attributes.durationHigh).toBe(4);
+            expect(project.dependencies.has(a, task)).toBe(true);
+        }
+    })
+
+    test('B 2 3 4 ! 3 > C → all 3 copies have outgoing dep to C', async () => {
+        const ast = await parse('B 2 3 4 > C\nB ! 3');
+        const project = extractEntities(ast.parseResult.value);
+        expect(Object.keys(project.tasks).length).toBe(4); // C + 3 copies of B
+        expect(project.tasks['B']).toBeUndefined();
+        const c = project.tasks['C'];
+        expect(project.dependencies.to(c).size).toBe(3);
+        for (const task of Object.values(project.tasks)) {
+            if (task.name === 'C') continue;
+            expect(task.name.startsWith('B-')).toBe(true);
+            expect(project.dependencies.has(task, c)).toBe(true);
+        }
+    })
+
     test('A, B, C / X', async () => {
         const ast = await parse('A, B, C / X');
         const project = extractEntities(ast.parseResult.value);

@@ -177,37 +177,33 @@ export const extractEntities = (
   if (isExplodeTask(node)) {
     const oldTask = getOrCreate(node.task, p)
     if (node.count) {
+      const incomingDeps = [...p.dependencies.to(oldTask)]
+      const outgoingDeps = [...p.dependencies.from(oldTask)]
       for (let i = 0; i < node.count; i++) {
         clock++
         const newName = node.task.name + `-${clock}`
-        p.tasks[newName] = {
-          name: newName,
-          type: node.task.$type,
-          attributes: mapAttrs(node.task.attributes),
-        }
-        for (const dep of p.dependencies.to(oldTask)) {
+        p.tasks[newName] = taskFromAst(node.task, newName)
+        for (const dep of incomingDeps) {
           p.dependencies.add(dep, p.tasks[newName])
-          p.dependencies.remove(dep, oldTask)
           clock++
         }
-        for (const dep of p.dependencies.from(oldTask)) {
+        for (const dep of outgoingDeps) {
           p.dependencies.add(p.tasks[newName], dep)
-          p.dependencies.remove(oldTask, dep)
           clock++
         }
       }
     } else {
+      const incomingDeps = [...p.dependencies.to(oldTask)]
+      const outgoingDeps = [...p.dependencies.from(oldTask)]
       for (const t of node.tasks) {
         const newTask = getOrCreate(t, p)
         clock++
-        for (const dep of p.dependencies.to(oldTask)) {
+        for (const dep of incomingDeps) {
           p.dependencies.add(dep, newTask)
-          p.dependencies.remove(dep, oldTask)
           clock++
         }
-        for (const dep of p.dependencies.from(oldTask)) {
+        for (const dep of outgoingDeps) {
           p.dependencies.add(newTask, dep)
-          p.dependencies.remove(oldTask, dep)
           clock++
         }
       }
@@ -492,6 +488,18 @@ const mergeAttrs = (base: BaseEntity, attrs: Attribute[]): BaseEntity => {
     base.attributes[attr.name] = attr.value
   }
   return base
+}
+
+const taskFromAst = (node: AstTask, nameOverride?: string): Task => {
+  const attrs = mapAttrs(node.attributes)
+  if (typeof node.durationLow === 'number') attrs.durationLow = node.durationLow
+  if (typeof node.durationLikely === 'number')
+    attrs.durationLikely = node.durationLikely
+  if (typeof node.durationHigh === 'number')
+    attrs.durationHigh = node.durationHigh
+  if (typeof node.description === 'string')
+    attrs.description = node.description
+  return { name: nameOverride ?? node.name, type: 'Task', attributes: attrs }
 }
 
 const removeEntity = (
